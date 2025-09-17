@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Mohamed Tammam Portfolio</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<link href="/Mohamed-/style.css" rel="stylesheet"/>
+</head>
+<body>
+<header>
+<div class="brand">
+  <img alt="avatar" id="avatarImg" src="/Mohamed-/avatar.jpg"/>
+  <div>
+    <h1 id="name">Mohamed Tammam</h1>
+    <p id="role"></p><span class="cursor">|</span>
+  </div>
+</div>
+<i class="fas fa-bars menu-toggle" id="menuToggle"></i>
+<nav>
+  <a class="nav-link" href="#portfolio">Portfolio</a>
+  <a class="nav-link" href="#about">About me</a>
+  <a class="nav-link" href="#contact">links</a>
+  <button class="admin-btn" id="loginBtn">دخول المدير</button>
+  <button class="admin-btn" id="logoutBtn" style="display:none;">خروج</button>
+</nav>
+</header>
+<main>
+<div class="side-menu" id="sideMenu">
+  <button class="menu-close" id="menuClose">
+    <i class="fas fa-times"></i>
+  </button>
+  <a class="nav-link" href="#portfolio" onclick="closeMenu()">Portfolio</a>
+  <a class="nav-link" href="#about" onclick="closeMenu()">About me</a>
+  <a class="nav-link" href="#contact" onclick="closeMenu()">links</a>
+  <button class="admin-btn" id="mobileLoginBtn" style="margin-top: 20px;">دخول المدير</button>
+  <button class="admin-btn" id="mobileLogoutBtn" style="display:none; margin-top: 20px;">خروج</button>
+</div>
+<div class="menu-overlay" id="menuOverlay"></div>
+<section class="active" id="portfolio">
+  <h2>Portfolio</h2>
+  <div hidden="" id="adminControls" style="text-align:center; margin:20px;">
+    <button id="addImageBtn" style="padding:10px 20px; border:none; border-radius:8px; background:var(--accent); color:#fff; cursor:pointer; font-size:14px;">
+      + أضف صورة
+    </button>
+    <input accept="image/*" id="imageInput" style="display:none" type="file"/>
+  </div>
+  <div class="gallery" id="gallery"></div>
+</section>
+<section id="about">
+  <h2>About me</h2>
+  <p>Hi, I'm Mohamed Tammam.<br/>
+    As a concept artist, I strive to give shape to invisible emotions—turning the abstract into visual, tangible worlds.</p>
+  <p style="margin-top:15px;">Specializing in characters, moods, and narrative-driven visuals.</p>
+</section>
+<section id="contact">
+  <h2>links</h2>
+  <div class="social-icons">
+    <a href="https://pin.it/eox62FEqu" target="_blank"><i class="fab fa-pinterest"></i></a>
+    <a href="https://www.facebook.com/Mo.Tammam?mibextid=ZbWKwL" target="_blank"><i class="fab fa-facebook"></i></a>
+    <a href="https://www.instagram.com/t2mm2m" target="_blank"><i class="fab fa-instagram"></i></a>
+  </div>
+</section>
+</main>
+<div id="loader">
+  <div class="spinner"></div>
+  <button class="cancel-btn" id="cancelUpload">إلغاء التحميل</button>
+</div>
+<div class="lightbox" id="lightbox">
+    <button class="nav-arrow prev-arrow" id="prevArrow">‹</button>
+    <img id="lbImage" src=""/>
+    <button class="nav-arrow next-arrow" id="nextArrow">›</button>
+</div>
+<footer>© 2025 Mohamed Tammam. جميع الحقوق محفوظة.</footer>
+<script src="/Mohamed-/script.js"></script>
+</body>
+</html>
