@@ -231,93 +231,6 @@
     }
     @keyframes blink {50%{opacity:0;}}
 
-    /* Comment Section Styles */
-    .comments-section {
-        padding: 10px 12px 10px;
-        border-top: 1px solid #252525;
-    }
-    .comments-list {
-        margin-bottom: 10px;
-        max-height: 150px;
-        overflow-y: auto;
-    }
-    .comment {
-        background: #202020;
-        padding: 8px 10px;
-        border-radius: 8px;
-        margin-bottom: 6px;
-        color: var(--muted);
-        font-size: 13px;
-        display: flex; /* إضافة Flexbox لترتيب العناصر */
-        justify-content: space-between; /* لتحريك أيقونة الحذف إلى اليمين */
-        align-items: center; /* لمحاذاة العناصر عموديًا */
-    }
-    .comment-delete-btn {
-        background: none;
-        border: none;
-        color: #ff5c5c;
-        font-size: 16px;
-        cursor: pointer;
-        margin-left: 8px; /* مسافة بين التعليق والزر */
-        display: none; /* إخفاء افتراضياً */
-    }
-    .comment-delete-btn:hover {
-        color: #e60023;
-    }
-    .comment-form {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        width: 100%;
-    }
-    .comment-input {
-        flex: 1;
-        padding: 8px;
-        border: 1px solid #333;
-        border-radius: 6px;
-        background: var(--card);
-        color: var(--text);
-        font-size: 14px;
-        min-width: 0;
-    }
-    .comment-input:focus {
-        outline: none;
-        border-color: var(--accent);
-    }
-    .comment-btn {
-        padding: 8px 12px;
-        background: #4a90e2; /* لون جديد */
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        display: flex; /* لمركزة الأيقونة */
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* إضافة تظليل */
-    }
-    .comment-btn:hover {
-        background: #3a7acb;
-        transform: translateY(-2px); /* تأثير تحريك خفيف */
-        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-    }
-
-    /* Animation Keyframes */
-    @keyframes jump {
-      0% { transform: translateY(0); }
-      25% { transform: translateY(-5px) rotate(-5deg); }
-      50% { transform: translateY(0) rotate(5deg); }
-      75% { transform: translateY(-2px) rotate(-2deg); }
-      100% { transform: translateY(0); }
-    }
-
-    /* Animation Class */
-    .jump-animation {
-        animation: jump 0.6s ease-in-out;
-    }
-
     /* Add image button style */
     .add-image-btn {
         padding: 10px 20px;
@@ -329,13 +242,12 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
         margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 4px 4px 8px rgba(0,0,0,0.2);
     }
 
     .add-image-btn:hover {
         background-color: #ff4b8e;
     }
-    
 </style>
 </head>
 <body>
@@ -352,7 +264,6 @@
   <a href="#portfolio" class="nav-link">Portfolio</a>
   <a href="#about" class="nav-link">About me</a>
   <a href="#contact" class="nav-link">links</a>
-  <button id="auth-btn" class="admin-btn">تسجيل الدخول</button>
 </nav>
 </header>
 
@@ -400,27 +311,6 @@
 <footer>© 2025 Mohamed Tammam. جميع الحقوق محفوظة.</footer>
 
 <script type="module">
-  // Firebase SDK
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyA37sOoFrWxT9Hd23T1Mr5tiHNSemRqt7U",
-    authDomain: "mohamed-tammam.firebaseapp.com",
-    projectId: "mohamed-tammam",
-    storageBucket: "mohamed-tammam.firebasestorage.app",
-    messagingSenderId: "1037362087593",
-    appId: "1:1037362087593:web:c13205840e589416220bb8",
-    measurementId: "G-Q5KJBQDX7N"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  const analytics = getAnalytics(app);
-
 // === بداية قسم JavaScript ===
 
 // قائمة الموبايل
@@ -541,7 +431,16 @@ typeWriter();
 
 // معرض الصور
 const gallery = document.getElementById('gallery');
-let allImages = [];
+let allImages = [
+    // === هنا يجب أن تضع روابط صورك من Cloudinary ===
+    // يمكنك إضافة المزيد من الروابط هنا بنفس التنسيق
+    { src: "https://res.cloudinary.com/dswtpqdsdsh/image/upload/v1677321528/portfolio-preset/1_m9v0v0.jpg" },
+    { src: "https://res.cloudinary.com/dswtpqdsdsh/image/upload/v1677321528/portfolio-preset/2_m9v0v0.jpg" },
+    { src: "https://res.cloudinary.com/dswtpqdsdsh/image/upload/v1677321528/portfolio-preset/3_m9v0v0.jpg" },
+    { src: "https://res.cloudinary.com/dswtpqdsdsh/image/upload/v1677321528/portfolio-preset/4_m9v0v0.jpg" },
+    { src: "https://res.cloudinary.com/dswtpqdsdsh/image/upload/v1677321528/portfolio-preset/5_m9v0v0.jpg" },
+    { src: "https://res.cloudinary.com/dswtpqdsdsh/image/upload/v1677321528/portfolio-preset/6_m9v0v0.jpg" },
+];
 
 function escapeHtml(unsafe) {
   return unsafe
@@ -552,18 +451,7 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
-// تعديل دالة loadImages لاستخدام Firebase
-async function loadImages() {
-  allImages = [];
-  try {
-    const querySnapshot = await getDocs(collection(db, "portfolioImages"));
-    querySnapshot.forEach((doc) => {
-      allImages.push({ id: doc.id, ...doc.data() });
-    });
-  } catch (e) {
-    console.error("Error fetching documents: ", e);
-  }
-
+function loadImages() {
   gallery.innerHTML = '';
   allImages.forEach((imgObj, index) => addImageCard(imgObj, index));
 
@@ -577,213 +465,39 @@ async function loadImages() {
   });
 }
 
-// تعديل دالة addImageCard لاستخدام Firebase
 function addImageCard(imgObj, index) {
   const card = document.createElement('div');
   card.className = 'card';
   card.dataset.index = index;
 
-  let commentsHtml = `
-    <div class="comments-section">
-      <h4 style="margin: 0 0 10px; font-size: 16px;">التعليقات</h4>
-      <div class="comments-list">
-        ${(imgObj.comments || []).map((comment, i) => `
-          <div class="comment" data-comment-index="${i}">
-            <span>${escapeHtml(comment.text)}</span>
-            <button class="comment-delete-btn" data-index="${i}" data-uid="${comment.uid}"><i class="fas fa-trash-alt"></i></button>
-          </div>
-        `).join('')}
-      </div>
-      <form class="comment-form">
-          <input class="comment-input" type="text" placeholder="أضف تعليقًا..." required>
-          <button class="comment-btn" type="submit"><i class="fas fa-paper-plane"></i></button>
-      </form>
-    </div>
-  `;
-
   card.innerHTML = `
     <div class="thumb"><img src="${imgObj.src}" alt=""></div>
     <div style="display: flex; align-items: center; justify-content: flex-end; padding: 0 12px 8px;">
-        <span class="like-count" style="color: var(--muted); font-size: 14px; margin-right: 8px;">${imgObj.likes || 0}</span>
-        <button class="like-btn" style="background: none; border: none; color: ${imgObj.liked ? 'var(--accent)' : 'var(--muted)'}; cursor: pointer; font-size: 20px;">
-            <i class="${imgObj.liked ? 'fas' : 'far'} fa-heart"></i>
-        </button>
         <a href="${imgObj.src}" download="${escapeHtml(imgObj.src).split('/').pop().split('.')[0]}.jpg" class="download-btn" style="color: var(--muted); font-size: 20px; text-decoration: none; margin-left: 8px;">
             <i class="fas fa-download"></i>
         </a>
     </div>
-    ${commentsHtml}
-    <button class="delete-btn" data-doc-id="${imgObj.id}" data-public-id="${imgObj.publicId}">
-        <i class="fas fa-trash-alt"></i>
-    </button>
   `;
   gallery.appendChild(card);
-  
-  const likeBtn = card.querySelector('.like-btn');
-  const likeCount = card.querySelector('.like-count');
-  const commentForm = card.querySelector('.comment-form');
-  const commentInput = card.querySelector('.comment-input');
-  const commentsList = card.querySelector('.comments-list');
-  const commentBtn = card.querySelector('.comment-btn');
-  const deleteBtn = card.querySelector('.delete-btn');
-
-  likeBtn.addEventListener('click', async () => {
-    const docRef = doc(db, "portfolioImages", imgObj.id);
-    const newLiked = !imgObj.liked; // تم إصلاح هذا السطر
-    const newLikes = newLiked ? imgObj.likes + 1 : imgObj.likes - 1;
-
-    try {
-        await updateDoc(docRef, { likes: newLikes, liked: newLiked });
-        imgObj.likes = newLikes;
-        imgObj.liked = newLiked;
-        likeCount.textContent = newLikes;
-        likeBtn.innerHTML = `<i class="${newLiked ? 'fas' : 'far'} fa-heart"></i>`;
-        likeBtn.style.color = newLiked ? 'var(--accent)' : 'var(--muted)';
-    } catch (e) {
-        console.error("Error updating likes: ", e);
-    }
-  });
-
-  if (commentForm) {
-    commentForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const commentText = commentInput.value.trim();
-      const user = auth.currentUser;
-      if (commentText && user) {
-        const docRef = doc(db, "portfolioImages", imgObj.id);
-        const newComments = [...(imgObj.comments || []), { text: commentText, uid: user.uid }];
-
-        try {
-            await updateDoc(docRef, { comments: newComments });
-            imgObj.comments = newComments;
-            const newCommentDiv = document.createElement('div');
-            newCommentDiv.className = 'comment';
-            newCommentDiv.innerHTML = `<span>${escapeHtml(commentText)}</span>
-            <button class="comment-delete-btn" data-index="${newComments.length - 1}" data-uid="${user.uid}"><i class="fas fa-trash-alt"></i></button>`;
-            commentsList.appendChild(newCommentDiv);
-            commentInput.value = '';
-            commentBtn.classList.add('jump-animation');
-            setTimeout(() => {
-                commentBtn.classList.remove('jump-animation');
-            }, 600);
-        } catch (e) {
-            console.error("Error adding comment: ", e);
-        }
-      } else if (!user) {
-        alert("يجب عليك تسجيل الدخول لإضافة تعليق.");
-      }
-    });
-  }
-
-  // إضافة مستمع لحذف التعليقات
-  if (commentsList) {
-    commentsList.addEventListener('click', async (e) => {
-        const user = auth.currentUser;
-        if (e.target.closest('.comment-delete-btn') && user) {
-            const btn = e.target.closest('.comment-delete-btn');
-            const commentIndex = parseInt(btn.dataset.index);
-            const commentUid = btn.dataset.uid;
-
-            if (user.uid === commentUid) {
-                if (imgObj.comments.length > commentIndex) {
-                    const docRef = doc(db, "portfolioImages", imgObj.id);
-                    const newComments = imgObj.comments.filter((_, i) => i !== commentIndex);
-                    try {
-                        await updateDoc(docRef, { comments: newComments });
-                        imgObj.comments = newComments;
-                        btn.closest('.comment').remove();
-                    } catch (e) {
-                        console.error("Error deleting comment: ", e);
-                        alert('حدث خطأ أثناء حذف التعليق.');
-                    }
-                }
-            } else {
-                alert("لا يمكنك حذف تعليق لم تقم بإضافته.");
-            }
-        }
-    });
-  }
-  
-  // إضافة مستمع لزر الحذف
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', async () => {
-        const docId = deleteBtn.dataset.docId;
-        const publicId = deleteBtn.dataset.publicId;
-        if (confirm("هل أنت متأكد من أنك تريد حذف هذه الصورة؟")) {
-            await deleteImage(docId, publicId);
-        }
-    });
-  }
-}
-
-// دالة حذف الصورة من Cloudinary و Firestore
-async function deleteImage(docId, publicId) {
-    const loader = document.getElementById('loader');
-    loader.style.display = 'flex';
-    try {
-        // الخطوة 1: استدعاء وظيفة الخادم لحذف الصورة من Cloudinary
-        const response = await fetch('https://Portfolio-ruby-nine-oj2ueimzen.vercel.app/api/delete-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ publicId: publicId })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to delete image from Cloudinary.');
-        }
-
-        // الخطوة 2: حذف المستند من Firestore
-        await deleteDoc(doc(db, "portfolioImages", docId));
-        
-        alert('تم حذف الصورة بنجاح!');
-        loadImages();
-    } catch (error) {
-        console.error("Error removing image: ", error);
-        alert('حدث خطأ أثناء حذف الصورة.');
-    } finally {
-        loader.style.display = 'none';
-    }
 }
 
 // إضافة زر تحميل صورة
 const addImageBtn = document.getElementById('addImageBtn');
 addImageBtn.addEventListener('click', () => {
-    if (auth.currentUser) {
-        // تهيئة نافذة رفع Cloudinary
-        var myWidget = cloudinary.createUploadWidget({
-            cloudName: 'dswtpqdsdsh',
-            uploadPreset: 'portfolio-preset'
-        }, async (error, result) => {
-            if (!error && result && result.event === "success") {
-                const info = result.info;
-                console.log('تم! هنا معلومات الصورة: ', info);
-                
-                try {
-                    // إضافة رابط الصورة وبياناتها إلى Firestore
-                    await addDoc(collection(db, "portfolioImages"), {
-                        src: info.secure_url,
-                        publicId: info.public_id,
-                        likes: 0,
-                        liked: false,
-                        comments: [],
-                        ownerUid: auth.currentUser.uid
-                    });
-                    
-                    // إعادة تحميل الصور بعد إضافة الصورة الجديدة
-                    loadImages();
-                    alert('تمت إضافة الصورة بنجاح!');
-                } catch (e) {
-                    console.error("Error adding image: ", e);
-                    alert('حدث خطأ أثناء إضافة الصورة.');
-                }
-            }
-        });
+    // تهيئة نافذة رفع Cloudinary
+    var myWidget = cloudinary.createUploadWidget({
+        cloudName: 'dswtpqdsdsh',
+        uploadPreset: 'portfolio-preset'
+    }, (error, result) => {
+        if (!error && result && result.event === "success") {
+            const info = result.info;
+            console.log('تم! هنا معلومات الصورة: ', info.secure_url);
+            alert('تم تحميل الصورة بنجاح. يرجى أخذ الرابط من Console وإضافته إلى قائمة الصور في الكود يدوياً.');
+        }
+    });
 
-        // فتح نافذة الرفع
-        myWidget.open();
-    } else {
-        alert('يرجى تسجيل الدخول للقيام بذلك.');
-    }
+    // فتح نافذة الرفع
+    myWidget.open();
 });
 
 
@@ -826,50 +540,6 @@ nextArrow.addEventListener('click', (e) => {
     lbImage.src = galleryImages[currentImageIndex].src;
 });
 
-// إدارة حالة تسجيل الدخول/الخروج وزر الحذف
-const authBtn = document.getElementById('auth-btn');
-const addImageBtnContainer = document.getElementById('addImageBtn');
-
-onAuthStateChanged(auth, (user) => {
-  const deleteButtons = document.querySelectorAll('.delete-btn');
-  const commentDeleteButtons = document.querySelectorAll('.comment-delete-btn');
-  if (user) {
-    authBtn.textContent = 'تسجيل الخروج';
-    addImageBtnContainer.style.display = 'block';
-    // إظهار أزرار الحذف للمستخدم المسجل دخوله
-    deleteButtons.forEach(btn => {
-      const card = btn.closest('.card');
-      const imgObj = allImages.find(img => img.id === btn.dataset.docId);
-      if (imgObj && imgObj.ownerUid === user.uid) {
-        btn.style.display = 'flex';
-      } else {
-        btn.style.display = 'none';
-      }
-    });
-    commentDeleteButtons.forEach(btn => {
-      if (btn.dataset.uid === user.uid) {
-        btn.style.display = 'inline-block';
-      } else {
-        btn.style.display = 'none';
-      }
-    });
-  } else {
-    authBtn.textContent = 'تسجيل الدخول';
-    addImageBtnContainer.style.display = 'none';
-    // إخفاء أزرار الحذف
-    deleteButtons.forEach(btn => btn.style.display = 'none');
-    commentDeleteButtons.forEach(btn => btn.style.display = 'none');
-  }
-});
-
-authBtn.addEventListener('click', () => {
-    if (authBtn.textContent === 'تسجيل الخروج') {
-        signOut(auth);
-    } else {
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider);
-    }
-});
 </script>
 </body>
 </html>
