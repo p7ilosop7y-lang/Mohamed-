@@ -301,7 +301,7 @@
     .comment-btn:hover {
         background: #3a7acb;
         transform: translateY(-2px); /* تأثير تحريك خفيف */
-        box-shadow: 6px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
     }
 
     /* Animation Keyframes */
@@ -821,6 +821,10 @@ nextArrow.addEventListener('click', (e) => {
 // إدارة حالة تسجيل الدخول/الخروج وزر الحذف
 const authBtn = document.getElementById('auth-btn');
 const addImageBtnContainer = document.getElementById('addImageBtn');
+
+// هذا الجزء هو المسؤول عن إخفاء/إظهار الزر
+// سنقوم بتغييره ليصبح الزر مرئيًا دائمًا
+addImageBtnContainer.style.display = 'block';
 
 onAuthStateChanged(auth, (user) => {
   const deleteButtons = document.querySelectorAll('.delete-btn');
