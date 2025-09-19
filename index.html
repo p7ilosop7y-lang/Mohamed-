@@ -348,11 +348,11 @@
   </div>
 </div>
 <i class="fas fa-bars menu-toggle" id="menuToggle"></i>
-<button id="auth-btn" class="admin-btn">تسجيل الدخول</button>
 <nav>
   <a href="#portfolio" class="nav-link">Portfolio</a>
   <a href="#about" class="nav-link">About me</a>
   <a href="#contact" class="nav-link">links</a>
+  <button id="auth-btn" class="admin-btn" style="display:none;">تسجيل الدخول</button>
 </nav>
 </header>
 
@@ -362,6 +362,7 @@
   </button>
   <a href="#portfolio" class="nav-link" onclick="closeMenu()" style="direction: ltr;">Portfolio</a>
   <a href="#about" class="nav-link" onclick="closeMenu()">About me</a>
+  <button id="auth-btn-side" class="admin-btn">تسجيل الدخول</button>
 </div>
 <div class="menu-overlay" id="menuOverlay"></div>
 
@@ -425,6 +426,8 @@ const menuToggle = document.getElementById('menuToggle');
 const sideMenu = document.getElementById('sideMenu');
 const menuOverlay = document.getElementById('menuOverlay');
 const menuClose = document.getElementById('menuClose');
+const authBtn = document.getElementById('auth-btn');
+const authBtnSide = document.getElementById('auth-btn-side');
 
 function openMenu() {
   sideMenu.classList.add('open');
@@ -738,7 +741,7 @@ addImageBtn.addEventListener('click', () => {
     if (auth.currentUser) {
         // تهيئة نافذة رفع Cloudinary
         var myWidget = cloudinary.createUploadWidget({
-            cloudName: 'Dswtpqdsh',
+            cloudName: 'dswtpqdsdsh',
             uploadPreset: 'portfolio-preset'
         }, async (error, result) => {
             if (!error && result && result.event === "success") {
@@ -819,7 +822,6 @@ nextArrow.addEventListener('click', (e) => {
 });
 
 // إدارة حالة تسجيل الدخول/الخروج وزر الحذف
-const authBtn = document.getElementById('auth-btn');
 const addImageBtnContainer = document.getElementById('addImageBtn');
 
 onAuthStateChanged(auth, (user) => {
@@ -827,12 +829,14 @@ onAuthStateChanged(auth, (user) => {
   const commentDeleteButtons = document.querySelectorAll('.comment-delete-btn');
   if (user) {
     authBtn.textContent = 'تسجيل الخروج';
+    authBtnSide.textContent = 'تسجيل الخروج';
     addImageBtnContainer.style.display = 'block';
     // إظهار أزرار الحذف للمستخدم المسجل دخوله
     deleteButtons.forEach(btn => btn.style.display = 'flex');
     commentDeleteButtons.forEach(btn => btn.style.display = 'inline-block');
   } else {
     authBtn.textContent = 'تسجيل الدخول';
+    authBtnSide.textContent = 'تسجيل الدخول';
     addImageBtnContainer.style.display = 'none';
     // إخفاء أزرار الحذف
     deleteButtons.forEach(btn => btn.style.display = 'none');
@@ -840,6 +844,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+// مستمع لزر تسجيل الدخول الرئيسي
 authBtn.addEventListener('click', () => {
     if (authBtn.textContent === 'تسجيل الخروج') {
         signOut(auth);
@@ -847,6 +852,17 @@ authBtn.addEventListener('click', () => {
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider);
     }
+});
+
+// مستمع لزر تسجيل الدخول في القائمة الجانبية
+authBtnSide.addEventListener('click', () => {
+    if (authBtnSide.textContent === 'تسجيل الخروج') {
+        signOut(auth);
+    } else {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider);
+    }
+    closeMenu(); // أغلق القائمة بعد النقر على الزر
 });
 </script>
 </body>
