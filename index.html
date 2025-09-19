@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Mohamed Tammam Portfolio</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+<style>
+    :root{
+      /* لوحة الألوان الأصلية: أزرق داكن ووردي ساطع */
+      --bg:#0a0f1a;
+      --card:#131c2b;
+      --muted: #b0bac8;
+      --accent:#ff6b9d; /* لون وردي ساطع */
+      --text: #f3f5f7;
+    }
+    body{font-family:'Poppins', sans-serif;background:var(--bg);color:var(--text);margin:0;display:flex;flex-direction:column;min-height:100vh}
+    header{padding:16px 24px;display:flex;justify-content:space-between;align-items:center;background:#111c2d;position:sticky;top:0;z-index:10}
+    .brand{display:flex;align-items:center;gap:12px;cursor:pointer}
+    .brand img{width:55px;height:55px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);transition:transform 0.3s ease;}
+    .brand img:hover{transform:scale(1.05);}
+    .brand h1{font-family: 'Poppins', sans-serif;font-weight: 600;font-size:18px;margin:0;cursor:pointer;display:flex;gap:2px;overflow:hidden;direction:ltr;}
+    .brand h1 span{display:inline-block;transition:transform 0.6s ease, opacity 0.6s ease, letter-spacing 0.3s ease, color 0.3s ease;}
+    .brand h1.spacing span{transform:translateX(5px);letter-spacing:6px;}
+    .brand h1.animate span{opacity:0;transform:translateY(-50px) rotate(20deg);}
+    @keyframes bounceBack {
+      0%{ transform:translateY(0); color:var(--text); }
+      25%{ transform:translateY(-14px); color:var(--accent);}
+      50%{ transform:translateY(7px); color:var(--accent);}
+      75%{ transform:translateY(-4px); color:var(--accent);}
+      100%{ transform:translateY(0); color:var(--text);}
+    }
+    .brand h1 span.bounce{animation:bounceBack 0.8s ease;}
+    .brand p{margin:0;font-size:13px;color:var(--muted);display:inline}
+    nav{display:flex;gap:16px;align-items:center}
+    nav a{color:var(--text);text-decoration:none;font-size:14px;cursor:pointer}
+    nav a:hover{color:var(--accent)}
+    .menu-toggle{display:none;font-size:22px;color:var(--text);cursor:pointer}
+    .admin-btn{padding:6px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;}
+    .admin-btn:hover{background:#ff4b8e}
+
+    /* القائمة الجانبية المحدثة */
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100%;
+      background: #111c2d;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transform: translateX(-100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 80px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .side-menu.open {
+      transform: translateX(0);
+    }
+
+    .side-menu a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 18px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background: rgba(255, 107, 157, 0.1); /* لون متناسق مع الألوان الجديدة */
+      text-align: center;
+    }
+
+    .side-menu a:hover {
+      background: var(--accent);
+      transform: translateX(-5px);
+    }
+
+    .menu-close {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      color: var(--text);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-close:hover {
+      transform: rotate(90deg);
+      color: var(--accent);
+    }
+
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .menu-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    @media(max-width:768px){
+      nav{display:none}
+      .menu-toggle{display:block}
+    }
+
+    section{padding:40px;text-align:center; display: none;}
+    section.active{display: block;}
+    section h2{margin-bottom:15px;color:var(--accent)}
+    section p{color:var(--muted)}
+    .social-icons{display:flex;justify-content:center;gap:15px;margin-top:15px}
+    .social-icons a{color:var(--text);font-size:20px;transition:0.3s}
+    .social-icons a:hover{color:var(--accent)}
+    /* معرض الصور */
+    .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;padding:20px}
+    .card{background:var(--card);border-radius:14px;overflow:hidden;position:relative;padding-bottom:10px; transition: transform 0.3s ease, box-shadow 0.3s ease;}
+    .card:hover{transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.2);}
+    .card.dragging{opacity:0.5;border:2px dashed var(--accent)}
+    .thumb{width:100%;height:0;padding-bottom:70%;position:relative;overflow:hidden}
+    .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:pointer}
+    .meta{padding:12px}
+    .meta h3, .meta p{margin:0;color:var(--text)}
+    .meta h3[contenteditable], .meta p[contenteditable]{outline:none;cursor:text}
+    .meta h3[contenteditable]:focus, .meta p[contenteditable]:focus{border-bottom:1px dashed var(--accent)}
+    /* زر الحذف */
+    .delete-btn{
+      position:absolute;bottom:8px;right:8px;
+      background:#e60023;border:none;border-radius:50%;
+      color:#fff;width:30px;height:30px;cursor:pointer;
+      display:none; /* إخفاء افتراضياً */
+      align-items:center;justify-content:center;
+    }
+    .delete-btn:hover{background:#ff3b3b}
+
+    /* مؤشر التحميل */
+    #loader{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center}
+    .spinner{border:6px solid #f3f3f3;border-top:6px solid var(--accent);border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+
+    /* زر الإلغاء */
+    .cancel-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #ff3b3b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .cancel-btn:hover {
+      background: #e60023;
+    }
+
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:100}
+    .lightbox.open{display:flex}
+
+    #lbImage {
+        max-width: 2048px; /* الحد الأقصى للعرض */
+        max-height: 2048px; /* الحد الأقصى للارتفاع */
+        width: 90vw; /* لتكون متجاوبة على الشاشات الأصغر */
+        height: auto;
+        object-fit: contain; /* للحفاظ على نسبة العرض إلى الارتفاع */
+    }
+
+    .lightbox.avatar-open #lbImage {
+      width: 220px; /* 3x الحجم الأصلي (55px * 3) */
+      height: 220px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+      cursor: pointer;
+    }
+
+    /* New CSS for navigation arrows */
+    .nav-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 101;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+        user-select: none;
+    }
+
+    .nav-arrow:hover {
+        opacity: 1;
+    }
+    .prev-arrow {
+        left: 20px;
+    }
+
+    .next-arrow {
+        right: 20px;
+    }
+
+    /* Hide arrows when the lightbox is showing the avatar */
+    .lightbox.avatar-open .nav-arrow {
+        display: none;
+    }
+
+    footer{margin-top:auto;padding:20px;text-align:center;font-size:13px;color:var(--muted);background:#111c2d}
+    /* Cursor for typewriter */
+    .cursor {
+      display:inline-block;margin-left:2px;
+      color:var(--accent);font-weight:bold;
+      animation:blink 0.7s steps(1) infinite;
+    }
+    @keyframes blink {50%{opacity:0;}}
+
+    /* Comment Section Styles */
+    .comments-section {
+        padding: 10px 12px 10px;
+        border-top: 1px solid #252525;
+    }
+    .comments-list {
+        margin-bottom: 10px;
+        max-height: 150px;
+        overflow-y: auto;
+    }
+    .comment {
+        background: #202020;
+        padding: 8px 10px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 13px;
+        display: flex; /* إضافة Flexbox لترتيب العناصر */
+        justify-content: space-between; /* لتحريك أيقونة الحذف إلى اليمين */
+        align-items: center; /* لمحاذاة العناصر عموديًا */
+    }
+    .comment-delete-btn {
+        background: none;
+        border: none;
+        color: #ff5c5c;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 8px; /* مسافة بين التعليق والزر */
+    }
+    .comment-delete-btn:hover {
+        color: #e60023;
+    }
+    .comment-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        width: 100%;
+    }
+    .comment-input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #333;
+        border-radius: 6px;
+        background: var(--card);
+        color: var(--text);
+        font-size: 14px;
+        min-width: 0;
+    }
+    .comment-input:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+    .comment-btn {
+        padding: 8px 12px;
+        background: #4a90e2; /* لون جديد */
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        display: flex; /* لمركزة الأيقونة */
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* إضافة تظليل */
+    }
+    .comment-btn:hover {
+        background: #3a7acb;
+        transform: translateY(-2px); /* تأثير تحريك خفيف */
+        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Animation Keyframes */
+    @keyframes jump {
+      0% { transform: translateY(0); }
+      25% { transform: translateY(-5px) rotate(-5deg); }
+      50% { transform: translateY(0) rotate(5deg); }
+      75% { transform: translateY(-2px) rotate(-2deg); }
+      100% { transform: translateY(0); }
+    }
+
+    /* Animation Class */
+    .jump-animation {
+        animation: jump 0.6s ease-in-out;
+    }
+
+    /* Add image button style */
+    .add-image-btn {
+        padding: 10px 20px;
+        background-color: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .add-image-btn:hover {
+        background-color: #ff4b8e;
+    }
+    
+</style>
+</head>
+<body>
+<header>
+<div class="brand">
+  <img alt="avatar" id="avatarImg" src="avatar.jpg"/>
+  <div>
+    <h1 id="name">Mohamed Tammam</h1>
+    <p id="role"></p><span class="cursor">|</span>
+  </div>
+</div>
+<i class="fas fa-bars menu-toggle" id="menuToggle"></i>
+<nav>
+  <a href="#portfolio" class="nav-link">Portfolio</a>
+  <a href="#about" class="nav-link">About me</a>
+  <a href="#contact" class="nav-link">links</a>
+  <button id="auth-btn" class="admin-btn">تسجيل الدخول</button>
+</nav>
+</header>
+
+<div class="side-menu" id="sideMenu">
+  <button class="menu-close" id="menuClose">
+    <i class="fas fa-times"></i>
+  </button>
+  <a href="#portfolio" class="nav-link" onclick="closeMenu()" style="direction: ltr;">Portfolio</a>
+  <a href="#about" class="nav-link" onclick="closeMenu()">About me</a>
+</div>
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<section id="portfolio" class="active">
+  <div class="social-icons">
+    <a href="https://pin.it/eox62FEqu" target="_blank"><i class="fab fa-pinterest"></i></a>
+    <a href="https://www.facebook.com/Mo.Tammam?mibextid=ZbWKwL" target="_blank"><i class="fab fa-facebook"></i></a>
+    <a href="https://www.instagram.com/t2mm2m" target="_blank"><i class="fab fa-instagram"></i></a>
+  </div>
+  <h2>Portfolio</h2>
+  <button class="add-image-btn" id="addImageBtn">إضافة صورة جديدة</button>
+  <div class="gallery" id="gallery"></div>
+</section>
+<section id="about">
+  <h2>About me</h2>
+  <p>Hi, I'm Mohamed Tammam.<br/>
+    As a concept artist, I strive to give shape to invisible emotions—turning the abstract into visual, tangible worlds.</p>
+  <p style="margin-top:15px;">Specializing in characters, moods, and narrative-driven visuals.</p>
+</section>
+<section id="contact">
+  <h2>links</h2>
+
+</section>
+
+<div id="loader" style="display: none;">
+  <div class="spinner"></div>
+  <button class="cancel-btn" id="cancelUpload">إلغاء التحميل</button>
+</div>
+
+<div class="lightbox" id="lightbox">
+    <button class="nav-arrow prev-arrow" id="prevArrow">›</button>
+    <img id="lbImage" src=""/>
+    <button class="nav-arrow next-arrow" id="nextArrow">‹</button>
+</div>
+
+<footer>© 2025 Mohamed Tammam. جميع الحقوق محفوظة.</footer>
+
+<script type="module">
+  // Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSzGp95DBwWeyGs7GkgLXB4kwab4Vq3W0",
+    authDomain: "mohamed-64a93.firebaseapp.com",
+    projectId: "mohamed-64a93",
+    messagingSenderId: "739180931913",
+    appId: "1:739180931913:web:2fc0bd9c37fafde783c898",
+    measurementId: "G-HLQ8H5WM4H"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+// === بداية قسم JavaScript ===
+
+// قائمة الموبايل
+const menuToggle = document.getElementById('menuToggle');
+const sideMenu = document.getElementById('sideMenu');
+const menuOverlay = document.getElementById('menuOverlay');
+const menuClose = document.getElementById('menuClose');
+
+function openMenu() {
+  sideMenu.classList.add('open');
+  menuOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMenu() {
+  sideMenu.classList.remove('open');
+  menuOverlay.classList.remove('open');
+  document.body.style.overflow = 'auto';
+}
+
+menuToggle.onclick = openMenu;
+menuClose.onclick = closeMenu;
+menuOverlay.onclick = closeMenu;
+
+// إضافة خاصية السحب لفتح وإغلاق القائمة الجانبية
+let startX = 0;
+document.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+});
+document.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    const distance = endX - startX;
+
+    // لفتح القائمة: إذا كان السحب من اليسار لليمين بمسافة كافية
+    if (distance > 50) {
+        openMenu();
+    }
+    // لإغلاق القائمة: إذا كان السحب من اليمين لليسار بمسافة كافية
+    else if (distance < -50 && sideMenu.classList.contains('open')) {
+        closeMenu();
+    }
+});
+
+
+// إظهار وإخفاء الأقسام مع دعم الهاش في الـ URL
+const sections = document.querySelectorAll('section');
+const navLinks = document.querySelectorAll('.nav-link');
+
+function showSection(sectionId) {
+  sections.forEach(section => {
+    section.classList.remove('active');
+  });
+  const el = document.getElementById(sectionId);
+  if (el) el.classList.add('active');
+}
+
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const sectionId = link.getAttribute('href').substring(1);
+    // تحديث الهَش في الـ URL ليصبح قابل للمشاركة
+    history.replaceState(null, '', '#' + sectionId);
+    showSection(sectionId);
+    // اغلاق القائمة الجانبية لو مفتوحة
+    closeMenu();
+  });
+});
+
+// انيميشن الاسم
+const nameEl = document.getElementById('name');
+const letters = nameEl.textContent.split('');
+nameEl.innerHTML = letters.map((ch, i) => `<span style="transition-delay:${i * 0.05}s">${ch}</span>`).join('');
+const spans = nameEl.querySelectorAll('span');
+nameEl.onclick = () => {
+  nameEl.classList.add('spacing');
+  setTimeout(() => {
+    nameEl.classList.remove('spacing');
+    name.classList.add('animate');
+    setTimeout(() => {
+      name.classList.remove('animate');
+      spans.forEach((span, i) => {
+        setTimeout(() => {
+          span.classList.add('bounce');
+          setTimeout(() => span.classList.remove('bounce'), 800);
+        }, i * 70);
+      });
+    }, 800);
+  }, 300);
+};
+
+// انيميشن الوظيفة مع عدة ألقاب
+const roleEl = document.getElementById("role");
+const roles = ["Concept Artist", "Digital Artist", "Illustrator"];
+let roleIndex = 0, charIndex = 0, deleting = false;
+
+function typeWriter() {
+  const currentRole = roles[roleIndex];
+  if (!deleting && charIndex < currentRole.length) {
+    roleEl.textContent += currentRole.charAt(charIndex);
+    charIndex++;
+    setTimeout(typeWriter, 150);
+  } else if (deleting && charIndex > 0) {
+    roleEl.textContent = currentRole.substring(0, charIndex - 1);
+    charIndex--;
+    setTimeout(typeWriter, 100);
+  } else {
+    if (!deleting) {
+      deleting = true;
+      setTimeout(typeWriter, 1000);
+    } else {
+      deleting = false;
+      roleIndex = (roleIndex + 1) % roles.length;
+      setTimeout(typeWriter, 300);
+    }
+  }
+}
+typeWriter();
+
+// معرض الصور
+const gallery = document.getElementById('gallery');
+
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// تعديل دالة loadImages لاستخدام Firebase
+async function loadImages() {
+  const stored = [];
+  try {
+    const querySnapshot = await getDocs(collection(db, "portfolioImages"));
+    querySnapshot.forEach((doc) => {
+      stored.push({ id: doc.id, ...doc.data() });
+    });
+  } catch (e) {
+    console.error("Error fetching documents: ", e);
+  }
+
+  gallery.innerHTML = '';
+  stored.forEach((imgObj, index) => addImageCard(imgObj, index));
+
+  gallery.querySelectorAll('.thumb img').forEach((img, index) => {
+    img.addEventListener('click', () => {
+      currentImageIndex = index;
+      document.getElementById('lbImage').src = img.src;
+      document.getElementById('lightbox').classList.add('open');
+      document.getElementById('lightbox').classList.remove('avatar-open');
+    });
+  });
+}
+
+// تعديل دالة addImageCard لاستخدام Firebase
+function addImageCard(imgObj, index) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.index = index;
+
+  let commentsHtml = `
+    <div class="comments-section">
+      <h4 style="margin: 0 0 10px; font-size: 16px;">التعليقات</h4>
+      <div class="comments-list">
+        ${(imgObj.comments || []).map((comment, i) => `
+          <div class="comment" data-comment-index="${i}">
+            <span>${escapeHtml(comment)}</span>
+          </div>
+        `).join('')}
+      </div>
+      <form class="comment-form">
+          <input class="comment-input" type="text" placeholder="أضف تعليقًا..." required>
+          <button class="comment-btn" type="submit"><i class="fas fa-paper-plane"></i></button>
+      </form>
+    </div>
+  `;
+
+  card.innerHTML = `
+    <div class="thumb"><img src="${imgObj.src}" alt=""></div>
+    <div style="display: flex; align-items: center; justify-content: flex-end; padding: 0 12px 8px;">
+        <span class="like-count" style="color: var(--muted); font-size: 14px; margin-right: 8px;">${imgObj.likes || 0}</span>
+        <button class="like-btn" style="background: none; border: none; color: ${imgObj.liked ? 'var(--accent)' : 'var(--muted)'}; cursor: pointer; font-size: 20px;">
+            <i class="${imgObj.liked ? 'fas' : 'far'} fa-heart"></i>
+        </button>
+        <a href="${imgObj.src}" download="${escapeHtml(imgObj.src).split('/').pop().split('.')[0]}.jpg" class="download-btn" style="color: var(--muted); font-size: 20px; text-decoration: none; margin-left: 8px;">
+            <i class="fas fa-download"></i>
+        </a>
+    </div>
+    ${commentsHtml}
+    <button class="delete-btn" data-doc-id="${imgObj.id}" data-public-id="${imgObj.publicId}">
+        <i class="fas fa-trash-alt"></i>
+    </button>
+  `;
+  gallery.appendChild(card);
+  
+  const likeBtn = card.querySelector('.like-btn');
+  const likeCount = card.querySelector('.like-count');
+  const commentForm = card.querySelector('.comment-form');
+  const commentInput = card.querySelector('.comment-input');
+  const commentsList = card.querySelector('.comments-list');
+  const commentBtn = card.querySelector('.comment-btn');
+  const deleteBtn = card.querySelector('.delete-btn');
+
+  likeBtn.addEventListener('click', async () => {
+    const docRef = doc(db, "portfolioImages", imgObj.id);
+    const newLikes = imgObj.liked ? imgObj.likes - 1 : imgObj.likes + 1;
+    const newLiked = imgObj.liked;
+
+    try {
+        await updateDoc(docRef, { likes: newLikes, liked: newLiked });
+        imgObj.likes = newLikes;
+        imgObj.liked = newLiked;
+        likeCount.textContent = newLikes;
+        likeBtn.innerHTML = `<i class="${newLiked ? 'fas' : 'far'} fa-heart"></i>`;
+        likeBtn.style.color = newLiked ? 'var(--accent)' : 'var(--muted)';
+    } catch (e) {
+        console.error("Error updating likes: ", e);
+    }
+  });
+
+  if (commentForm) {
+    commentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const commentText = commentInput.value.trim();
+      if (commentText) {
+        const docRef = doc(db, "portfolioImages", imgObj.id);
+        const newComments = [...(imgObj.comments || []), commentText];
+
+        try {
+            await updateDoc(docRef, { comments: newComments });
+            imgObj.comments = newComments;
+            const newCommentDiv = document.createElement('div');
+            newCommentDiv.className = 'comment';
+            newCommentDiv.innerHTML = `<span>${escapeHtml(commentText)}</span>`;
+            commentsList.appendChild(newCommentDiv);
+            commentInput.value = '';
+            commentBtn.classList.add('jump-animation');
+            setTimeout(() => {
+                commentBtn.classList.remove('jump-animation');
+            }, 600);
+        } catch (e) {
+            console.error("Error adding comment: ", e);
+        }
+      }
+    });
+  }
+  
+  // إضافة مستمع لزر الحذف
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+        const docId = deleteBtn.dataset.docId;
+        const publicId = deleteBtn.dataset.publicId;
+        if (confirm("هل أنت متأكد من أنك تريد حذف هذه الصورة؟")) {
+            await deleteImage(docId, publicId);
+        }
+    });
+  }
+}
+
+// دالة حذف الصورة من Cloudinary و Firestore
+async function deleteImage(docId, publicId) {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'flex';
+    try {
+        // الخطوة 1: استدعاء وظيفة الخادم لحذف الصورة من Cloudinary
+        const response = await fetch('رابط_وظيفة_الحذف_الخاص_بك', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ publicId: publicId })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to delete image from Cloudinary.');
+        }
+
+        // الخطوة 2: حذف المستند من Firestore
+        await deleteDoc(doc(db, "portfolioImages", docId));
+        
+        alert('تم حذف الصورة بنجاح!');
+        loadImages();
+    } catch (error) {
+        console.error("Error removing image: ", error);
+        alert('حدث خطأ أثناء حذف الصورة.');
+    } finally {
+        loader.style.display = 'none';
+    }
+}
+
+// إضافة زر تحميل صورة
+const addImageBtn = document.getElementById('addImageBtn');
+addImageBtn.addEventListener('click', () => {
+    if (auth.currentUser) {
+        // تهيئة نافذة رفع Cloudinary
+        var myWidget = cloudinary.createUploadWidget({
+            cloudName: 'اسم_السحابة_الخاص_بك',
+            uploadPreset: 'اعداد_الرفع_الخاص_بك'
+        }, async (error, result) => {
+            if (!error && result && result.event === "success") {
+                const info = result.info;
+                console.log('تم! هنا معلومات الصورة: ', info);
+                
+                try {
+                    // إضافة رابط الصورة وبياناتها إلى Firestore
+                    await addDoc(collection(db, "portfolioImages"), {
+                        src: info.secure_url,
+                        publicId: info.public_id,
+                        likes: 0,
+                        liked: false,
+                        comments: []
+                    });
+                    
+                    // إعادة تحميل الصور بعد إضافة الصورة الجديدة
+                    loadImages();
+                    alert('تمت إضافة الصورة بنجاح!');
+                } catch (e) {
+                    console.error("Error adding image: ", e);
+                    alert('حدث خطأ أثناء إضافة الصورة.');
+                }
+            }
+        });
+
+        // فتح نافذة الرفع
+        myWidget.open();
+    } else {
+        alert('يرجى تسجيل الدخول للقيام بذلك.');
+    }
+});
+
+
+// إغلاق اللايت بوكس بالنقر خارج الصورة
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox') {
+    document.getElementById('lightbox').classList.remove('open');
+  }
+});
+
+// تحميل الصور عند بدء التشغيل
+loadImages();
+
+// تكبير الصورة الشخصية
+const avatarImg = document.getElementById('avatarImg');
+const lightbox = document.getElementById('lightbox');
+const lbImage = document.getElementById('lbImage');
+
+avatarImg.addEventListener('click', function() {
+    lbImage.src = this.src;
+    lightbox.classList.add('open', 'avatar-open');
+});
+
+lightbox.addEventListener('click', function(e) {
+    if (e.target === lightbox || e.target === lbImage) {
+        lightbox.classList.remove('open', 'avatar-open');
+    }
+});
+
+// New Code for navigation arrows
+let currentImageIndex = -1;
+const prevArrow = document.getElementById('prevArrow');
+const nextArrow = document.getElementById('nextArrow');
+
+prevArrow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const galleryImages = document.querySelectorAll('#gallery img');
+    currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+    lbImage.src = galleryImages[currentImageIndex].src;
+});
+
+nextArrow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const galleryImages = document.querySelectorAll('#gallery img');
+    currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+    lbImage.src = galleryImages[currentImageIndex].src;
+});
+
+// إدارة حالة تسجيل الدخول/الخروج وزر الحذف
+const authBtn = document.getElementById('auth-btn');
+const addImageBtnContainer = document.getElementById('addImageBtn');
+
+onAuthStateChanged(auth, (user) => {
+  const deleteButtons = document.querySelectorAll('.delete-btn');
+  if (user) {
+    authBtn.textContent = 'تسجيل الخروج';
+    addImageBtnContainer.style.display = 'block';
+    // إظهار أزرار الحذف للمستخدم المسجل دخوله
+    deleteButtons.forEach(btn => btn.style.display = 'flex');
+  } else {
+    authBtn.textContent = 'تسجيل الدخول';
+    addImageBtnContainer.style.display = 'none';
+    // إخفاء أزرار الحذف
+    deleteButtons.forEach(btn => btn.style.display = 'none');
+  }
+});
+
+authBtn.addEventListener('click', () => {
+    if (authBtn.textContent === 'تسجيل الخروج') {
+        signOut(auth);
+    } else {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider);
+    }
+});
+</script>
+</body>
+</html>
