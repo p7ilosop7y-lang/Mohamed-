@@ -1,7 +1,11 @@
 // script.js
-// Firebase SDK configuration
+
+// --- DANGER ---
+// THIS IS A SECURITY RISK. Do NOT expose your API key in client-side code in a real application.
+// Use environment variables and a backend function (like a Cloud Function) to protect your credentials.
+// For this project, we'll proceed, but be aware of this for any public-facing site.
 const firebaseConfig = {
-  apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU", // Note: It is safer to use environment variables for this
+  apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
   authDomain: "mo777-2b57e.firebaseapp.com",
   projectId: "mo777-2b57e",
   storageBucket: "mo777-2b57e.firebasestorage.app",
@@ -20,11 +24,28 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('visitorId', visitorId);
   }
 
+  // --- DOM Elements ---
   const menuToggle = document.getElementById('menuToggle');
   const sideMenu = document.getElementById('sideMenu');
   const menuOverlay = document.getElementById('menuOverlay');
   const menuClose = document.getElementById('menuClose');
+  const sections = document.querySelectorAll('section');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const nameEl = document.getElementById('name');
+  const roleEl = document.getElementById("role");
+  const gallery = document.getElementById('gallery');
+  const lightbox = document.getElementById('lightbox');
+  const lbImage = document.getElementById('lbImage');
 
+  // --- State ---
+  let currentImageIndex = -1;
+  let allImages = [];
+  const roles = ["concept artist", "digital artist", "illustrator"];
+  let roleIndex = 0, charIndex = 0, deleting = false;
+
+  // --- Functions ---
+
+  // Menu Toggle
   function openMenu() {
     sideMenu.classList.add('open');
     menuOverlay.classList.add('open');
@@ -35,13 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     menuOverlay.classList.remove('open');
   }
 
-  menuToggle.onclick = openMenu;
-  menuClose.onclick = closeMenu;
-  menuOverlay.onclick = closeMenu;
-
-  const sections = document.querySelectorAll('section');
-  const navLinks = document.querySelectorAll('.nav-link');
-
+  // Section Navigation
   function showSection(sectionId) {
     sections.forEach(section => {
       section.style.display = 'none';
@@ -64,23 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const sectionId = link.getAttribute('href').substring(1);
-      history.pushState(null, '', '#' + sectionId);
-      showSection(sectionId);
-      closeMenu();
-    });
-  });
-
-  const nameEl = document.getElementById('name');
-  nameEl.innerHTML = nameEl.textContent.split('').map((ch) => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
-
-  const roleEl = document.getElementById("role");
-  const roles = ["concept artist", "digital artist", "illustrator"];
-  let roleIndex = 0, charIndex = 0, deleting = false;
-
+  // Typewriter Effect
   function typeWriter() {
     const currentRole = roles[roleIndex];
     if (!deleting && charIndex < currentRole.length) {
@@ -95,16 +94,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setTimeout(typeWriter, deleting ? 100 : 150);
   }
-
-  const gallery = document.getElementById('gallery');
-  let currentImageIndex = -1;
-  let allImages = [];
-
+  
+  // Sanitize user input to prevent XSS
   function escapeHtml(unsafe) {
-    return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
   }
 
+  // Firestore & Gallery
   async function loadImages(category = 'all') {
+    gallery.innerHTML = '<p>Loading gallery...</p>'; // Loading indicator
     let query = db.collection("portfolioimages").orderBy("timestamp", "desc");
     if (category !== 'all') {
       query = query.where("category", "==", category);
@@ -130,22 +133,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderGallery() {
     gallery.innerHTML = '';
-    allImages.forEach((imgObj, index) => addImageCard(imgObj, index));
+    if (allImages.length === 0) {
+        gallery.innerHTML = "<p>No images found in this category.</p>";
+        return;
+    }
+    allImages.forEach((imgObj, index) => {
+        const card = createImageCard(imgObj, index);
+        gallery.appendChild(card);
+    });
   }
 
-  function addImageCard(imgObj, index) {
+  function createImageCard(imgObj, index) {
     const card = document.createElement('div');
     card.className = 'card';
-    const liked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
-    const isAdmin = auth.currentUser && auth.currentUser.email === 'p7ilosop7y@gmail.com';
+    const isLiked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
 
+    // Card structure
     card.innerHTML = `
-      <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork by Mohamed Tammam')}" loading="lazy"></div>
-      <div class="title-container" style="padding: 12px; text-align: right;"><h3>${escapeHtml(imgObj.title || 'Untitled Image')}</h3></div>
-      <div style="display: flex; align-items: center; justify-content: flex-end; padding: 0 12px 8px;">
+      <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork')}" loading="lazy"></div>
+      <div class="title-container" style="padding: 12px; text-align: right;"><h3>${escapeHtml(imgObj.title || 'Untitled')}</h3></div>
+      <div class="card-actions" style="display: flex; align-items: center; justify-content: flex-end; padding: 0 12px 8px;">
           <span class="like-count" style="color: var(--muted); font-size: 14px; margin-right: 8px;">${imgObj.likes || 0}</span>
-          <button class="like-btn" aria-label="Like this image" style="background: none; border: none; color: ${liked ? 'var(--accent)' : 'var(--muted)'}; cursor: pointer; font-size: 20px;">
-              <i class="${liked ? 'fas' : 'far'} fa-heart" aria-hidden="true"></i>
+          <button class="like-btn" aria-label="Like this image" style="background: none; border: none; color: ${isLiked ? 'var(--accent)' : 'var(--muted)'}; cursor: pointer; font-size: 20px;">
+              <i class="${isLiked ? 'fas' : 'far'} fa-heart" aria-hidden="true"></i>
           </button>
           <a href="${imgObj.src}" download class="download-btn" aria-label="Download this image" style="background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; margin-left: 8px;"><i class="fas fa-download" aria-hidden="true"></i></a>
       </div>
@@ -160,16 +170,78 @@ document.addEventListener('DOMContentLoaded', () => {
         </form>
       </div>
     `;
-    gallery.appendChild(card);
 
-    card.querySelector('.thumb img').addEventListener('click', () => {
-      openLightbox(index);
+    // Event Listeners
+    card.querySelector('.thumb img').addEventListener('click', () => openLightbox(index));
+    
+    const likeBtn = card.querySelector('.like-btn');
+    const likeCountEl = card.querySelector('.like-count');
+    likeBtn.addEventListener('click', () => toggleLike(imgObj.id, likeBtn, likeCountEl));
+
+    const commentForm = card.querySelector('.comment-form');
+    commentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const commentInput = card.querySelector('.comment-input');
+        const commentsList = card.querySelector('.comments-list');
+        addComment(imgObj.id, commentInput, commentsList);
     });
+
+    return card;
   }
 
-  const lightbox = document.getElementById('lightbox');
-  const lbImage = document.getElementById('lbImage');
+  async function toggleLike(imageId, likeBtn, likeCountEl) {
+    const imageRef = db.collection('portfolioimages').doc(imageId);
+    const doc = await imageRef.get();
+    if (!doc.exists) return;
 
+    const data = doc.data();
+    const likedBy = data.likedBy || [];
+    let newLikes = data.likes || 0;
+    const icon = likeBtn.querySelector('i');
+    
+    if (likedBy.includes(visitorId)) { // Unlike
+        newLikes--;
+        const index = likedBy.indexOf(visitorId);
+        likedBy.splice(index, 1);
+        likeBtn.style.color = 'var(--muted)';
+        icon.classList.replace('fas', 'far');
+    } else { // Like
+        newLikes++;
+        likedBy.push(visitorId);
+        likeBtn.style.color = 'var(--accent)';
+        icon.classList.replace('far', 'fas');
+    }
+
+    await imageRef.update({ likes: newLikes, likedBy: likedBy });
+    likeCountEl.textContent = newLikes;
+  }
+
+  async function addComment(imageId, inputEl, commentsListEl) {
+    const commentText = inputEl.value.trim();
+    if (!commentText) return;
+
+    const imageRef = db.collection('portfolioimages').doc(imageId);
+    try {
+        await imageRef.update({
+            comments: firebase.firestore.FieldValue.arrayUnion(commentText)
+        });
+        
+        // Add comment to UI immediately
+        const newCommentDiv = document.createElement('div');
+        newCommentDiv.className = 'comment';
+        newCommentDiv.innerHTML = `<span>${escapeHtml(commentText)}</span>`;
+        commentsListEl.appendChild(newCommentDiv);
+        commentsListEl.scrollTop = commentsListEl.scrollHeight; // Scroll to new comment
+
+        inputEl.value = ''; // Clear input
+    } catch (error) {
+        console.error("Error adding comment: ", error);
+        alert("Failed to add comment. Please try again.");
+    }
+  }
+
+
+  // Lightbox
   function openLightbox(index) {
     if (index < 0 || index >= allImages.length) return;
     currentImageIndex = index;
@@ -203,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       lbImage.src = allImages[currentImageIndex].src;
       lbImage.alt = `Enlarged view of ${escapeHtml(allImages[currentImageIndex].title || 'artwork')}`;
-      
       lbImage.style.transition = 'none';
       lbImage.style.transform = `translateX(${slideInX})`;
       
@@ -212,62 +283,79 @@ document.addEventListener('DOMContentLoaded', () => {
         lbImage.style.opacity = 1;
         lbImage.style.transform = 'translateX(0)';
       }, 20);
-
     }, 300);
 
     const imageUrl = `#image/${allImages[currentImageIndex].id}`;
     history.replaceState({ lightbox: 'open' }, '', imageUrl);
   }
 
+  // --- Event Listeners Setup ---
+  menuToggle.onclick = openMenu;
+  menuClose.onclick = closeMenu;
+  menuOverlay.onclick = closeMenu;
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const sectionId = link.getAttribute('href').substring(1);
+      history.pushState(null, '', '#' + sectionId);
+      showSection(sectionId);
+      closeMenu();
+    });
+  });
+
+  nameEl.innerHTML = nameEl.textContent.split('').map((ch) => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
+  nameEl.addEventListener('click', () => {
+    const spans = nameEl.querySelectorAll('span');
+    spans.forEach((span, i) => {
+        setTimeout(() => span.classList.add('bounce'), i * 50);
+        setTimeout(() => span.classList.remove('bounce'), 1000 + i * 50);
+    });
+  });
+
   lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) {
-      history.back();
+    if (e.target === lightbox) history.back();
+  });
+
+  // *** START: ADDED CODE ***
+  lbImage.addEventListener('click', () => {
+    if (lightbox.classList.contains('avatar-open')) {
+        history.back();
     }
   });
+  // *** END: ADDED CODE ***
 
   document.getElementById('prevArrow').addEventListener('click', (e) => {
-    e.stopPropagation();
-    navigateLightbox(-1);
+    e.stopPropagation(); navigateLightbox(-1);
   });
-
   document.getElementById('nextArrow').addEventListener('click', (e) => {
-    e.stopPropagation();
-    navigateLightbox(1);
+    e.stopPropagation(); navigateLightbox(1);
   });
 
   document.addEventListener('keydown', (e) => {
-    if (lightbox.classList.contains('open')) {
-      if (e.key === 'ArrowRight') navigateLightbox(-1); // Previous in RTL
-      if (e.key === 'ArrowLeft') navigateLightbox(1); // Next in RTL
+    if (lightbox.classList.contains('open') && !lightbox.classList.contains('avatar-open')) {
+      if (e.key === 'ArrowRight') navigateLightbox(-1); // RTL Previous
+      if (e.key === 'ArrowLeft') navigateLightbox(1);  // RTL Next
       if (e.key === 'Escape') history.back();
     }
   });
-
+  
   let lightboxStartX = 0;
   lightbox.addEventListener('touchstart', (e) => {
-    if (!lightbox.classList.contains('avatar-open')) {
-      lightboxStartX = e.touches[0].clientX;
-    }
+    if (!lightbox.classList.contains('avatar-open')) lightboxStartX = e.touches[0].clientX;
   }, { passive: true });
 
   lightbox.addEventListener('touchend', (e) => {
     if (!lightbox.classList.contains('avatar-open') && lightboxStartX !== 0) {
-      const lightboxEndX = e.changedTouches[0].clientX;
-      const distance = lightboxEndX - lightboxStartX;
-
-      if (distance < -50) { // Swipe Left
-        navigateLightbox(1); // Next
-      } else if (distance > 50) { // Swipe Right
-        navigateLightbox(-1); // Previous
-      }
+      const distance = e.changedTouches[0].clientX - lightboxStartX;
+      if (distance < -50) navigateLightbox(1); // Swipe Left -> Next
+      else if (distance > 50) navigateLightbox(-1); // Swipe Right -> Previous
       lightboxStartX = 0;
     }
   });
 
   window.addEventListener('popstate', () => {
-    if (!window.location.hash.startsWith('#image/')) {
-      closeLightbox();
-    }
+    if (!window.location.hash.startsWith('#image/')) closeLightbox();
     handleNavigation();
   });
 
@@ -287,14 +375,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   auth.onAuthStateChanged((user) => {
     const isAdmin = user && user.email === 'p7ilosop7y@gmail.com';
-    document.getElementById('auth-btn').textContent = isAdmin ? 'تسجيل الخروج' : 'Logout';
+    const authBtn = document.getElementById('auth-btn');
+    authBtn.textContent = isAdmin ? 'تسجيل الخروج' : 'تسجيل الدخول';
     document.getElementById('addImageBtn').style.display = isAdmin ? 'block' : 'none';
-    renderGallery();
+    // No need to re-render gallery here, it's already loaded. 
+    // This just handles UI changes for admin status.
   });
 
+  // --- Initial Load ---
   handleNavigation();
   loadImages();
   typeWriter();
 });
-
-

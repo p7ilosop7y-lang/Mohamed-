@@ -65,6 +65,7 @@ header {
   transition: transform 0.6s ease, opacity 0.6s ease, letter-spacing 0.3s ease, color 0.3s ease;
 }
 
+/* Animation classes for name */
 .brand h1.spacing span {
   transform: translateX(5px);
   letter-spacing: 6px;
@@ -488,5 +489,3 @@ footer {
     display: block;
   }
 }
-
-
