@@ -16,6 +16,7 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider(); // *** ADDED: Google Auth Provider
 
 document.addEventListener('DOMContentLoaded', () => {
   let visitorId = localStorage.getItem('visitorId');
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const gallery = document.getElementById('gallery');
   const lightbox = document.getElementById('lightbox');
   const lbImage = document.getElementById('lbImage');
+  const authBtn = document.getElementById('auth-btn'); // *** ADDED: Auth Button element
 
   // --- State ---
   let currentImageIndex = -1;
@@ -226,14 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
             comments: firebase.firestore.FieldValue.arrayUnion(commentText)
         });
         
-        // Add comment to UI immediately
         const newCommentDiv = document.createElement('div');
         newCommentDiv.className = 'comment';
         newCommentDiv.innerHTML = `<span>${escapeHtml(commentText)}</span>`;
         commentsListEl.appendChild(newCommentDiv);
-        commentsListEl.scrollTop = commentsListEl.scrollHeight; // Scroll to new comment
-
-        inputEl.value = ''; // Clear input
+        commentsListEl.scrollTop = commentsListEl.scrollHeight;
+        inputEl.value = '';
     } catch (error) {
         console.error("Error adding comment: ", error);
         alert("Failed to add comment. Please try again.");
@@ -314,28 +314,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) history.back();
-  });
-
-  // *** START: ADDED CODE ***
-  lbImage.addEventListener('click', () => {
-    if (lightbox.classList.contains('avatar-open')) {
+    if (e.target === lightbox) {
         history.back();
     }
   });
-  // *** END: ADDED CODE ***
 
-  document.getElementById('prevArrow').addEventListener('click', (e) => {
-    e.stopPropagation(); navigateLightbox(-1);
+  // *** FIXED: Avatar click to close ***
+  lbImage.addEventListener('click', (e) => {
+    if (lightbox.classList.contains('avatar-open')) {
+        e.stopPropagation(); // Stop click from propagating to the lightbox background
+        closeLightbox();
+        // Clean up URL if needed, since we are not using history.back()
+        if (window.location.hash) {
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+    }
   });
-  document.getElementById('nextArrow').addEventListener('click', (e) => {
-    e.stopPropagation(); navigateLightbox(1);
-  });
+
+  document.getElementById('prevArrow').addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox(-1); });
+  document.getElementById('nextArrow').addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox(1); });
 
   document.addEventListener('keydown', (e) => {
     if (lightbox.classList.contains('open') && !lightbox.classList.contains('avatar-open')) {
-      if (e.key === 'ArrowRight') navigateLightbox(-1); // RTL Previous
-      if (e.key === 'ArrowLeft') navigateLightbox(1);  // RTL Next
+      if (e.key === 'ArrowRight') navigateLightbox(-1);
+      if (e.key === 'ArrowLeft') navigateLightbox(1);
       if (e.key === 'Escape') history.back();
     }
   });
@@ -348,8 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
   lightbox.addEventListener('touchend', (e) => {
     if (!lightbox.classList.contains('avatar-open') && lightboxStartX !== 0) {
       const distance = e.changedTouches[0].clientX - lightboxStartX;
-      if (distance < -50) navigateLightbox(1); // Swipe Left -> Next
-      else if (distance > 50) navigateLightbox(-1); // Swipe Right -> Previous
+      if (distance < -50) navigateLightbox(1);
+      else if (distance > 50) navigateLightbox(-1);
       lightboxStartX = 0;
     }
   });
@@ -372,14 +374,38 @@ document.addEventListener('DOMContentLoaded', () => {
       loadImages(button.dataset.category);
     });
   });
+  
+  // *** FIXED: Login/Logout functionality ***
+  authBtn.addEventListener('click', () => {
+    if (auth.currentUser) {
+        // Sign out
+        auth.signOut().catch(error => console.error("Sign out error", error));
+    } else {
+        // Sign in
+        auth.signInWithPopup(provider).then(result => {
+            const user = result.user;
+            // Restrict access to only the admin email
+            if (user.email !== 'p7ilosop7y@gmail.com') {
+                alert('هذا الحساب غير مصرح له بالدخول كمدير.');
+                auth.signOut();
+            }
+        }).catch(error => {
+            console.error("Sign in error", error);
+            alert('فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+        });
+    }
+    closeMenu();
+  });
 
   auth.onAuthStateChanged((user) => {
     const isAdmin = user && user.email === 'p7ilosop7y@gmail.com';
-    const authBtn = document.getElementById('auth-btn');
-    authBtn.textContent = isAdmin ? 'تسجيل الخروج' : 'تسجيل الدخول';
-    document.getElementById('addImageBtn').style.display = isAdmin ? 'block' : 'none';
-    // No need to re-render gallery here, it's already loaded. 
-    // This just handles UI changes for admin status.
+    if (isAdmin) {
+        authBtn.textContent = 'تسجيل الخروج';
+        document.getElementById('addImageBtn').style.display = 'inline-block';
+    } else {
+        authBtn.textContent = 'تسجيل الدخول';
+        document.getElementById('addImageBtn').style.display = 'none';
+    }
   });
 
   // --- Initial Load ---
