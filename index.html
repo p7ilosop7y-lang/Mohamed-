@@ -559,6 +559,7 @@ typeWriter();
 // Image gallery functions
 const gallery = document.getElementById('gallery');
 let currentImageIndex = -1; // To track the image shown in the lightbox
+let allImages = []; // To store all images for lightbox navigation
 
 function escapeHtml(unsafe) {
   return unsafe
@@ -603,6 +604,7 @@ async function loadImages() {
     querySnapshot.forEach((doc) => {
       stored.push({ id: doc.id, ...doc.data() });
     });
+    allImages = stored; // Store the images in the global array
   } catch (e) {
     console.error("Error fetching documents: ", e);
     alert('An error occurred while loading images: ' + e.message);
@@ -701,7 +703,7 @@ function addImageCard(imgObj, index) {
           titleElement.addEventListener('blur', async () => {
               const newTitle = titleElement.textContent.trim();
               if (newTitle !== (imgObj.title || 'Untitled Image')) {
-                  const docRef = db.collection("portfolioimages").doc(titleElement.dataset.imgId);
+                  const docRef = db.collection("portfolioimages").doc(titleElement.dataset.img-id);
                   try {
                       await docRef.update({ title: newTitle });
                       imgObj.title = newTitle; // Update local object
@@ -882,19 +884,17 @@ const nextArrow = document.getElementById('nextArrow');
 
 prevArrow.addEventListener('click', (e) => {
     e.stopPropagation(); // Prevent closing the lightbox
-    const galleryImages = document.querySelectorAll('#gallery img');
-    if (galleryImages.length > 0) {
-        currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
-        lbImage.src = galleryImages[currentImageIndex].src;
+    if (allImages.length > 0) {
+        currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+        lbImage.src = allImages[currentImageIndex].src;
     }
 });
 
 nextArrow.addEventListener('click', (e) => {
     e.stopPropagation(); // Prevent closing the lightbox
-    const galleryImages = document.querySelectorAll('#gallery img');
-    if (galleryImages.length > 0) {
-        currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
-        lbImage.src = galleryImages[currentImageIndex].src;
+    if (allImages.length > 0) {
+        currentImageIndex = (currentImageIndex + 1) % allImages.length;
+        lbImage.src = allImages[currentImageIndex].src;
     }
 });
 
@@ -925,17 +925,4 @@ auth.onAuthStateChanged((user) => {
 authBtn.addEventListener('click', () => {
     if (authBtn.textContent === 'تسجيل الخروج') {
         auth.signOut().catch(error => {
-            console.error("Error signing out: ", error);
-            alert('An error occurred while signing out: ' + error.message);
-        });
-    } else {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(error => {
-            console.error("Error signing in with Google: ", error);
-            alert('An error occurred while signing in with Google: ' + error.message);
-        });
-    }
-});
-</script>
-</body>
-</html>
+            console.error("Error
