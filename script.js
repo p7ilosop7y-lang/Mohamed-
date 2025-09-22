@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function navigateLightbox(direction) {
     if (allImages.length === 0) return;
+    // direction: 1 for next, -1 for previous
     currentImageIndex = (currentImageIndex + direction + allImages.length) % allImages.length;
     const img = allImages[currentImageIndex];
     lbImage.src = img.src;
@@ -230,13 +231,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.getElementById('prevArrow').addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox(-1); });
-  document.getElementById('nextArrow').addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox(1); });
+  // --- Keyboard & Swipe Navigation ---
+  let touchstartX = 0;
+  let touchendX = 0;
+  const swipeThreshold = 50; // Minimum swipe distance in pixels
+
+  function handleSwipeGesture() {
+    if (lightbox.classList.contains('avatar-open')) return;
+    const deltaX = touchendX - touchstartX;
+    if (deltaX < -swipeThreshold) {
+      navigateLightbox(1); // Swiped left, go to next
+    } else if (deltaX > swipeThreshold) {
+      navigateLightbox(-1); // Swiped right, go to previous
+    }
+  }
+
+  lightbox.addEventListener('touchstart', e => {
+    touchstartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  lightbox.addEventListener('touchend', e => {
+    touchendX = e.changedTouches[0].screenX;
+    handleSwipeGesture();
+  });
 
   document.addEventListener('keydown', (e) => {
     if (lightbox.classList.contains('open') && !lightbox.classList.contains('avatar-open')) {
-      if (e.key === 'ArrowRight') navigateLightbox(-1);
-      if (e.key === 'ArrowLeft') navigateLightbox(1);
+      if (e.key === 'ArrowRight') navigateLightbox(1); // Next image
+      if (e.key === 'ArrowLeft') navigateLightbox(-1); // Previous image
       if (e.key === 'Escape') history.back();
     }
   });
@@ -282,10 +304,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   addImageBtn.addEventListener('click', () => {
     const uploadWidget = cloudinary.createUploadWidget({
-      // ⬇️ Cloudinary details have been added ⬇️
       cloudName: 'dswtpqdsh',
       uploadPreset: 'Mohamed',
-      // ⬆️ Cloudinary details have been added ⬆️
       folder: 'portfolio',
       cropping: true,
     }, (error, result) => {

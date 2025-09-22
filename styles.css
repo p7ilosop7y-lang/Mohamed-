@@ -302,32 +302,7 @@ section p {
 }
 
 .nav-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  font-size: 28px;
-  cursor: pointer;
-  z-index: 101;
-  opacity: 0.8;
-  transition: opacity 0.3s;
-  user-select: none;
-  border-radius: 50%;
-}
-
-.nav-arrow:hover {
-  opacity: 1;
-}
-
-.prev-arrow {
-  right: 20px;
-}
-
-.next-arrow {
-  left: 20px;
+  display: none;
 }
 
 .lightbox.avatar-open .nav-arrow {
