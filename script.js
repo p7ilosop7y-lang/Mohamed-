@@ -312,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
 
-  // (تعديل) إضافة event listener لإغلاق الصورة بزر Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && lightbox.classList.contains('open')) {
       closeLightbox();
@@ -366,7 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadImages(category = 'all') {
-    // (تعديل) إظهار مؤثر التحميل بدلًا من النص
     gallery.innerHTML = '<div class="loader"></div>';
     let query = db.collection("portfolioimages").orderBy("timestamp", "desc");
     if (category !== 'all') { query = query.where("category", "==", category); }
@@ -429,7 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'card';
     const isLiked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
-    // (تعديل) إضافة loading="lazy" للصورة
     card.innerHTML = `
       <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork')}" loading="lazy"></div>
       <div class="title-container"><h3>${escapeHtml(imgObj.title || 'Untitled')}</h3></div>
@@ -516,6 +513,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAdmin = user && user.email === 'p7ilosop7y@gmail.com';
     authBtn.textContent = user ? 'تسجيل الخروج' : 'تسجيل الدخول';
     addImageBtn.style.display = isAdmin ? 'inline-block' : 'none';
+  });
+
+  // --- (الكود الجديد) إضافة وظيفة لزر تسجيل الدخول ---
+  authBtn.addEventListener('click', () => {
+    if (auth.currentUser) {
+      // إذا كان المستخدم مسجلاً دخوله، قم بتسجيل الخروج
+      auth.signOut();
+    } else {
+      // إذا لم يكن مسجلاً دخوله، ابدأ عملية تسجيل الدخول
+      auth.signInWithPopup(provider)
+        .catch((error) => {
+          console.error("Authentication failed:", error);
+          alert("فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.");
+        });
+    }
   });
 
   document.querySelectorAll('.filter-btn').forEach(button => {
