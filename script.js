@@ -1,4 +1,4 @@
-// script.js (Final Version with Swipe Conflict Fix & Avatar Swipe Disabled)
+// script.js (Final Version with all fixes)
 
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
@@ -259,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
           applyTransform(lbImage, 0, diffY, newScale);
           lightbox.style.backgroundColor = `rgba(0, 0, 0, ${0.9 * newOpacity})`;
       } else if (lightboxSwipeDirection === 'horizontal') {
-          // --- (تعديل) لا تقم بالتمرير الأفقي إذا كانت الصورة الشخصية مفتوحة ---
           if (lightbox.classList.contains('avatar-open')) return;
           const navDirection = diffX < 0 ? 1 : -1;
           const nextIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
@@ -289,7 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { lightbox.style.transition = 'none'; }, 300);
         }
     } else if (lightboxSwipeDirection === 'horizontal') {
-        // --- (تعديل) لا تقم بالتمرير الأفقي إذا كانت الصورة الشخصية مفتوحة ---
         if (lightbox.classList.contains('avatar-open')) return;
         const diffX = swipeLbCurrentX - swipeLbStartX;
         const navDirection = diffX < 0 ? 1 : -1;
@@ -312,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
   lightboxContent.addEventListener('touchmove', onLightboxTouchMove, { passive: false });
   lightboxContent.addEventListener('touchend', onLightboxTouchEnd, { passive: false });
   
-  // --- (تعديل) إضافة شرط للأسهم ---
   prevArrow.addEventListener('click', (e) => { 
     e.stopPropagation(); 
     if (lightbox.classList.contains('avatar-open')) return;
@@ -331,6 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
   avatarImg.addEventListener('click', function() {
     lbImage.src = this.src;
     lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
+    // --- (تعديل) إضافة هذا السطر لإخفاء الصورة المجاورة ومنع ظهور النص البديل ---
+    lbImageNext.style.display = 'none';
     lightbox.classList.add('open', 'avatar-open');
   });
 
