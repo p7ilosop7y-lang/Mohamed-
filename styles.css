@@ -7,10 +7,9 @@
   --text: #f3f5f7;
 }
 
-/* Added a subtle gradient background for more depth */
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(175deg, #0a0f1a, #111c2d);
+  background: linear-gradient(180deg, #102a43, #0a0f1a);
   color: var(--text);
   margin: 0;
   display: flex;
@@ -139,7 +138,7 @@ nav a:hover::before {
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   transform: translateX(-100%);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.5s ease-out; 
   padding: 80px 20px 20px;
   display: flex;
   flex-direction: column;
@@ -249,7 +248,6 @@ section p {
   padding: 20px;
 }
 
-/* Added animation for cards appearing */
 @keyframes fadeInSlideUp {
   from {
     opacity: 0;
@@ -269,7 +267,7 @@ section p {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid var(--card);
   animation: fadeInSlideUp 0.5s ease-out forwards;
-  opacity: 0; /* Initially hidden for animation */
+  opacity: 0; 
 }
 
 .card:hover {
@@ -280,7 +278,7 @@ section p {
 .thumb {
   width: 100%;
   height: 0;
-  padding-bottom: 75%; /* Adjusted aspect ratio */
+  padding-bottom: 75%; 
   position: relative;
   overflow: hidden;
   background: #000;
@@ -291,7 +289,7 @@ section p {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Changed to cover for a fuller look */
+  object-fit: cover; 
   cursor: pointer;
   transition: transform 0.4s ease;
 }
@@ -314,13 +312,6 @@ section p {
   display: flex;
 }
 
-#lbImage {
-  max-width: 90vw;
-  max-height: 85vh;
-  object-fit: contain;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
 .lightbox.avatar-open #lbImage {
   width: 220px;
   height: 220px;
@@ -329,7 +320,6 @@ section p {
   border: 3px solid var(--accent);
 }
 
-/* NEW: Lightbox navigation arrows */
 .nav-arrow {
   position: absolute;
   top: 50%;
@@ -428,7 +418,6 @@ footer {
   color: var(--accent);
 }
 
-/* Classes to replace inline styles from JS */
 .card .like-count {
   color: var(--muted);
   font-size: 14px;
@@ -458,7 +447,6 @@ footer {
   padding-right: 5px;
 }
 
-/* NEW: Styled scrollbar for comments */
 .comments-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -516,7 +504,6 @@ footer {
   transform: scale(1.1);
 }
 
-/* NEW: Style for comment error messages */
 .comment-error {
   color: #ff6b6b;
   font-size: 12px;
@@ -571,7 +558,6 @@ footer {
   border: 0;
 }
 
-/* Media Query for mobile devices */
 @media (max-width: 768px) {
   nav {
     display: none;
@@ -579,7 +565,6 @@ footer {
   .menu-toggle {
     display: block;
   }
-  /* On mobile, hide the arrows to favor swipe */
   .nav-arrow {
     display: none;
   }
@@ -593,4 +578,37 @@ footer {
   section h2 {
     font-size: 1.8rem;
   }
+}
+
+/* --- New and Updated Styles for Image Zoom & Slide --- */
+.lightbox-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 5vh 5vw;
+  box-sizing: border-box;
+  position: relative; /* Added for absolute positioning of children */
+}
+
+#lbImage, #lbImageNext {
+  position: absolute; /* Both images are positioned absolutely */
+  transition: transform 0.3s ease-out;
+  transform-origin: center center;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none; /* Prevents image selection during drag */
+  -webkit-user-drag: none; /* Prevents ghost image during drag */
+}
+
+/* عندما تكون الصورة مكبرة، نغير شكل المؤشر ليدل على إمكانية التحريك */
+.lightbox.zoomed .lightbox-content {
+  cursor: grab;
+}
+
+.lightbox.zoomed .lightbox-content:active {
+  cursor: grabbing;
 }
