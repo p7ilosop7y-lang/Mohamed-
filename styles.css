@@ -1,4 +1,4 @@
-/* styles.css (Final Corrected Version) */
+/* styles.css (Final Simplified Version) */
 :root {
   --bg: #0a0f1a;
   --card: #131c2b;
@@ -22,8 +22,8 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #111c2d99; /* Semi-transparent background */
-  backdrop-filter: blur(8px); /* Frosted glass effect */
+  background: #111c2d99;
+  backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -35,15 +35,11 @@ header {
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  /* Correction: Ensure brand doesn't get squeezed and shrink */
-  flex-shrink: 0;
 }
 
 .brand > div {
-    /* Correction: Prevent name and role from wrapping */
     white-space: nowrap;
 }
-
 
 .brand img {
   width: 55px;
@@ -124,7 +120,6 @@ nav a:hover::before {
   width: 100%;
 }
 
-
 .menu-toggle {
   display: none;
   font-size: 22px;
@@ -135,18 +130,21 @@ nav a:hover::before {
   padding: 0;
 }
 
+/* --- (تعديل مهم) لجعل حركة القائمة سلسة --- */
 .side-menu {
   position: fixed;
   top: 0;
   left: 0;
   width: 280px;
   height: 100%;
-  background: rgba(17, 28, 45, 0.6);
+  background: rgba(17, 28, 45, 0.8);
   backdrop-filter: blur(10px);
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  transform: translateX(-100%);
-  transition: transform 0.5s ease-out; 
+  /* الحالة الافتراضية: القائمة مخفية تمامًا إلى اليسار */
+  transform: translateX(-100%); 
+  /* أهم سطر: تحديد حركة الانتقال لتكون سلسة */
+  transition: transform 0.4s ease-out; 
   padding: 80px 20px 20px;
   display: flex;
   flex-direction: column;
@@ -154,6 +152,7 @@ nav a:hover::before {
   overflow-y: auto;
 }
 
+/* عندما يتم إضافة كلاس .open، ستنزلق القائمة للداخل */
 .side-menu.open {
   transform: translateX(0);
 }
@@ -198,12 +197,14 @@ nav a:hover::before {
   z-index: 999;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.4s ease;
+  /* تعديل: جعل حركة الظهور والإخفاء سلسة */
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
 }
 
 .menu-overlay.open {
   opacity: 1;
   visibility: visible;
+  transition: opacity 0.4s ease;
 }
 
 main {
@@ -314,7 +315,7 @@ section p {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  transition: background-color 0.3s ease-out; 
+  transition: background-color 0.3s ease-out;
 }
 
 .lightbox.open {
@@ -513,14 +514,6 @@ footer {
   transform: scale(1.1);
 }
 
-.comment-error {
-  color: #ff6b6b;
-  font-size: 12px;
-  text-align: left;
-  padding: 0 15px 10px;
-}
-
-
 .add-image-btn {
   padding: 10px 20px;
   background-color: var(--accent);
@@ -567,14 +560,11 @@ footer {
   border: 0;
 }
 
-/* === CRUCIAL PART: Mobile Styles === */
 @media (max-width: 768px) {
   nav {
-    /* This rule hides the desktop navigation on mobile */
     display: none;
   }
   .menu-toggle {
-    /* This rule shows the hamburger icon on mobile */
     display: block;
   }
   .nav-arrow {
@@ -592,7 +582,6 @@ footer {
   }
 }
 
-/* --- New and Updated Styles for Image Zoom & Slide --- */
 .lightbox-content {
   width: 100%;
   height: 100%;
@@ -602,21 +591,20 @@ footer {
   overflow: hidden;
   padding: 5vh 5vw;
   box-sizing: border-box;
-  position: relative; /* Added for absolute positioning of children */
+  position: relative;
 }
 
 #lbImage, #lbImageNext {
-  position: absolute; /* Both images are positioned absolutely */
+  position: absolute;
   transition: transform 0.3s ease-out, opacity 0.3s ease-out; 
   transform-origin: center center;
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  user-select: none; /* Prevents image selection during drag */
-  -webkit-user-drag: none; /* Prevents ghost image during drag */
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* عندما تكون الصورة مكبرة، نغير شكل المؤشر ليدل على إمكانية التحريك */
 .lightbox.zoomed .lightbox-content {
   cursor: grab;
 }

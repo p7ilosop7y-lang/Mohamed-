@@ -1,8 +1,8 @@
-// script.js (Final Version with Swipe-to-Close)
+// script.js (Definitive Final Version with All Features)
 
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
-  authDomain: "mo777-2b57e.firebaseapp.com",
+  authDomain: "mo777-2b57e.firebaseapp.com", 
   projectId: "mo777-2b57e",
   storageBucket: "mo777-2b57e.firebasestorage.app",
   messagingSenderId: "318111712614",
@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const roleEl = document.getElementById("role");
   const gallery = document.getElementById('gallery');
   const lightbox = document.getElementById('lightbox');
+  const lightboxContent = document.getElementById('lightboxContent');
   const lbImage = document.getElementById('lbImage');
   const lbImageNext = document.getElementById('lbImageNext');
   const authBtn = document.getElementById('auth-btn');
@@ -45,11 +46,269 @@ document.addEventListener('DOMContentLoaded', () => {
   const roles = ["concept artist", "digital artist", "illustrator"];
   let roleIndex = 0, charIndex = 0, deleting = false;
   let isTransitioning = false;
+  
+  // =======================================================================
+  // === (Simple & Reliable) Menu Open/Close Functions ===
+  // =======================================================================
+  function openMenu() {
+    sideMenu.classList.add('open');
+    menuOverlay.classList.add('open');
+  }
 
-  // --- Functions ---
+  function closeMenu() {
+    sideMenu.classList.remove('open');
+    menuOverlay.classList.remove('open');
+  }
+  
+  // =======================================================================
+  // === (Simple & Reliable) Menu Swipe Detection ===
+  // =======================================================================
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchEndX = 0;
+  let touchEndY = 0;
 
-  function openMenu() { sideMenu.classList.add('open'); menuOverlay.classList.add('open'); }
-  function closeMenu() { sideMenu.classList.remove('open'); menuOverlay.classList.remove('open'); }
+  document.addEventListener('touchstart', e => {
+    if (lightbox.classList.contains('open')) return;
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    if (lightbox.classList.contains('open')) return;
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    handleMenuSwipe();
+  });
+  
+  function handleMenuSwipe() {
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+    const swipeThreshold = 50;
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      if (Math.abs(diffX) > swipeThreshold) {
+        if (diffX > 0) {
+          openMenu();
+        } else {
+          closeMenu();
+        }
+      }
+    }
+  }
+
+  // --- Event Listeners for Menu ---
+  menuToggle.onclick = openMenu;
+  menuClose.onclick = closeMenu;
+  menuOverlay.onclick = closeMenu;
+  
+  // =======================================================================
+  // === (Restored) Lightbox (Enlarged Image) Functions ===
+  // =======================================================================
+  let scale = 1, isZoomed = false;
+  let panStartX, panStartY, translateX = 0, translateY = 0;
+  let lastTap = 0;
+  let swipeLbStartX = 0, swipeLbStartY = 0, swipeLbCurrentX = 0, swipeLbCurrentY = 0;
+  let isLightboxSwiping = false, lightboxSwipeDirection = null;
+  const swipeThresholdX = 50, swipeThresholdY = 80;
+
+  function openLightbox(index) {
+    if (index < 0 || index >= allImages.length) return;
+    resetZoom();
+    currentImageIndex = index;
+    const img = allImages[index];
+    lbImage.src = img.src;
+    lbImage.alt = `Enlarged view of ${escapeHtml(img.title || 'artwork')}`;
+    lbImageNext.style.display = 'none';
+    lbImage.style.opacity = 1;
+    lightbox.style.backgroundColor = '';
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const imageUrl = `#image/${img.id}`;
+    if (window.location.hash !== imageUrl) {
+      history.pushState({ lightbox: 'open' }, '', imageUrl);
+    }
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open', 'avatar-open', 'zoomed');
+    document.body.style.overflow = 'auto';
+    setTimeout(() => {
+      lightbox.style.backgroundColor = '';
+      applyTransform(lbImage, 0, 0, 1);
+    }, 300);
+    if (window.location.hash.startsWith('#image/')) {
+      history.pushState("", document.title, window.location.pathname + window.location.search);
+    }
+  }
+
+  function applyTransform(element, x, y, s) {
+    element.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+  }
+
+  function resetZoom() {
+    scale = 1; translateX = 0; translateY = 0; isZoomed = false;
+    lightbox.classList.remove('zoomed');
+    lbImage.style.transition = 'transform 0.3s ease-out';
+    applyTransform(lbImage, 0, 0, 1);
+    setTimeout(() => { lbImage.style.transition = 'none'; }, 300);
+  }
+
+  function toggleZoom(e) {
+    if (isZoomed) {
+      resetZoom();
+    } else {
+      const rect = lbImage.getBoundingClientRect();
+      const originX = (e.clientX || e.touches[0].clientX) - rect.left;
+      const originY = (e.clientY || e.touches[0].clientY) - rect.top;
+      lbImage.style.transformOrigin = `${originX}px ${originY}px`;
+      scale = 2.5;
+      translateX = -(originX / (rect.width / lbImage.offsetWidth)) * (scale - 1);
+      translateY = -(originY / (rect.height / lbImage.offsetHeight)) * (scale - 1);
+      isZoomed = true;
+      lightbox.classList.add('zoomed');
+      lbImage.style.transition = 'transform 0.3s ease-out';
+      applyTransform(lbImage, translateX, translateY, scale);
+      setTimeout(() => { lbImage.style.transition = 'none'; }, 300);
+    }
+  }
+  
+  function slideTo(newIndex, direction) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    if (lbImageNext.style.display !== 'block') {
+      lbImageNext.src = allImages[newIndex].src;
+      lbImageNext.style.display = 'block';
+      const initialNextX = direction === 1 ? window.innerWidth : -window.innerWidth;
+      applyTransform(lbImageNext, initialNextX, 0, 1);
+    }
+    lbImage.style.transition = 'transform 0.3s ease-out';
+    lbImageNext.style.transition = 'transform 0.3s ease-out';
+    const finalCurrentImageX = direction === 1 ? -window.innerWidth : window.innerWidth;
+    applyTransform(lbImage, finalCurrentImageX, 0, 1);
+    applyTransform(lbImageNext, 0, 0, 1);
+    setTimeout(() => {
+      currentImageIndex = newIndex;
+      const newImgData = allImages[currentImageIndex];
+      lbImage.src = newImgData.src;
+      lbImage.alt = `Enlarged view of ${escapeHtml(newImgData.title || 'artwork')}`;
+      history.replaceState({ lightbox: 'open' }, '', `#image/${newImgData.id}`);
+      lbImage.style.transition = 'none';
+      lbImageNext.style.transition = 'none';
+      applyTransform(lbImage, 0, 0, 1);
+      lbImageNext.style.display = 'none';
+      isTransitioning = false;
+    }, 300);
+  }
+
+  function onLightboxTouchStart(e) {
+    if (isTransitioning) return;
+    lbImage.style.transition = 'none';
+    lbImageNext.style.transition = 'none';
+    if (e.touches.length === 1) {
+      const { clientX, clientY } = e.touches[0];
+      if (isZoomed) {
+        panStartX = clientX - translateX;
+        panStartY = clientY - translateY;
+      } else {
+        isLightboxSwiping = true;
+        swipeLbStartX = clientX;
+        swipeLbStartY = clientY;
+        swipeLbCurrentX = clientX;
+        swipeLbCurrentY = clientY;
+        lightboxSwipeDirection = null;
+      }
+      const now = Date.now();
+      if (now - lastTap < 300) { e.preventDefault(); toggleZoom(e); }
+      lastTap = now;
+    }
+  }
+
+  function onLightboxTouchMove(e) {
+    if (isTransitioning || !isLightboxSwiping) return;
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      if (isZoomed) {
+        const { clientX, clientY } = e.touches[0];
+        translateX = clientX - panStartX;
+        translateY = clientY - panStartY;
+        applyTransform(lbImage, translateX, translateY, scale);
+        return;
+      }
+      swipeLbCurrentX = e.touches[0].clientX;
+      swipeLbCurrentY = e.touches[0].clientY;
+      const diffX = swipeLbCurrentX - swipeLbStartX;
+      const diffY = swipeLbCurrentY - swipeLbStartY;
+      if (!lightboxSwipeDirection) {
+        if (Math.abs(diffY) > 5 && Math.abs(diffY) > Math.abs(diffX)) {
+            lightboxSwipeDirection = 'vertical';
+        } else if (Math.abs(diffX) > 5) {
+            lightboxSwipeDirection = 'horizontal';
+        }
+      }
+      if (lightboxSwipeDirection === 'vertical' && diffY < 0) {
+          const progress = Math.abs(diffY) / (window.innerHeight / 2);
+          const newScale = Math.max(0.7, 1 - progress * 0.3);
+          const newOpacity = Math.max(0.1, 1 - progress);
+          applyTransform(lbImage, 0, diffY, newScale);
+          lightbox.style.backgroundColor = `rgba(0, 0, 0, ${0.9 * newOpacity})`;
+      } else if (lightboxSwipeDirection === 'horizontal') {
+          const navDirection = diffX < 0 ? 1 : -1;
+          const nextIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
+          if (lbImageNext.style.display !== 'block') {
+            lbImageNext.src = allImages[nextIndex].src;
+            lbImageNext.style.display = 'block';
+          }
+          applyTransform(lbImage, diffX, 0, 1);
+          const nextImageX = (navDirection === 1 ? window.innerWidth : -window.innerWidth) + diffX;
+          applyTransform(lbImageNext, nextImageX, 0, 1);
+      }
+    }
+  }
+
+  function onLightboxTouchEnd(e) {
+    if (!isLightboxSwiping) return;
+    isLightboxSwiping = false;
+    if (lightboxSwipeDirection === 'vertical') {
+        const diffY = swipeLbCurrentY - swipeLbStartY;
+        if (diffY < -swipeThresholdY) {
+            closeLightbox();
+        } else {
+            lbImage.style.transition = 'transform 0.3s ease-out';
+            lightbox.style.transition = 'background-color 0.3s ease-out';
+            applyTransform(lbImage, 0, 0, 1);
+            lightbox.style.backgroundColor = '';
+            setTimeout(() => { lightbox.style.transition = 'none'; }, 300);
+        }
+    } else if (lightboxSwipeDirection === 'horizontal') {
+        const diffX = swipeLbCurrentX - swipeLbStartX;
+        const navDirection = diffX < 0 ? 1 : -1;
+        if (Math.abs(diffX) > swipeThresholdX) {
+            const newIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
+            slideTo(newIndex, navDirection);
+        } else {
+            lbImage.style.transition = 'transform 0.3s ease-out';
+            lbImageNext.style.transition = 'transform 0.3s ease-out';
+            applyTransform(lbImage, 0, 0, 1);
+            const nextImageX = navDirection === 1 ? window.innerWidth : -window.innerWidth;
+            applyTransform(lbImageNext, nextImageX, 0, 1);
+        }
+    }
+    lightboxSwipeDirection = null;
+  }
+
+  // --- Event Listeners for Lightbox ---
+  lightboxContent.addEventListener('touchstart', onLightboxTouchStart, { passive: false });
+  lightboxContent.addEventListener('touchmove', onLightboxTouchMove, { passive: false });
+  lightboxContent.addEventListener('touchend', onLightboxTouchEnd, { passive: false });
+  prevArrow.addEventListener('click', (e) => { e.stopPropagation(); const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length; slideTo(newIndex, -1); });
+  nextArrow.addEventListener('click', (e) => { e.stopPropagation(); const newIndex = (currentImageIndex + 1) % allImages.length; slideTo(newIndex, 1); });
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
+
+
+  // =======================================================================
+  // --- All Other Website Functions (Unchanged) ---
+  // =======================================================================
 
   function showSection(sectionId) {
     sections.forEach(section => { section.style.display = 'none'; section.classList.remove('active'); });
@@ -111,7 +370,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalIcon = buttonEl.innerHTML;
     buttonEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     buttonEl.disabled = true;
-    
     try {
         const response = await fetch(src);
         const blob = await response.blob();
@@ -119,7 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        // إصلاح: طريقة صحيحة للحصول على امتداد الملف
         const extension = src.split('.').pop().split('?')[0] || 'jpg';
         a.download = `${title.replace(/ /g, '_')}.${extension}`;
         document.body.appendChild(a);
@@ -139,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'card';
     const isLiked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
-
     card.innerHTML = `
       <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork')}" loading="lazy"></div>
       <div class="title-container"><h3>${escapeHtml(imgObj.title || 'Untitled')}</h3></div>
@@ -160,15 +416,12 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="comment-btn" type="submit" aria-label="Submit comment"><i class="fas fa-paper-plane"></i></button>
         </form>
       </div>`;
-
     card.querySelector('.thumb img').addEventListener('click', () => openLightbox(index));
     const likeBtn = card.querySelector('.like-btn');
     const likeCountEl = card.querySelector('.like-count');
     likeBtn.addEventListener('click', () => toggleLike(imgObj.id, likeBtn, likeCountEl));
-    
     const downloadBtn = card.querySelector('.download-btn');
     downloadBtn.addEventListener('click', () => downloadImage(imgObj.src, imgObj.title || 'Artwork', downloadBtn));
-
     const commentForm = card.querySelector('.comment-form');
     commentForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -185,11 +438,9 @@ document.addEventListener('DOMContentLoaded', () => {
         await db.runTransaction(async (transaction) => {
             const doc = await transaction.get(imageRef);
             if (!doc.exists) return;
-
             const { likedBy = [], likes = 0 } = doc.data();
             const icon = likeBtn.querySelector('i');
             let newLikes = likes;
-
             if (likedBy.includes(visitorId)) {
                 newLikes--;
                 likedBy.splice(likedBy.indexOf(visitorId), 1);
@@ -204,15 +455,12 @@ document.addEventListener('DOMContentLoaded', () => {
             transaction.update(imageRef, { likes: newLikes, likedBy });
             likeCountEl.textContent = newLikes;
         });
-    } catch (error) {
-        console.error("Failed to toggle like:", error);
-    }
+    } catch (error) { console.error("Failed to toggle like:", error); }
   }
 
   async function addComment(imageId, inputEl, commentsListEl) {
     const commentText = inputEl.value.trim();
     if (!commentText) return;
-
     const imageRef = db.collection('portfolioimages').doc(imageId);
     try {
       await imageRef.update({
@@ -230,380 +478,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // =======================================================================
-  // === آلية تكبير الصور والانتقال الجديدة (Zoom/Pan/Slide/Swipe-to-Close) ===
-  // =======================================================================
-  const lightboxContent = document.getElementById('lightboxContent');
-  let scale = 1, isZoomed = false;
-  let startX, startY, translateX = 0, translateY = 0;
-  let lastTap = 0, initialDistance = 0, initialScale = 1;
-  
-  // --- متغيرات جديدة لتتبع حالة السحب ---
-  let swipeStartX = 0, swipeStartY = 0, swipeCurrentX = 0, swipeCurrentY = 0;
-  let isSwiping = false, swipeDirection = null; // يمكن أن يكون 'horizontal', 'vertical', أو null
-  const swipeThresholdX = 50, swipeThresholdY = 80; // المسافة المطلوبة لتفعيل السحب
-
-
-  function openLightbox(index) {
-    if (index < 0 || index >= allImages.length) return;
-    
-    resetZoom();
-    currentImageIndex = index;
-    const img = allImages[index];
-    lbImage.src = img.src;
-    lbImage.alt = `Enlarged view of ${escapeHtml(img.title || 'artwork')}`;
-    lbImageNext.style.display = 'none';
-    lbImage.style.opacity = 1;
-    lightbox.style.backgroundColor = ''; // إعادة تعيين لون الخلفية
-
-    lightbox.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    const imageUrl = `#image/${img.id}`;
-    if (window.location.hash !== imageUrl) {
-      history.pushState({ lightbox: 'open' }, '', imageUrl);
-    }
-  }
-
-  function closeLightbox() {
-    lightbox.classList.remove('open', 'avatar-open', 'zoomed');
-    document.body.style.overflow = 'auto';
-    // إعادة تعيين أي تنسيقات تمت إضافتها أثناء السحب للإغلاق
-    setTimeout(() => {
-        lightbox.style.backgroundColor = '';
-        applyTransform(lbImage, 0, 0, 1);
-    }, 300); // يجب أن تتوافق المدة مع مدة الـ transition
-    if (window.location.hash.startsWith('#image/')) {
-        history.pushState("", document.title, window.location.pathname + window.location.search);
-    }
-  }
-  
-  function applyTransform(element, x, y, s) {
-    element.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
-  }
-
-  function resetZoom() {
-    scale = 1; translateX = 0; translateY = 0; isZoomed = false;
-    lightbox.classList.remove('zoomed');
-    lbImage.style.transition = 'transform 0.3s ease-out';
-    applyTransform(lbImage, 0, 0, 1);
-    setTimeout(() => { lbImage.style.transition = 'none'; }, 300);
-  }
-
-  function toggleZoom(e) {
-    if (!isZoomed) {
-      const rect = lbImage.getBoundingClientRect();
-      const originX = (e.clientX || e.touches[0].clientX) - rect.left;
-      const originY = (e.clientY || e.touches[0].clientY) - rect.top;
-      
-      lbImage.style.transformOrigin = `${originX}px ${originY}px`;
-      
-      scale = 2.5;
-      translateX = -(originX / (rect.width / lbImage.offsetWidth)) * (scale - 1);
-      translateY = -(originY / (rect.height / lbImage.offsetHeight)) * (scale - 1);
-
-      isZoomed = true;
-      lightbox.classList.add('zoomed');
-      lbImage.style.transition = 'transform 0.3s ease-out';
-      applyTransform(lbImage, translateX, translateY, scale);
-      setTimeout(() => { lbImage.style.transition = 'none'; }, 300);
-    } else {
-      resetZoom();
-    }
-  }
-
-  function getDistance(touches) {
-    const [touch1, touch2] = touches;
-    return Math.sqrt(Math.pow(touch2.clientX - touch1.clientX, 2) + Math.pow(touch2.clientY - touch1.clientY, 2));
-  }
-
-  function onTouchStart(e) {
-    if (isTransitioning) return;
-    lbImage.style.transition = 'none';
-    lbImageNext.style.transition = 'none';
-
-    if (e.touches.length === 1) {
-      const { clientX, clientY } = e.touches[0];
-      if (isZoomed) {
-        startX = clientX - translateX;
-        startY = clientY - translateY;
-      } else {
-        // بدء تتبع السحب
-        isSwiping = true;
-        swipeStartX = clientX;
-        swipeStartY = clientY;
-        swipeCurrentX = clientX;
-        swipeCurrentY = clientY;
-        swipeDirection = null; // إعادة تعيين اتجاه السحب
-      }
-      const now = Date.now();
-      if (now - lastTap < 300) { e.preventDefault(); toggleZoom(e); }
-      lastTap = now;
-    } else if (e.touches.length === 2) {
-      e.preventDefault();
-      initialDistance = getDistance(e.touches);
-      initialScale = scale;
-      isSwiping = false; // لا نريد تفعيل السحب عند استخدام إصبعين
-    }
-  }
-
-  function onTouchMove(e) {
-    if (isTransitioning || !isSwiping) return;
-    e.preventDefault();
-
-    if (e.touches.length === 1) {
-      // منطق تحريك الصورة عند التكبير (Pan)
-      if (isZoomed) {
-        const { clientX, clientY } = e.touches[0];
-        translateX = clientX - startX;
-        translateY = clientY - startY;
-        applyTransform(lbImage, translateX, translateY, scale);
-        return;
-      }
-      
-      swipeCurrentX = e.touches[0].clientX;
-      swipeCurrentY = e.touches[0].clientY;
-      const diffX = swipeCurrentX - swipeStartX;
-      const diffY = swipeCurrentY - swipeStartY;
-
-      // تحديد اتجاه السحب عند أول حركة مهمة
-      if (!swipeDirection) {
-        if (Math.abs(diffY) > 5 && Math.abs(diffY) > Math.abs(diffX)) {
-            swipeDirection = 'vertical';
-        } else if (Math.abs(diffX) > 5) {
-            swipeDirection = 'horizontal';
-        }
-      }
-
-      // **منطق السحب الرأسي للإغلاق**
-      if (swipeDirection === 'vertical' && diffY < 0) { // السحب للأعلى فقط
-          const progress = Math.abs(diffY) / (window.innerHeight / 2);
-          const newScale = Math.max(0.7, 1 - progress * 0.3); // تصغير الصورة قليلاً
-          const newOpacity = Math.max(0.1, 1 - progress); // جعل الخلفية شفافة
-          applyTransform(lbImage, 0, diffY, newScale);
-          lightbox.style.backgroundColor = `rgba(0, 0, 0, ${0.9 * newOpacity})`;
-      } 
-      // منطق السحب الأفقي للتنقل
-      else if (swipeDirection === 'horizontal') {
-          const navDirection = diffX < 0 ? 1 : -1;
-          const nextIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
-          if (lbImageNext.style.display !== 'block') {
-            lbImageNext.src = allImages[nextIndex].src;
-            lbImageNext.style.display = 'block';
-          }
-          applyTransform(lbImage, diffX, 0, 1);
-          const nextImageX = (navDirection === 1 ? window.innerWidth : -window.innerWidth) + diffX;
-          applyTransform(lbImageNext, nextImageX, 0, 1);
-      }
-    } else if (e.touches.length === 2 && !isSwiping) {
-        // منطق التكبير بإصبعين (Pinch-to-zoom)
-    }
-  }
-
-  function onTouchEnd(e) {
-    if (!isSwiping) return;
-    isSwiping = false;
-
-    // **عند انتهاء السحب الرأسي**
-    if (swipeDirection === 'vertical') {
-        const diffY = swipeCurrentY - swipeStartY;
-        if (diffY < -swipeThresholdY) { // إذا تم السحب لمسافة كافية للأعلى
-            closeLightbox();
-        } else { // إلغاء السحب الرأسي وإعادة كل شيء لمكانه
-            lbImage.style.transition = 'transform 0.3s ease-out';
-            lightbox.style.transition = 'background-color 0.3s ease-out';
-            applyTransform(lbImage, 0, 0, 1);
-            lightbox.style.backgroundColor = '';
-            setTimeout(() => { lightbox.style.transition = 'none'; }, 300);
-        }
-    } 
-    // عند انتهاء السحب الأفقي
-    else if (swipeDirection === 'horizontal') {
-        const diffX = swipeCurrentX - swipeStartX;
-        const navDirection = diffX < 0 ? 1 : -1;
-        if (Math.abs(diffX) > swipeThresholdX) {
-            const newIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
-            slideTo(newIndex, navDirection);
-        } else { // إلغاء السحب الأفقي
-            lbImage.style.transition = 'transform 0.3s ease-out';
-            lbImageNext.style.transition = 'transform 0.3s ease-out';
-            applyTransform(lbImage, 0, 0, 1);
-            const nextImageX = navDirection === 1 ? window.innerWidth : -window.innerWidth;
-            applyTransform(lbImageNext, nextImageX, 0, 1);
-        }
-    }
-    swipeDirection = null; // إعادة تعيين الاتجاه للمسة التالية
-  }
-  
-  function slideTo(newIndex, direction) {
-    if (isTransitioning) return;
-    isTransitioning = true;
-    
-    if (lbImageNext.style.display !== 'block') {
-      lbImageNext.src = allImages[newIndex].src;
-      lbImageNext.style.display = 'block';
-      const initialNextX = direction === 1 ? window.innerWidth : -window.innerWidth;
-      applyTransform(lbImageNext, initialNextX, 0, 1);
-    }
-
-    lbImage.style.transition = 'transform 0.3s ease-out';
-    lbImageNext.style.transition = 'transform 0.3s ease-out';
-
-    const finalCurrentImageX = direction === 1 ? -window.innerWidth : window.innerWidth;
-    applyTransform(lbImage, finalCurrentImageX, 0, 1);
-    applyTransform(lbImageNext, 0, 0, 1);
-    
-    setTimeout(() => {
-      currentImageIndex = newIndex;
-      const newImgData = allImages[currentImageIndex];
-      lbImage.src = newImgData.src;
-      lbImage.alt = `Enlarged view of ${escapeHtml(newImgData.title || 'artwork')}`;
-      history.replaceState({ lightbox: 'open' }, '', `#image/${newImgData.id}`);
-
-      lbImage.style.transition = 'none';
-      lbImageNext.style.transition = 'none';
-      applyTransform(lbImage, 0, 0, 1);
-      lbImageNext.style.display = 'none';
-
-      isTransitioning = false;
-    }, 300);
-  }
-
-  // --- بقية الكود بدون تغيير (Event Listeners, Firebase logic, etc.) ---
-  // The rest of your script.js file remains the same.
-
-  // --- Event Listeners Setup ---
-  menuToggle.onclick = openMenu;
-  menuClose.onclick = closeMenu;
-  menuOverlay.onclick = closeMenu;
-
-  navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      history.pushState(null, '', link.getAttribute('href'));
-      showSection(link.getAttribute('href').substring(1));
-      closeMenu();
-    });
-  });
-
-  nameEl.innerHTML = nameEl.textContent.split('').map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
-  nameEl.addEventListener('click', () => {
-    nameEl.querySelectorAll('span').forEach((span, i) => {
-      setTimeout(() => span.classList.add('bounce'), i * 50);
-      setTimeout(() => span.classList.remove('bounce'), 1000 + i * 50);
-    });
-  });
-
-  lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
-
-  lbImage.addEventListener('click', (e) => {
-    if (lightbox.classList.contains('avatar-open')) {
-      e.stopPropagation();
-      closeLightbox();
-    }
-  });
-
-  prevArrow.addEventListener('click', (e) => { 
-    e.stopPropagation(); 
-    const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
-    slideTo(newIndex, -1);
-  });
-  nextArrow.addEventListener('click', (e) => { 
-    e.stopPropagation();
-    const newIndex = (currentImageIndex + 1) % allImages.length;
-    slideTo(newIndex, 1);
-  });
-
-  lightboxContent.addEventListener('touchstart', onTouchStart, { passive: false });
-  lightboxContent.addEventListener('touchmove', onTouchMove, { passive: false });
-  lightboxContent.addEventListener('touchend', onTouchEnd, { passive: false });
-
-  document.addEventListener('keydown', (e) => {
-    if (lightbox.classList.contains('open') && !lightbox.classList.contains('avatar-open') && !isZoomed) {
-      if (e.key === 'ArrowRight') {
-        const newIndex = (currentImageIndex + 1) % allImages.length;
-        slideTo(newIndex, 1);
-      }
-      if (e.key === 'ArrowLeft') {
-        const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
-        slideTo(newIndex, -1);
-      }
-    }
-    if (lightbox.classList.contains('open') && e.key === 'Escape') {
-      closeLightbox();
-    }
-  });
-
-  window.addEventListener('popstate', () => {
-    if (!window.location.hash.startsWith('#image/')) {
-        closeLightbox();
-    }
-    handleNavigation();
-  });
-
-  document.getElementById('avatarImg').addEventListener('click', function() {
-    lbImage.src = this.src;
-    lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
-    lightbox.classList.add('open', 'avatar-open');
-  });
-
-  document.querySelectorAll('.filter-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      document.querySelector('.filter-btn.active').classList.remove('active');
-      button.classList.add('active');
-      loadImages(button.dataset.category);
-    });
-  });
-
-  authBtn.addEventListener('click', () => {
-    if (auth.currentUser) {
-      auth.signOut().catch(error => console.error("Sign out error", error));
-    } else {
-      auth.signInWithPopup(provider).catch(error => { console.error("Sign in error", error); });
-    }
-    closeMenu();
-  });
-
   auth.onAuthStateChanged((user) => {
     const isAdmin = user && user.email === 'p7ilosop7y@gmail.com';
     authBtn.textContent = user ? 'تسجيل الخروج' : 'تسجيل الدخول';
     addImageBtn.style.display = isAdmin ? 'inline-block' : 'none';
-  });
-
-  addImageBtn.addEventListener('click', () => {
-    const uploadWidget = cloudinary.createUploadWidget({
-      cloudName: 'dswtpqdsh',
-      uploadPreset: 'Mohamed',
-      folder: 'portfolio',
-      cropping: true,
-    }, (error, result) => {
-      if (!error && result && result.event === "success") {
-        const imageUrl = result.info.secure_url;
-        const title = prompt("Enter the image title:");
-        const category = prompt("Enter category (illustration, concept, character):")?.toLowerCase();
-        const validCategories = ["illustration", "concept", "character"];
-
-        if (title && category && validCategories.includes(category)) {
-          db.collection("portfolioimages").add({
-            src: imageUrl,
-            title: title,
-            category: category,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            likes: 0,
-            likedBy: [],
-            comments: []
-          }).then(() => {
-            alert("Image added successfully!");
-            loadImages(document.querySelector('.filter-btn.active').dataset.category);
-          }).catch(err => {
-            console.error("Error adding image to Firestore:", err);
-            alert("Failed to add image data. Check console and security rules.");
-          });
-        } else {
-          alert("Invalid input. Please provide a title and a valid category.");
-        }
-      }
-    });
-    uploadWidget.open();
   });
 
   // --- Initial Load ---
