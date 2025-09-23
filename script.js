@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const addImageBtn = document.getElementById('addImageBtn');
   const prevArrow = document.getElementById('prevArrow');
   const nextArrow = document.getElementById('nextArrow');
+  // --- (إضافة) تعريف متغير الصورة الشخصية ---
+  const avatarImg = document.getElementById('avatarImg');
+
 
   // --- State ---
   let currentImageIndex = -1;
@@ -69,18 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let touchEndY = 0;
 
   document.addEventListener('touchstart', e => {
-    // *** هذا هو السطر الجديد الذي يحل المشكلة ***
-    // إذا بدأت اللمسة داخل الوضع المكبر، تجاهلها تمامًا ولا تفعل أي شيء
     if (e.target.closest('#lightbox')) return;
-    
     touchStartX = e.changedTouches[0].screenX;
     touchStartY = e.changedTouches[0].screenY;
   }, { passive: true });
 
   document.addEventListener('touchend', e => {
-    // كإجراء احترازي، نتأكد مرة أخرى هنا أيضًا
     if (e.target.closest('#lightbox')) return;
-
     touchEndX = e.changedTouches[0].screenX;
     touchEndY = e.changedTouches[0].screenY;
     handleMenuSwipe();
@@ -90,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const diffX = touchEndX - touchStartX;
     const diffY = touchEndY - touchStartY;
     const swipeThreshold = 50;
-
     if (Math.abs(diffX) > Math.abs(diffY)) {
       if (Math.abs(diffX) > swipeThreshold) {
         if (diffX > 0) {
@@ -106,6 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
   menuToggle.onclick = openMenu;
   menuClose.onclick = closeMenu;
   menuOverlay.onclick = closeMenu;
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      closeMenu();
+    });
+  });
   
   // =======================================================================
   // === Lightbox (Enlarged Image) Functions ===
@@ -310,10 +312,25 @@ document.addEventListener('DOMContentLoaded', () => {
   nextArrow.addEventListener('click', (e) => { e.stopPropagation(); const newIndex = (currentImageIndex + 1) % allImages.length; slideTo(newIndex, 1); });
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
 
+  // --- (إضافة) تفعيل تكبير الصورة الشخصية ---
+  avatarImg.addEventListener('click', function() {
+    lbImage.src = this.src;
+    lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
+    lightbox.classList.add('open', 'avatar-open');
+  });
 
   // =======================================================================
   // --- All Other Website Functions (Unchanged) ---
   // =======================================================================
+
+  // --- (إضافة) تفعيل انيميشن الاسم ---
+  nameEl.innerHTML = nameEl.textContent.split('').map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
+  nameEl.addEventListener('click', () => {
+    nameEl.querySelectorAll('span').forEach((span, i) => {
+      setTimeout(() => span.classList.add('bounce'), i * 50);
+      setTimeout(() => span.classList.remove('bounce'), 1000 + i * 50);
+    });
+  });
 
   function showSection(sectionId) {
     sections.forEach(section => { section.style.display = 'none'; section.classList.remove('active'); });
@@ -487,6 +504,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const isAdmin = user && user.email === 'p7ilosop7y@gmail.com';
     authBtn.textContent = user ? 'تسجيل الخروج' : 'تسجيل الدخول';
     addImageBtn.style.display = isAdmin ? 'inline-block' : 'none';
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelector('.filter-btn.active').classList.remove('active');
+      button.classList.add('active');
+      loadImages(button.dataset.category);
+    });
   });
 
   // --- Initial Load ---
