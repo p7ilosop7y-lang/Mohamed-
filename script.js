@@ -1,5 +1,3 @@
-// script.js (Final Version with all fixes)
-
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
   authDomain: "mo777-2b57e.firebaseapp.com", 
@@ -41,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextArrow = document.getElementById('nextArrow');
   const avatarImg = document.getElementById('avatarImg');
 
-
   // --- State ---
   let currentImageIndex = -1;
   let allImages = [];
@@ -49,9 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let roleIndex = 0, charIndex = 0, deleting = false;
   let isTransitioning = false;
   
-  // =======================================================================
-  // === Menu Open/Close Functions ===
-  // =======================================================================
   function openMenu() {
     sideMenu.classList.add('open');
     menuOverlay.classList.add('open');
@@ -62,9 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
     menuOverlay.classList.remove('open');
   }
   
-  // =======================================================================
-  // === Menu Swipe Detection Logic ===
-  // =======================================================================
   let touchStartX = 0;
   let touchStartY = 0;
   let touchEndX = 0;
@@ -98,19 +89,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Event Listeners for Menu ---
   menuToggle.onclick = openMenu;
   menuClose.onclick = closeMenu;
   menuOverlay.onclick = closeMenu;
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       closeMenu();
+      const href = link.getAttribute('href');
+      if (href.startsWith('#')) {
+          const sectionId = href.substring(1);
+          showSection(sectionId);
+      }
     });
   });
   
-  // =======================================================================
-  // === Lightbox (Enlarged Image) Functions ===
-  // =======================================================================
   let scale = 1, isZoomed = false;
   let panStartX, panStartY, translateX = 0, translateY = 0;
   let lastTap = 0;
@@ -130,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lightbox.style.backgroundColor = '';
     lightbox.classList.add('open');
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('lightbox-is-open');
     const imageUrl = `#image/${img.id}`;
     if (window.location.hash !== imageUrl) {
       history.pushState({ lightbox: 'open' }, '', imageUrl);
@@ -139,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeLightbox() {
     lightbox.classList.remove('open', 'avatar-open', 'zoomed');
     document.body.style.overflow = 'auto';
+    document.body.classList.remove('lightbox-is-open');
     setTimeout(() => {
       lightbox.style.backgroundColor = '';
       applyTransform(lbImage, 0, 0, 1);
@@ -169,8 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const originY = (e.clientY || e.touches[0].clientY) - rect.top;
       lbImage.style.transformOrigin = `${originX}px ${originY}px`;
       scale = 2.5;
-      translateX = -(originX / (rect.width / lbImage.offsetWidth)) * (scale - 1);
-      translateY = -(originY / (rect.height / lbImage.offsetHeight)) * (scale - 1);
       isZoomed = true;
       lightbox.classList.add('zoomed');
       lbImage.style.transition = 'transform 0.3s ease-out';
@@ -182,12 +174,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function slideTo(newIndex, direction) {
     if (isTransitioning) return;
     isTransitioning = true;
-    if (lbImageNext.style.display !== 'block') {
-      lbImageNext.src = allImages[newIndex].src;
-      lbImageNext.style.display = 'block';
-      const initialNextX = direction === 1 ? window.innerWidth : -window.innerWidth;
-      applyTransform(lbImageNext, initialNextX, 0, 1);
-    }
+    lbImageNext.src = allImages[newIndex].src;
+    lbImageNext.style.display = 'block';
+    const initialNextX = direction === 1 ? window.innerWidth : -window.innerWidth;
+    applyTransform(lbImageNext, initialNextX, 0, 1);
     lbImage.style.transition = 'transform 0.3s ease-out';
     lbImageNext.style.transition = 'transform 0.3s ease-out';
     const finalCurrentImageX = direction === 1 ? -window.innerWidth : window.innerWidth;
@@ -262,10 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
           if (lightbox.classList.contains('avatar-open')) return;
           const navDirection = diffX < 0 ? 1 : -1;
           const nextIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
-          if (lbImageNext.style.display !== 'block') {
-            lbImageNext.src = allImages[nextIndex].src;
-            lbImageNext.style.display = 'block';
-          }
+          lbImageNext.src = allImages[nextIndex].src;
+          lbImageNext.style.display = 'block';
           applyTransform(lbImage, diffX, 0, 1);
           const nextImageX = (navDirection === 1 ? window.innerWidth : -window.innerWidth) + diffX;
           applyTransform(lbImageNext, nextImageX, 0, 1);
@@ -305,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxSwipeDirection = null;
   }
 
-  // --- Event Listeners for Lightbox ---
   lightboxContent.addEventListener('touchstart', onLightboxTouchStart, { passive: false });
   lightboxContent.addEventListener('touchmove', onLightboxTouchMove, { passive: false });
   lightboxContent.addEventListener('touchend', onLightboxTouchEnd, { passive: false });
@@ -328,14 +315,17 @@ document.addEventListener('DOMContentLoaded', () => {
   avatarImg.addEventListener('click', function() {
     lbImage.src = this.src;
     lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
-    // --- (تعديل) إضافة هذا السطر لإخفاء الصورة المجاورة ومنع ظهور النص البديل ---
     lbImageNext.style.display = 'none';
     lightbox.classList.add('open', 'avatar-open');
+    document.body.classList.add('lightbox-is-open');
   });
-
-  // =======================================================================
-  // --- All Other Website Functions (Unchanged) ---
-  // =======================================================================
+  
+  // --- (تعديل) إضافة حدث النقر على الصورة الشخصية المكبرة لإغلاقها ---
+  lbImage.addEventListener('click', () => {
+    if (lightbox.classList.contains('avatar-open')) {
+      closeLightbox();
+    }
+  });
 
   nameEl.innerHTML = nameEl.textContent.split('').map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   nameEl.addEventListener('click', () => {
@@ -346,14 +336,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function showSection(sectionId) {
-    sections.forEach(section => { section.style.display = 'none'; section.classList.remove('active'); });
+    sections.forEach(section => { section.classList.remove('active'); });
     const el = document.getElementById(sectionId);
-    if (el) { el.style.display = 'block'; el.classList.add('active'); }
+    if (el) { el.classList.add('active'); }
   }
 
   function handleNavigation() {
     const hash = window.location.hash;
-    showSection(hash.startsWith('#image/') ? 'portfolio' : (hash.substring(1) || 'portfolio'));
+    const sectionId = hash.startsWith('#image/') ? 'portfolio' : (hash.substring(1) || 'portfolio');
+    showSection(sectionId);
   }
 
   function typeWriter() {
@@ -527,7 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- Initial Load ---
   handleNavigation();
   loadImages();
   typeWriter();
