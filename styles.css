@@ -651,8 +651,8 @@ body.lightbox-is-open .header-avatar-icon {
 /* --- (تعديل) تصميم المصباح في قسم البورتفوليو --- */
 .lightbulb-scene {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 3px;
+    right: 14px;
     width: 80px;
     height: 100px;
     z-index: 5;
