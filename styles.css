@@ -265,6 +265,7 @@ section p {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 25px;
   padding: 20px;
+  min-height: 200px; /* Added to center loader in empty space */
 }
 
 @keyframes fadeInSlideUp {
@@ -338,7 +339,7 @@ section p {
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--accent);
-  cursor: pointer; /* إضافة مؤشر للضغط */
+  cursor: pointer;
 }
 
 .nav-arrow {
@@ -564,6 +565,41 @@ footer {
   white-space: nowrap;
   border: 0;
 }
+
+/* Loading Spinner Style */
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--text);
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  margin: 40px auto;
+}
+.loader::after {
+  content: '';  
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid;
+  border-color: var(--accent) transparent;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 
 
 @media (max-width: 768px) {
   nav {

@@ -312,6 +312,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
 
+  // (تعديل) إضافة event listener لإغلاق الصورة بزر Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+      closeLightbox();
+    }
+  });
+
   avatarImg.addEventListener('click', function() {
     lbImage.src = this.src;
     lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
@@ -320,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('lightbox-is-open');
   });
   
-  // --- (تعديل) إضافة حدث النقر على الصورة الشخصية المكبرة لإغلاقها ---
   lbImage.addEventListener('click', () => {
     if (lightbox.classList.contains('avatar-open')) {
       closeLightbox();
@@ -360,7 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadImages(category = 'all') {
-    gallery.innerHTML = '<p>Loading gallery...</p>';
+    // (تعديل) إظهار مؤثر التحميل بدلًا من النص
+    gallery.innerHTML = '<div class="loader"></div>';
     let query = db.collection("portfolioimages").orderBy("timestamp", "desc");
     if (category !== 'all') { query = query.where("category", "==", category); }
     try {
@@ -422,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'card';
     const isLiked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
+    // (تعديل) إضافة loading="lazy" للصورة
     card.innerHTML = `
       <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork')}" loading="lazy"></div>
       <div class="title-container"><h3>${escapeHtml(imgObj.title || 'Untitled')}</h3></div>
