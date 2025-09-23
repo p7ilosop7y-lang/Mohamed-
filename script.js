@@ -1,4 +1,4 @@
-// script.js (Definitive Final Version with All Features)
+// script.js (Final Version with Swipe Conflict Fix)
 
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isTransitioning = false;
   
   // =======================================================================
-  // === (Simple & Reliable) Menu Open/Close Functions ===
+  // === Menu Open/Close Functions ===
   // =======================================================================
   function openMenu() {
     sideMenu.classList.add('open');
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // =======================================================================
-  // === (Simple & Reliable) Menu Swipe Detection ===
+  // === Menu Swipe Detection Logic ===
   // =======================================================================
   let touchStartX = 0;
   let touchStartY = 0;
@@ -69,13 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
   let touchEndY = 0;
 
   document.addEventListener('touchstart', e => {
-    if (lightbox.classList.contains('open')) return;
+    // *** هذا هو السطر الجديد الذي يحل المشكلة ***
+    // إذا بدأت اللمسة داخل الوضع المكبر، تجاهلها تمامًا ولا تفعل أي شيء
+    if (e.target.closest('#lightbox')) return;
+    
     touchStartX = e.changedTouches[0].screenX;
     touchStartY = e.changedTouches[0].screenY;
   }, { passive: true });
 
   document.addEventListener('touchend', e => {
-    if (lightbox.classList.contains('open')) return;
+    // كإجراء احترازي، نتأكد مرة أخرى هنا أيضًا
+    if (e.target.closest('#lightbox')) return;
+
     touchEndX = e.changedTouches[0].screenX;
     touchEndY = e.changedTouches[0].screenY;
     handleMenuSwipe();
@@ -103,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   menuOverlay.onclick = closeMenu;
   
   // =======================================================================
-  // === (Restored) Lightbox (Enlarged Image) Functions ===
+  // === Lightbox (Enlarged Image) Functions ===
   // =======================================================================
   let scale = 1, isZoomed = false;
   let panStartX, panStartY, translateX = 0, translateY = 0;
