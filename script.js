@@ -509,17 +509,30 @@ document.addEventListener('DOMContentLoaded', () => {
     addImageBtn.style.display = isAdmin ? 'inline-block' : 'none';
   });
   
-  // --- (تعديل) إضافة حدث النقر على زر المصادقة ---
   authBtn.addEventListener('click', () => {
     if (auth.currentUser) {
-      // إذا كان المستخدم مسجلاً، يتم تسجيل خروجه
       auth.signOut();
     } else {
-      // إذا لم يكن مسجلاً، يتم فتح نافذة جوجل لتسجيل الدخول
       auth.signInWithPopup(provider)
         .catch((error) => {
-          console.error("Authentication Error: ", error);
-          alert('فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+          console.error("Authentication Error Code:", error.code);
+          console.error("Authentication Error Message:", error.message);
+          let friendlyMessage = 'فشل تسجيل الدخول.\n';
+          switch (error.code) {
+            case 'auth/popup-blocked':
+              friendlyMessage += 'تم حظر النافذة المنبثقة بواسطة المتصفح. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.';
+              break;
+            case 'auth/popup-closed-by-user':
+              friendlyMessage += 'تم إغلاق نافذة تسجيل الدخول قبل إتمام العملية.';
+              break;
+            case 'auth/unauthorized-domain':
+              friendlyMessage += 'هذا النطاق غير مصرح له بالقيام بعمليات المصادقة.';
+              break;
+            default:
+              friendlyMessage += 'يرجى المحاولة مرة أخرى. إذا استمرت المشكلة، تحقق من إعدادات مشروع Firebase.';
+              friendlyMessage += `\n\nError: ${error.message}`;
+          }
+          alert(friendlyMessage);
         });
     }
   });
