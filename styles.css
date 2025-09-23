@@ -2,7 +2,8 @@
   --bg: #0a0f1a;
   --card: #131c2b;
   --muted: #b0bac8;
-  --accent: #ff6b9d;
+  --accent: #ff6b9d; /* اللون الأساسي */
+  --accent-glow: rgba(255, 107, 157, 0.6); /* لون توهج خفيف من اللون الأساسي */
   --text: #f3f5f7;
 }
 
@@ -43,7 +44,7 @@ header {
 
 .header-avatar-icon {
   position: absolute;
-  bottom: -8px;
+  bottom: -5px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 20px;
@@ -552,6 +553,8 @@ footer {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+  /* الكود الجديد لتأثير التوهج */
+  box-shadow: 0 0 15px var(--accent-glow); 
 }
 
 .visually-hidden {
