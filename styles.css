@@ -2,19 +2,37 @@
   --bg: #0a0f1a;
   --card: #131c2b;
   --muted: #b0bac8;
-  --accent: #ff6b9d; /* اللون الأساسي */
-  --accent-glow: rgba(255, 107, 157, 0.6); /* لون توهج خفيف من اللون الأساسي */
+  --accent: #ff6b9d;
   --text: #f3f5f7;
+  --header-bg: #111c2d99;
+  --card-bg: rgba(19, 28, 43, 0.6);
+  --body-gradient: linear-gradient(180deg, #102a43, #0a0f1a);
+  --footer-bg: #0f1828;
+  --comment-bg: #0a0f1a;
+}
+
+body.light-mode {
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --muted: #5a6e87;
+  --accent: #007bff;
+  --text: #1c293a;
+  --header-bg: #ffffff99;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --body-gradient: linear-gradient(180deg, #d3e0ea, #f0f4f8);
+  --footer-bg: #e1e8f0;
+  --comment-bg: #e9eef3;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(180deg, #102a43, #0a0f1a);
+  background: var(--body-gradient);
   color: var(--text);
   margin: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
 header {
@@ -22,12 +40,13 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #111c2d99;
+  background: var(--header-bg);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
   z-index: 10;
   border-bottom: 1px solid var(--card);
+  transition: background 0.5s ease;
 }
 
 .brand {
@@ -44,7 +63,7 @@ header {
 
 .header-avatar-icon {
   position: absolute;
-  bottom: -8px;
+  bottom: -5px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 20px;
@@ -62,7 +81,7 @@ header {
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--accent);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, border-color 0.5s ease;
   display: block;
 }
 
@@ -96,6 +115,7 @@ header {
   font-size: 13px;
   color: var(--muted);
   display: inline;
+  transition: color 0.5s ease;
 }
 
 nav {
@@ -226,6 +246,7 @@ section {
   padding: 40px;
   text-align: center;
   display: none;
+  position: relative; /* (تعديل) إضافة position relative لكل الأقسام */
 }
 
 section.active {
@@ -237,10 +258,12 @@ section h2 {
   color: var(--accent);
   font-size: 2.2rem;
   font-weight: 600;
+  transition: color 0.5s ease;
 }
 
 section p {
   color: var(--muted);
+  transition: color 0.5s ease;
 }
 
 .social-icons {
@@ -266,7 +289,6 @@ section p {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 25px;
   padding: 20px;
-  min-height: 200px; /* Added to center loader in empty space */
 }
 
 @keyframes fadeInSlideUp {
@@ -281,11 +303,11 @@ section p {
 }
 
 .card {
-  background: rgba(19, 28, 43, 0.6);
+  background: var(--card-bg);
   border-radius: 14px;
   overflow: hidden;
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s ease;
   border: 1px solid var(--card);
   animation: fadeInSlideUp 0.5s ease-out forwards;
   opacity: 0; 
@@ -340,7 +362,7 @@ section p {
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--accent);
-  cursor: pointer;
+  cursor: pointer; /* إضافة مؤشر للضغط */
 }
 
 .nav-arrow {
@@ -383,8 +405,9 @@ footer {
   text-align: center;
   font-size: 13px;
   color: var(--muted);
-  background: #0f1828;
+  background: var(--footer-bg);
   border-top: 1px solid var(--card);
+  transition: background 0.5s ease;
 }
 
 .cursor {
@@ -454,7 +477,8 @@ footer {
 .comments-section {
   padding: 10px 15px;
   border-top: 1px solid var(--card);
-  background: #0a0f1a;
+  background: var(--comment-bg);
+  transition: background 0.5s ease;
 }
 
 .comments-list {
@@ -493,10 +517,10 @@ footer {
   padding: 9px 12px;
   border: 1px solid transparent;
   border-radius: 20px;
-  background: #0a0f1a;
+  background: var(--comment-bg);
   color: var(--text);
   font-size: 14px;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, background 0.5s ease;
 }
 
 .comment-input:focus {
@@ -515,7 +539,7 @@ footer {
   cursor: pointer;
   font-size: 14px;
   flex-shrink: 0;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.5s ease;
 }
 .comment-btn:hover {
   transform: scale(1.1);
@@ -536,7 +560,7 @@ footer {
 .filter-btn {
   padding: 8px 16px;
   margin: 0 5px;
-  background: rgba(19, 28, 43, 0.8);
+  background: var(--card-bg);
   color: var(--text);
   border: 1px solid var(--card);
   border-radius: 20px;
@@ -553,8 +577,6 @@ footer {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
-  /* الكود الجديد لتأثير التوهج */
-  box-shadow: 0 0 15px var(--accent-glow); 
 }
 
 .visually-hidden {
@@ -568,41 +590,6 @@ footer {
   white-space: nowrap;
   border: 0;
 }
-
-/* Loading Spinner Style */
-.loader {
-  width: 48px;
-  height: 48px;
-  border: 3px solid var(--text);
-  border-radius: 50%;
-  display: inline-block;
-  position: relative;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-  margin: 40px auto;
-}
-.loader::after {
-  content: '';  
-  box-sizing: border-box;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 3px solid;
-  border-color: var(--accent) transparent;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-} 
 
 @media (max-width: 768px) {
   nav {
@@ -659,4 +646,60 @@ footer {
 
 body.lightbox-is-open .header-avatar-icon {
   display: none;
+}
+
+/* --- (تعديل) تصميم المصباح في قسم البورتفوليو --- */
+.lightbulb-scene {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 80px;
+    height: 100px;
+    z-index: 5;
+    overflow: visible !important;
+}
+
+#lightbulbSvg {
+    width: 100%;
+    height: 100%;
+}
+
+#cord {
+    stroke: var(--muted);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke 0.5s ease;
+}
+
+#bulbGroup {
+    transition: transform 0.1s ease;
+}
+
+#bulb, #bulbGroup rect {
+    stroke: var(--muted);
+    stroke-width: 2.5;
+    fill: var(--card);
+    transition: stroke 0.5s ease, fill 0.5s ease;
+}
+
+#filament {
+    fill: none;
+    stroke: #555;
+    stroke-width: 4;
+    transition: all 0.3s ease;
+}
+
+#glow-effect {
+    fill: #ffeb3b;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#lightbulbSvg.on #filament {
+    stroke: #ffc107;
+}
+
+#lightbulbSvg.on #glow-effect {
+    opacity: 0.8;
+    filter: url(#glow);
 }

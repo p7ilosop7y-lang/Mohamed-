@@ -548,4 +548,114 @@ document.addEventListener('DOMContentLoaded', () => {
   handleNavigation();
   loadImages();
   typeWriter();
+
+  // --- (تعديل) كود حركة المصباح ووظيفة تغيير الثيم ---
+  const lightbulbScene = document.getElementById('lightbulbScene');
+  if (lightbulbScene && typeof Matter !== 'undefined') {
+    const svg = document.getElementById('lightbulbSvg');
+    const bulbGroup = document.getElementById('bulbGroup');
+    const cord = document.getElementById('cord');
+
+    const { Engine, World, Bodies, Constraint, Mouse, MouseConstraint } = Matter;
+
+    const engine = Engine.create();
+    const world = engine.world;
+    world.gravity.scale = 0.001; 
+
+    const anchorX = 50;
+    const anchorY = 0;
+    const cordLength = 100;
+
+    const bulbBody = Bodies.circle(anchorX, anchorY + cordLength, 15, {
+      restitution: 0.5,
+      friction: 0.1,
+      frictionAir: 0.05
+    });
+    
+    const constraint = Constraint.create({
+      pointA: { x: anchorX, y: anchorY },
+      bodyB: bulbBody,
+      length: cordLength,
+      stiffness: 0.2,
+      damping: 0.25
+    });
+
+    World.add(world, [bulbBody, constraint]);
+
+    const mouse = Mouse.create(lightbulbScene);
+    const mouseConstraint = MouseConstraint.create(engine, {
+      mouse: mouse,
+      constraint: { stiffness: 0.1, render: { visible: false } }
+    });
+    World.add(world, mouseConstraint);
+
+    (function render() {
+      const bulbPos = bulbBody.position;
+      const svgBulbOriginX = 50;
+      const svgBulbOriginY = 125;
+      
+      bulbGroup.setAttribute('transform', `translate(${bulbPos.x - svgBulbOriginX}, ${bulbPos.y - svgBulbOriginY})`);
+      cord.setAttribute('x2', bulbPos.x);
+      cord.setAttribute('y2', bulbPos.y);
+
+      Engine.update(engine, 1000 / 60);
+      requestAnimationFrame(render);
+    })();
+    
+    // (تعديل) وظيفة تغيير الثيم
+    function toggleTheme() {
+      const isLightTheme = document.body.classList.toggle('light-mode');
+      svg.classList.toggle('on', !isLightTheme);
+      localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
+    }
+    
+    // (تعديل) ربط تغيير الثيم بنهاية السحب بعد تجاوز مسافة معينة
+    let dragStartPos = { x: 0, y: 0 };
+    let isDragging = false;
+
+    mouse.element.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragStartPos = { x: e.clientX, y: e.clientY };
+    });
+    mouse.element.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        dragStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    });
+
+    document.addEventListener('mouseup', (e) => {
+      if (isDragging && mouseConstraint.body !== null) {
+        const dragEndPos = { x: e.clientX, y: e.clientY };
+        const dragDistance = Math.sqrt(
+          Math.pow(dragEndPos.x - dragStartPos.x, 2) + Math.pow(dragEndPos.y - dragStartPos.y, 2)
+        );
+        if (dragDistance > 5) {
+          toggleTheme();
+        }
+        isDragging = false;
+      }
+    });
+
+    document.addEventListener('touchend', (e) => {
+      if (isDragging && mouseConstraint.body !== null) {
+        const dragEndPos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+        const dragDistance = Math.sqrt(
+          Math.pow(dragEndPos.x - dragStartPos.x, 2) + Math.pow(dragEndPos.y - dragStartPos.y, 2)
+        );
+        if (dragDistance > 5) {
+          toggleTheme();
+        }
+        isDragging = false;
+      }
+    });
+
+
+    // تطبيق الثيم المحفوظ عند تحميل الصفحة
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-mode');
+      svg.classList.remove('on');
+    } else {
+      svg.classList.add('on'); // الوضع الليلي هو الافتراضي
+    }
+  }
 });
