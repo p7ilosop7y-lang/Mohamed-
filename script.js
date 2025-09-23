@@ -1,8 +1,5 @@
-// script.js
+// script.js (Final Version for Public Comments)
 
-// --- DANGER ---
-// THIS IS A SECURITY RISK. Do NOT expose your API key in client-side code in a real application.
-// Use environment variables and a backend function (like a Cloud Function) to protect your credentials.
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
   authDomain: "mo777-2b57e.firebaseapp.com",
@@ -38,12 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const lbImage = document.getElementById('lbImage');
   const authBtn = document.getElementById('auth-btn');
   const addImageBtn = document.getElementById('addImageBtn');
+  const prevArrow = document.getElementById('prevArrow');
+  const nextArrow = document.getElementById('nextArrow');
 
   // --- State ---
   let currentImageIndex = -1;
   let allImages = [];
   const roles = ["concept artist", "digital artist", "illustrator"];
   let roleIndex = 0, charIndex = 0, deleting = false;
+  let isTransitioning = false;
 
   // --- Functions ---
 
@@ -63,12 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function typeWriter() {
     const currentRole = roles[roleIndex];
-    if (!deleting && charIndex < currentRole.length) { roleEl.textContent += currentRole.charAt(charIndex++); } 
-    else if (deleting && charIndex > 0) { roleEl.textContent = currentRole.substring(0, --charIndex); } 
+    if (!deleting && charIndex < currentRole.length) { roleEl.textContent += currentRole.charAt(charIndex++); }
+    else if (deleting && charIndex > 0) { roleEl.textContent = currentRole.substring(0, --charIndex); }
     else { deleting = !deleting; if (!deleting) { roleIndex = (roleIndex + 1) % roles.length; } }
     setTimeout(typeWriter, deleting ? 100 : 150);
   }
-  
+
   function escapeHtml(unsafe) {
     return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
@@ -95,23 +95,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderGallery() {
     gallery.innerHTML = '';
-    if (allImages.length === 0) { gallery.innerHTML = "<p>No images found in this category.</p>"; return; }
-    allImages.forEach((imgObj, index) => gallery.appendChild(createImageCard(imgObj, index)));
+    if (allImages.length === 0) {
+      gallery.innerHTML = "<p>No images found in this category.</p>";
+      return;
+    }
+    allImages.forEach((imgObj, index) => {
+      const card = createImageCard(imgObj, index);
+      card.style.animationDelay = `${index * 0.05}s`;
+      gallery.appendChild(card);
+    });
   }
 
   function createImageCard(imgObj, index) {
     const card = document.createElement('div');
     card.className = 'card';
     const isLiked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
+
     card.innerHTML = `
       <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork')}" loading="lazy"></div>
-      <div class="title-container" style="padding: 12px; text-align: right;"><h3>${escapeHtml(imgObj.title || 'Untitled')}</h3></div>
-      <div class="card-actions" style="display: flex; align-items: center; justify-content: flex-end; padding: 0 12px 8px;">
-        <span class="like-count" style="color: var(--muted); font-size: 14px; margin-right: 8px;">${imgObj.likes || 0}</span>
-        <button class="like-btn" aria-label="Like this image" style="background: none; border: none; color: ${isLiked ? 'var(--accent)' : 'var(--muted)'}; cursor: pointer; font-size: 20px;">
+      <div class="title-container"><h3>${escapeHtml(imgObj.title || 'Untitled')}</h3></div>
+      <div class="card-actions">
+        <span class="like-count">${imgObj.likes || 0}</span>
+        <button class="action-btn like-btn ${isLiked ? 'liked' : ''}" aria-label="Like this image">
           <i class="${isLiked ? 'fas' : 'far'} fa-heart" aria-hidden="true"></i>
         </button>
-        <a href="${imgObj.src}" download class="download-btn" aria-label="Download this image" style="background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; margin-left: 8px;"><i class="fas fa-download" aria-hidden="true"></i></a>
+        <a href="${imgObj.src}" download class="action-btn download-btn" aria-label="Download this image">
+            <i class="fas fa-download" aria-hidden="true"></i>
+        </a>
       </div>
       <div class="comments-section">
         <div class="comments-list">${(imgObj.comments || []).map(comment => `<div class="comment"><span>${escapeHtml(comment)}</span></div>`).join('')}</div>
@@ -121,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="comment-btn" type="submit" aria-label="Submit comment"><i class="fas fa-paper-plane"></i></button>
         </form>
       </div>`;
+
     card.querySelector('.thumb img').addEventListener('click', () => openLightbox(index));
     const likeBtn = card.querySelector('.like-btn');
     const likeCountEl = card.querySelector('.like-count');
@@ -137,40 +148,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function toggleLike(imageId, likeBtn, likeCountEl) {
     const imageRef = db.collection('portfolioimages').doc(imageId);
-    const doc = await imageRef.get();
-    if (!doc.exists) return;
-    const { likedBy = [], likes = 0 } = doc.data();
-    const icon = likeBtn.querySelector('i');
-    let newLikes = likes;
-    if (likedBy.includes(visitorId)) {
-      newLikes--;
-      const index = likedBy.indexOf(visitorId);
-      likedBy.splice(index, 1);
-      likeBtn.style.color = 'var(--muted)';
-      icon.classList.replace('fas', 'far');
-    } else {
-      newLikes++;
-      likedBy.push(visitorId);
-      likeBtn.style.color = 'var(--accent)';
-      icon.classList.replace('far', 'fas');
+    try {
+        await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(imageRef);
+            if (!doc.exists) return;
+
+            const { likedBy = [], likes = 0 } = doc.data();
+            const icon = likeBtn.querySelector('i');
+            let newLikes = likes;
+
+            if (likedBy.includes(visitorId)) {
+                newLikes--;
+                likedBy.splice(likedBy.indexOf(visitorId), 1);
+                likeBtn.classList.remove('liked');
+                icon.classList.replace('fas', 'far');
+            } else {
+                newLikes++;
+                likedBy.push(visitorId);
+                likeBtn.classList.add('liked');
+                icon.classList.replace('far', 'fas');
+            }
+            transaction.update(imageRef, { likes: newLikes, likedBy });
+            likeCountEl.textContent = newLikes;
+        });
+    } catch (error) {
+        console.error("Failed to toggle like:", error);
     }
-    await imageRef.update({ likes: newLikes, likedBy });
-    likeCountEl.textContent = newLikes;
   }
 
   async function addComment(imageId, inputEl, commentsListEl) {
     const commentText = inputEl.value.trim();
     if (!commentText) return;
+
     const imageRef = db.collection('portfolioimages').doc(imageId);
     try {
-      await imageRef.update({ comments: firebase.firestore.FieldValue.arrayUnion(commentText) });
+      await imageRef.update({
+        comments: firebase.firestore.FieldValue.arrayUnion(commentText)
+      });
       const newCommentDiv = document.createElement('div');
       newCommentDiv.className = 'comment';
       newCommentDiv.innerHTML = `<span>${escapeHtml(commentText)}</span>`;
       commentsListEl.appendChild(newCommentDiv);
       commentsListEl.scrollTop = commentsListEl.scrollHeight;
       inputEl.value = '';
-    } catch (error) { console.error("Error adding comment:", error); alert("Failed to add comment."); }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      alert("An unexpected error occurred. Could not add comment.");
+    }
   }
 
   function openLightbox(index) {
@@ -182,22 +206,32 @@ document.addEventListener('DOMContentLoaded', () => {
     lightbox.classList.add('open');
     document.body.style.overflow = 'hidden';
     const imageUrl = `#image/${img.id}`;
-    if (window.location.hash !== imageUrl) { history.pushState({ lightbox: 'open' }, '', imageUrl); }
+    if (window.location.hash !== imageUrl) {
+      history.pushState({ lightbox: 'open' }, '', imageUrl);
+    }
   }
 
   function closeLightbox() {
     lightbox.classList.remove('open', 'avatar-open');
     document.body.style.overflow = 'auto';
+    if (window.location.hash.startsWith('#image/')) {
+        history.pushState("", document.title, window.location.pathname + window.location.search);
+    }
   }
 
   function navigateLightbox(direction) {
-    if (allImages.length === 0) return;
-    // direction: 1 for next, -1 for previous
-    currentImageIndex = (currentImageIndex + direction + allImages.length) % allImages.length;
-    const img = allImages[currentImageIndex];
-    lbImage.src = img.src;
-    lbImage.alt = `Enlarged view of ${escapeHtml(img.title || 'artwork')}`;
-    history.replaceState({ lightbox: 'open' }, '', `#image/${img.id}`);
+    if (allImages.length === 0 || isTransitioning) return;
+    isTransitioning = true;
+    lbImage.style.opacity = 0;
+    setTimeout(() => {
+      currentImageIndex = (currentImageIndex + direction + allImages.length) % allImages.length;
+      const img = allImages[currentImageIndex];
+      lbImage.src = img.src;
+      lbImage.alt = `Enlarged view of ${escapeHtml(img.title || 'artwork')}`;
+      history.replaceState({ lightbox: 'open' }, '', `#image/${img.id}`);
+      lbImage.style.opacity = 1;
+      setTimeout(() => { isTransitioning = false; }, 300);
+    }, 300);
   }
 
   // --- Event Listeners Setup ---
@@ -222,49 +256,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) history.back(); });
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+
   lbImage.addEventListener('click', (e) => {
     if (lightbox.classList.contains('avatar-open')) {
       e.stopPropagation();
       closeLightbox();
-      if (window.location.hash) { history.pushState("", document.title, window.location.pathname + window.location.search); }
     }
   });
 
-  // --- Keyboard & Swipe Navigation ---
+  prevArrow.addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox(-1); });
+  nextArrow.addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox(1); });
+
   let touchstartX = 0;
   let touchendX = 0;
-  const swipeThreshold = 50; // Minimum swipe distance in pixels
+  const swipeThreshold = 50;
 
   function handleSwipeGesture() {
     if (lightbox.classList.contains('avatar-open')) return;
     const deltaX = touchendX - touchstartX;
-    if (deltaX < -swipeThreshold) {
-      navigateLightbox(1); // Swiped left, go to next
-    } else if (deltaX > swipeThreshold) {
-      navigateLightbox(-1); // Swiped right, go to previous
-    }
+    if (deltaX < -swipeThreshold) navigateLightbox(1);
+    else if (deltaX > swipeThreshold) navigateLightbox(-1);
   }
 
-  lightbox.addEventListener('touchstart', e => {
-    touchstartX = e.changedTouches[0].screenX;
-  }, { passive: true });
-
-  lightbox.addEventListener('touchend', e => {
-    touchendX = e.changedTouches[0].screenX;
-    handleSwipeGesture();
-  });
+  lightbox.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, { passive: true });
+  lightbox.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; handleSwipeGesture(); });
 
   document.addEventListener('keydown', (e) => {
     if (lightbox.classList.contains('open') && !lightbox.classList.contains('avatar-open')) {
-      if (e.key === 'ArrowRight') navigateLightbox(1); // Next image
-      if (e.key === 'ArrowLeft') navigateLightbox(-1); // Previous image
-      if (e.key === 'Escape') history.back();
+      if (e.key === 'ArrowRight') navigateLightbox(1);
+      if (e.key === 'ArrowLeft') navigateLightbox(-1);
+      if (e.key === 'Escape') closeLightbox();
     }
   });
 
   window.addEventListener('popstate', () => {
-    if (!window.location.hash.startsWith('#image/')) closeLightbox();
+    if (!window.location.hash.startsWith('#image/')) {
+        closeLightbox();
+    }
     handleNavigation();
   });
 
@@ -281,24 +310,19 @@ document.addEventListener('DOMContentLoaded', () => {
       loadImages(button.dataset.category);
     });
   });
-  
+
   authBtn.addEventListener('click', () => {
     if (auth.currentUser) {
       auth.signOut().catch(error => console.error("Sign out error", error));
     } else {
-      auth.signInWithPopup(provider).then(result => {
-        if (result.user.email !== 'p7ilosop7y@gmail.com') {
-          alert('This account is not authorized as an admin.');
-          auth.signOut();
-        }
-      }).catch(error => { console.error("Sign in error", error); });
+      auth.signInWithPopup(provider).catch(error => { console.error("Sign in error", error); });
     }
     closeMenu();
   });
 
   auth.onAuthStateChanged((user) => {
     const isAdmin = user && user.email === 'p7ilosop7y@gmail.com';
-    authBtn.textContent = isAdmin ? 'تسجيل الخروج' : 'تسجيل الدخول';
+    authBtn.textContent = user ? 'تسجيل الخروج' : 'تسجيل الدخول';
     addImageBtn.style.display = isAdmin ? 'inline-block' : 'none';
   });
 
@@ -326,10 +350,10 @@ document.addEventListener('DOMContentLoaded', () => {
             comments: []
           }).then(() => {
             alert("Image added successfully!");
-            loadImages(document.querySelector('.filter-btn.active').dataset.category); // Refresh gallery
+            loadImages(document.querySelector('.filter-btn.active').dataset.category);
           }).catch(err => {
             console.error("Error adding image to Firestore:", err);
-            alert("Failed to add image data.");
+            alert("Failed to add image data. Check console and security rules.");
           });
         } else {
           alert("Invalid input. Please provide a title and a valid category.");
