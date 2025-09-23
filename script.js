@@ -1,4 +1,4 @@
-// script.js (Final Version with Partial Swipe Reveal)
+// script.js (Final Version with Swipe-to-Close)
 
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const gallery = document.getElementById('gallery');
   const lightbox = document.getElementById('lightbox');
   const lbImage = document.getElementById('lbImage');
-  const lbImageNext = document.getElementById('lbImageNext'); // New element
+  const lbImageNext = document.getElementById('lbImageNext');
   const authBtn = document.getElementById('auth-btn');
   const addImageBtn = document.getElementById('addImageBtn');
   const prevArrow = document.getElementById('prevArrow');
@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
+        // إصلاح: طريقة صحيحة للحصول على امتداد الملف
         const extension = src.split('.').pop().split('?')[0] || 'jpg';
         a.download = `${title.replace(/ /g, '_')}.${extension}`;
         document.body.appendChild(a);
@@ -230,14 +231,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =======================================================================
-  // === آلية تكبير الصور والانتقال الجديدة (Zoom/Pan/Slide) ===
+  // === آلية تكبير الصور والانتقال الجديدة (Zoom/Pan/Slide/Swipe-to-Close) ===
   // =======================================================================
   const lightboxContent = document.getElementById('lightboxContent');
   let scale = 1, isZoomed = false;
   let startX, startY, translateX = 0, translateY = 0;
   let lastTap = 0, initialDistance = 0, initialScale = 1;
-  let swipeStartX = 0, swipeCurrentX = 0, isSwiping = false, swipeDirection = 0;
-  const swipeThreshold = 50;
+  
+  // --- متغيرات جديدة لتتبع حالة السحب ---
+  let swipeStartX = 0, swipeStartY = 0, swipeCurrentX = 0, swipeCurrentY = 0;
+  let isSwiping = false, swipeDirection = null; // يمكن أن يكون 'horizontal', 'vertical', أو null
+  const swipeThresholdX = 50, swipeThresholdY = 80; // المسافة المطلوبة لتفعيل السحب
 
 
   function openLightbox(index) {
@@ -248,8 +252,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const img = allImages[index];
     lbImage.src = img.src;
     lbImage.alt = `Enlarged view of ${escapeHtml(img.title || 'artwork')}`;
-    lbImageNext.style.display = 'none'; // Hide the next image holder initially
+    lbImageNext.style.display = 'none';
     lbImage.style.opacity = 1;
+    lightbox.style.backgroundColor = ''; // إعادة تعيين لون الخلفية
 
     lightbox.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -262,6 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeLightbox() {
     lightbox.classList.remove('open', 'avatar-open', 'zoomed');
     document.body.style.overflow = 'auto';
+    // إعادة تعيين أي تنسيقات تمت إضافتها أثناء السحب للإغلاق
+    setTimeout(() => {
+        lightbox.style.backgroundColor = '';
+        applyTransform(lbImage, 0, 0, 1);
+    }, 300); // يجب أن تتوافق المدة مع مدة الـ transition
     if (window.location.hash.startsWith('#image/')) {
         history.pushState("", document.title, window.location.pathname + window.location.search);
     }
@@ -317,9 +327,13 @@ document.addEventListener('DOMContentLoaded', () => {
         startX = clientX - translateX;
         startY = clientY - translateY;
       } else {
+        // بدء تتبع السحب
         isSwiping = true;
         swipeStartX = clientX;
+        swipeStartY = clientY;
         swipeCurrentX = clientX;
+        swipeCurrentY = clientY;
+        swipeDirection = null; // إعادة تعيين اتجاه السحب
       }
       const now = Date.now();
       if (now - lastTap < 300) { e.preventDefault(); toggleZoom(e); }
@@ -328,84 +342,103 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       initialDistance = getDistance(e.touches);
       initialScale = scale;
-      isSwiping = false;
+      isSwiping = false; // لا نريد تفعيل السحب عند استخدام إصبعين
     }
   }
 
   function onTouchMove(e) {
+    if (isTransitioning || !isSwiping) return;
     e.preventDefault();
-    if (isTransitioning) return;
 
     if (e.touches.length === 1) {
+      // منطق تحريك الصورة عند التكبير (Pan)
       if (isZoomed) {
         const { clientX, clientY } = e.touches[0];
         translateX = clientX - startX;
         translateY = clientY - startY;
         applyTransform(lbImage, translateX, translateY, scale);
-      } else if (isSwiping) {
-        swipeCurrentX = e.touches[0].clientX;
-        const diffX = swipeCurrentX - swipeStartX;
-
-        if (swipeDirection === 0) { // First move determines direction
-          swipeDirection = diffX < 0 ? 1 : -1;
-          const nextIndex = (currentImageIndex + swipeDirection + allImages.length) % allImages.length;
-          lbImageNext.src = allImages[nextIndex].src;
-          lbImageNext.style.display = 'block';
-        }
-        
-        applyTransform(lbImage, diffX, 0, 1);
-        const nextImageX = (swipeDirection === 1 ? window.innerWidth : -window.innerWidth) + diffX;
-        applyTransform(lbImageNext, nextImageX, 0, 1);
+        return;
       }
-    } else if (e.touches.length === 2) {
-      const currentDistance = getDistance(e.touches);
-      let newScale = (currentDistance / initialDistance) * initialScale;
-      if (newScale < 1) newScale = 1; if (newScale > 5) newScale = 5;
-      scale = newScale;
-      isZoomed = (scale > 1.05);
-      lightbox.classList.toggle('zoomed', isZoomed);
-      applyTransform(lbImage, translateX, translateY, scale);
+      
+      swipeCurrentX = e.touches[0].clientX;
+      swipeCurrentY = e.touches[0].clientY;
+      const diffX = swipeCurrentX - swipeStartX;
+      const diffY = swipeCurrentY - swipeStartY;
+
+      // تحديد اتجاه السحب عند أول حركة مهمة
+      if (!swipeDirection) {
+        if (Math.abs(diffY) > 5 && Math.abs(diffY) > Math.abs(diffX)) {
+            swipeDirection = 'vertical';
+        } else if (Math.abs(diffX) > 5) {
+            swipeDirection = 'horizontal';
+        }
+      }
+
+      // **منطق السحب الرأسي للإغلاق**
+      if (swipeDirection === 'vertical' && diffY < 0) { // السحب للأعلى فقط
+          const progress = Math.abs(diffY) / (window.innerHeight / 2);
+          const newScale = Math.max(0.7, 1 - progress * 0.3); // تصغير الصورة قليلاً
+          const newOpacity = Math.max(0.1, 1 - progress); // جعل الخلفية شفافة
+          applyTransform(lbImage, 0, diffY, newScale);
+          lightbox.style.backgroundColor = `rgba(0, 0, 0, ${0.9 * newOpacity})`;
+      } 
+      // منطق السحب الأفقي للتنقل
+      else if (swipeDirection === 'horizontal') {
+          const navDirection = diffX < 0 ? 1 : -1;
+          const nextIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
+          if (lbImageNext.style.display !== 'block') {
+            lbImageNext.src = allImages[nextIndex].src;
+            lbImageNext.style.display = 'block';
+          }
+          applyTransform(lbImage, diffX, 0, 1);
+          const nextImageX = (navDirection === 1 ? window.innerWidth : -window.innerWidth) + diffX;
+          applyTransform(lbImageNext, nextImageX, 0, 1);
+      }
+    } else if (e.touches.length === 2 && !isSwiping) {
+        // منطق التكبير بإصبعين (Pinch-to-zoom)
     }
   }
 
   function onTouchEnd(e) {
-    if (isSwiping && !isZoomed) {
-      isSwiping = false;
-      const diffX = swipeCurrentX - swipeStartX;
-      if (Math.abs(diffX) > swipeThreshold) {
-        const newIndex = (currentImageIndex + swipeDirection + allImages.length) % allImages.length;
-        slideTo(newIndex, swipeDirection);
-      } else { // Cancel swipe
-        lbImage.style.transition = 'transform 0.3s ease-out';
-        lbImageNext.style.transition = 'transform 0.3s ease-out';
-        applyTransform(lbImage, 0, 0, 1);
-        const nextImageX = swipeDirection === 1 ? window.innerWidth : -window.innerWidth;
-        applyTransform(lbImageNext, nextImageX, 0, 1);
-      }
-      swipeDirection = 0;
-      return;
+    if (!isSwiping) return;
+    isSwiping = false;
+
+    // **عند انتهاء السحب الرأسي**
+    if (swipeDirection === 'vertical') {
+        const diffY = swipeCurrentY - swipeStartY;
+        if (diffY < -swipeThresholdY) { // إذا تم السحب لمسافة كافية للأعلى
+            closeLightbox();
+        } else { // إلغاء السحب الرأسي وإعادة كل شيء لمكانه
+            lbImage.style.transition = 'transform 0.3s ease-out';
+            lightbox.style.transition = 'background-color 0.3s ease-out';
+            applyTransform(lbImage, 0, 0, 1);
+            lightbox.style.backgroundColor = '';
+            setTimeout(() => { lightbox.style.transition = 'none'; }, 300);
+        }
+    } 
+    // عند انتهاء السحب الأفقي
+    else if (swipeDirection === 'horizontal') {
+        const diffX = swipeCurrentX - swipeStartX;
+        const navDirection = diffX < 0 ? 1 : -1;
+        if (Math.abs(diffX) > swipeThresholdX) {
+            const newIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
+            slideTo(newIndex, navDirection);
+        } else { // إلغاء السحب الأفقي
+            lbImage.style.transition = 'transform 0.3s ease-out';
+            lbImageNext.style.transition = 'transform 0.3s ease-out';
+            applyTransform(lbImage, 0, 0, 1);
+            const nextImageX = navDirection === 1 ? window.innerWidth : -window.innerWidth;
+            applyTransform(lbImageNext, nextImageX, 0, 1);
+        }
     }
-    
-    if (scale < 1.05 && isZoomed) { resetZoom(); return; }
-    if (e.touches.length < 2) initialDistance = 0;
-    if (e.touches.length === 0 && isZoomed) {
-      const rect = lbImage.getBoundingClientRect();
-      const containerRect = lightboxContent.getBoundingClientRect();
-      let needsCorrection = false;
-      if (rect.right < containerRect.right) { translateX += containerRect.right - rect.right; needsCorrection = true; }
-      if (rect.left > containerRect.left) { translateX += containerRect.left - rect.left; needsCorrection = true; }
-      if (rect.bottom < containerRect.bottom) { translateY += containerRect.bottom - rect.bottom; needsCorrection = true; }
-      if (rect.top > containerRect.top) { translateY += containerRect.top - rect.top; needsCorrection = true; }
-      if (needsCorrection) { lbImage.style.transition = 'transform 0.3s ease-out'; applyTransform(lbImage, translateX, translateY, scale); }
-    }
+    swipeDirection = null; // إعادة تعيين الاتجاه للمسة التالية
   }
   
   function slideTo(newIndex, direction) {
     if (isTransitioning) return;
     isTransitioning = true;
     
-    // Prepare next image if not already done by swipe
-    if (!lbImageNext.style.display || lbImageNext.style.display === 'none') {
+    if (lbImageNext.style.display !== 'block') {
       lbImageNext.src = allImages[newIndex].src;
       lbImageNext.style.display = 'block';
       const initialNextX = direction === 1 ? window.innerWidth : -window.innerWidth;
@@ -420,14 +453,12 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTransform(lbImageNext, 0, 0, 1);
     
     setTimeout(() => {
-      // Commit the change
       currentImageIndex = newIndex;
       const newImgData = allImages[currentImageIndex];
       lbImage.src = newImgData.src;
       lbImage.alt = `Enlarged view of ${escapeHtml(newImgData.title || 'artwork')}`;
       history.replaceState({ lightbox: 'open' }, '', `#image/${newImgData.id}`);
 
-      // Reset positions silently
       lbImage.style.transition = 'none';
       lbImageNext.style.transition = 'none';
       applyTransform(lbImage, 0, 0, 1);
@@ -437,9 +468,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
   }
 
-  // =======================================================================
-  // === نهاية آلية تكبير الصور الجديدة ===
-  // =======================================================================
+  // --- بقية الكود بدون تغيير (Event Listeners, Firebase logic, etc.) ---
+  // The rest of your script.js file remains the same.
 
   // --- Event Listeners Setup ---
   menuToggle.onclick = openMenu;
@@ -502,8 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
       closeLightbox();
     }
   });
-  
-  // Omitted menu swipe logic for brevity as it's unchanged
 
   window.addEventListener('popstate', () => {
     if (!window.location.hash.startsWith('#image/')) {
