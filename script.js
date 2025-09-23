@@ -312,12 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && lightbox.classList.contains('open')) {
-      closeLightbox();
-    }
-  });
-
   avatarImg.addEventListener('click', function() {
     lbImage.src = this.src;
     lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
@@ -365,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadImages(category = 'all') {
-    gallery.innerHTML = '<div class="loader"></div>';
+    gallery.innerHTML = '<p>Loading gallery...</p>';
     let query = db.collection("portfolioimages").orderBy("timestamp", "desc");
     if (category !== 'all') { query = query.where("category", "==", category); }
     try {
@@ -514,18 +508,18 @@ document.addEventListener('DOMContentLoaded', () => {
     authBtn.textContent = user ? 'تسجيل الخروج' : 'تسجيل الدخول';
     addImageBtn.style.display = isAdmin ? 'inline-block' : 'none';
   });
-
-  // --- (الكود الجديد) إضافة وظيفة لزر تسجيل الدخول ---
+  
+  // --- (تعديل) إضافة حدث النقر على زر المصادقة ---
   authBtn.addEventListener('click', () => {
     if (auth.currentUser) {
-      // إذا كان المستخدم مسجلاً دخوله، قم بتسجيل الخروج
+      // إذا كان المستخدم مسجلاً، يتم تسجيل خروجه
       auth.signOut();
     } else {
-      // إذا لم يكن مسجلاً دخوله، ابدأ عملية تسجيل الدخول
+      // إذا لم يكن مسجلاً، يتم فتح نافذة جوجل لتسجيل الدخول
       auth.signInWithPopup(provider)
         .catch((error) => {
-          console.error("Authentication failed:", error);
-          alert("فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.");
+          console.error("Authentication Error: ", error);
+          alert('فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
         });
     }
   });
