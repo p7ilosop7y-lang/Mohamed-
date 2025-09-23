@@ -1,4 +1,4 @@
-// script.js (Final Version with Swipe Conflict Fix)
+// script.js (Final Version with Swipe Conflict Fix & Avatar Swipe Disabled)
 
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const addImageBtn = document.getElementById('addImageBtn');
   const prevArrow = document.getElementById('prevArrow');
   const nextArrow = document.getElementById('nextArrow');
-  // --- (إضافة) تعريف متغير الصورة الشخصية ---
   const avatarImg = document.getElementById('avatarImg');
 
 
@@ -260,6 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
           applyTransform(lbImage, 0, diffY, newScale);
           lightbox.style.backgroundColor = `rgba(0, 0, 0, ${0.9 * newOpacity})`;
       } else if (lightboxSwipeDirection === 'horizontal') {
+          // --- (تعديل) لا تقم بالتمرير الأفقي إذا كانت الصورة الشخصية مفتوحة ---
+          if (lightbox.classList.contains('avatar-open')) return;
           const navDirection = diffX < 0 ? 1 : -1;
           const nextIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
           if (lbImageNext.style.display !== 'block') {
@@ -288,6 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { lightbox.style.transition = 'none'; }, 300);
         }
     } else if (lightboxSwipeDirection === 'horizontal') {
+        // --- (تعديل) لا تقم بالتمرير الأفقي إذا كانت الصورة الشخصية مفتوحة ---
+        if (lightbox.classList.contains('avatar-open')) return;
         const diffX = swipeLbCurrentX - swipeLbStartX;
         const navDirection = diffX < 0 ? 1 : -1;
         if (Math.abs(diffX) > swipeThresholdX) {
@@ -308,11 +311,23 @@ document.addEventListener('DOMContentLoaded', () => {
   lightboxContent.addEventListener('touchstart', onLightboxTouchStart, { passive: false });
   lightboxContent.addEventListener('touchmove', onLightboxTouchMove, { passive: false });
   lightboxContent.addEventListener('touchend', onLightboxTouchEnd, { passive: false });
-  prevArrow.addEventListener('click', (e) => { e.stopPropagation(); const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length; slideTo(newIndex, -1); });
-  nextArrow.addEventListener('click', (e) => { e.stopPropagation(); const newIndex = (currentImageIndex + 1) % allImages.length; slideTo(newIndex, 1); });
+  
+  // --- (تعديل) إضافة شرط للأسهم ---
+  prevArrow.addEventListener('click', (e) => { 
+    e.stopPropagation(); 
+    if (lightbox.classList.contains('avatar-open')) return;
+    const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length; 
+    slideTo(newIndex, -1); 
+  });
+  nextArrow.addEventListener('click', (e) => { 
+    e.stopPropagation(); 
+    if (lightbox.classList.contains('avatar-open')) return;
+    const newIndex = (currentImageIndex + 1) % allImages.length; 
+    slideTo(newIndex, 1); 
+  });
+
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
 
-  // --- (إضافة) تفعيل تكبير الصورة الشخصية ---
   avatarImg.addEventListener('click', function() {
     lbImage.src = this.src;
     lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
@@ -323,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- All Other Website Functions (Unchanged) ---
   // =======================================================================
 
-  // --- (إضافة) تفعيل انيميشن الاسم ---
   nameEl.innerHTML = nameEl.textContent.split('').map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   nameEl.addEventListener('click', () => {
     nameEl.querySelectorAll('span').forEach((span, i) => {
