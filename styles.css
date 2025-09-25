@@ -337,7 +337,7 @@ section p {
 }
 
 #portfolioTitle {
-    font-size: 3rem; 
+    font-size: 2rem; 
     direction: ltr;
     cursor: pointer; /* (إضافة) تغيير شكل المؤشر للإشارة إلى أنه قابل للضغط */
 }
