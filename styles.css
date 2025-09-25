@@ -81,6 +81,8 @@ header {
   font-size: 20px;
   text-shadow: 0 1px 3px rgba(0,0,0,0.5);
   pointer-events: none;
+  transform-origin: bottom center;
+  animation: sway 3s ease-in-out infinite;
 }
 
 .brand > div {
@@ -742,3 +744,13 @@ body.lightbox-is-open .header-avatar-icon {
     stroke: var(--filament-on);
 }
 /* ----------------------------------------------- */
+
+/* --- إضافة: تعريف حركة التمايل لأيقونة ورقة الشجر --- */
+@keyframes sway {
+  0%, 100% {
+    transform: translateX(-50%) rotate(-8deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(8deg);
+  }
+}
