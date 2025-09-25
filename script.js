@@ -383,10 +383,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     allImages.forEach((imgObj, index) => {
       const card = createImageCard(imgObj, index);
-      // (تعديل) سيتم التحكم في ظهور البطاقات من خلال Intersection Observer
       gallery.appendChild(card);
     });
-    // (إضافة) بعد عرض البطاقات، نقوم بمراقبتها لتفعيل الحركة
     observeElements(document.querySelectorAll('.card'));
   }
   
@@ -526,17 +524,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-
-  // --- (إضافة) كود تفعيل حركات الظهور عند التمرير ---
+  
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target); // إيقاف المراقبة بعد ظهور العنصر
+        observer.unobserve(entry.target);
       }
     });
   }, {
-    threshold: 0.1 // تظهر الحركة عندما يكون 10% من العنصر مرئيًا
+    threshold: 0.1
   });
 
   function observeElements(elements) {
@@ -545,7 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // مراقبة العناصر الثابتة في الصفحة
   observeElements(document.querySelectorAll('section h2, .about-content'));
 
 
@@ -553,7 +549,31 @@ document.addEventListener('DOMContentLoaded', () => {
   loadImages();
   typeWriter();
 
-  // --- كود حركة المصباح ووظيفة تغيير الثيم ---
+  const portfolioTitle = document.getElementById('portfolioTitle');
+  if (portfolioTitle) {
+    const text = "Portfolio";
+    portfolioTitle.innerHTML = '';
+    text.split('').forEach(char => {
+      const span = document.createElement('span');
+      span.innerHTML = char === ' ' ? '&nbsp;' : char;
+      portfolioTitle.appendChild(span);
+    });
+
+    // (إضافة) كود التفاعل عند الضغط
+    let isAnimating = false;
+    portfolioTitle.addEventListener('click', () => {
+      if (isAnimating) return; // منع التشغيل المتكرر إذا كانت الحركة تعمل بالفعل
+
+      isAnimating = true;
+      portfolioTitle.classList.add('glitching');
+
+      setTimeout(() => {
+        portfolioTitle.classList.remove('glitching');
+        isAnimating = false;
+      }, 2000); // إيقاف الأنيميشن بعد ثانيتين
+    });
+  }
+
   const lightbulbScene = document.getElementById('lightbulbScene');
   const svg = document.getElementById('lightbulbSvg');
 

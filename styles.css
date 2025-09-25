@@ -3,17 +3,23 @@
   --card: #131c2b;
   --muted: #b0bac8;
   --accent: #ff6b9d;
+  --neon-color: #FF6E48; 
   --text: #f3f5f7;
+  /* (إضافة) لون النيون وهو مطفأ */
+  --neon-off-color: #5a687c;
+
   --header-bg: #111c2d99;
   --card-bg: rgba(19, 28, 43, 0.6);
   --body-gradient: linear-gradient(180deg, #102a43, #0a0f1a);
   --footer-bg: #0f1828;
   --comment-bg: #0a0f1a;
-  /* ألوان المصباح للوضع الداكن مع توهج برتقالي */
-  --light-color-off: rgba(224, 228, 233, 0.1); /* لون الزجاج مطفأ */
-  --light-color-on: #ff9800; /* لون الإضاءة البرتقالي */
+  --accent-glow: rgba(255, 107, 157, 0.5);
+  --accent-shadow: 0 0 15px var(--accent-glow);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --light-color-off: rgba(224, 228, 233, 0.1);
+  --light-color-on: #ff9800;
   --filament-off: #5f6c7a;
-  --filament-on: #ffe0b2; /* لون الفتيل المضيء ليتناسب مع التوهج */
+  --filament-on: #ffe0b2;
   --base-color: #736056;
 }
 
@@ -22,18 +28,39 @@ body.light-mode {
   --card: #ffffff;
   --muted: #5a6e87;
   --accent: #007bff;
+  --neon-color: #FF6E48;
   --text: #313A6A;
+  --neon-off-color: #a0aec0; /* لون أفتح قليلاً للوضع الفاتح */
+
   --header-bg: #ffffff99;
   --card-bg: rgba(255, 255, 255, 0.8);
   --body-gradient: linear-gradient(180deg, #d3e0ea, #f0f4f8);
   --footer-bg: #e1e8f0;
   --comment-bg: #e9eef3;
-  /* ألوان المصباح للوضع الفاتح */
-  --light-color-off: rgba(69, 90, 100, 0.1); /* لون الزجاج مطفأ */
-  --light-color-on: #ffc107; /* لون الإضاءة */
+  --accent-glow: rgba(0, 123, 255, 0.3);
+  --accent-shadow: 0 0 15px var(--accent-glow);
+  --card-border: rgba(0, 0, 0, 0.1);
+  --light-color-off: rgba(69, 90, 100, 0.1); 
+  --light-color-on: rgba(69, 90, 100, 0.1);
   --filament-off: #90a4ae;
-  --filament-on: #455a64;
+  --filament-on: #90a4ae;
   --base-color: #b0bec5;
+}
+
+body.light-mode #portfolioTitle,
+body.light-mode #portfolioTitle span {
+  color: var(--text) !important;
+  animation: none;
+  text-shadow: none;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -53,11 +80,11 @@ header {
   justify-content: space-between;
   align-items: center;
   background: var(--header-bg);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid var(--card);
+  border-bottom: 1px solid var(--card-border);
   transition: background 0.5s ease;
 }
 
@@ -95,12 +122,13 @@ header {
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--accent);
-  transition: transform 0.3s ease, border-color 0.5s ease;
+  transition: transform 0.3s ease, box-shadow 0.4s ease;
   display: block;
 }
 
 .brand img:hover {
   transform: scale(1.05) rotate(5deg);
+  box-shadow: var(--accent-shadow);
 }
 
 .brand h1 {
@@ -147,7 +175,7 @@ nav a {
   border-radius: 6px;
   position: relative;
   overflow: hidden;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
 nav a::before {
@@ -164,6 +192,7 @@ nav a::before {
 
 nav a:hover {
   color: var(--accent);
+  text-shadow: 0 0 8px var(--accent-glow);
 }
 
 nav a:hover::before {
@@ -269,9 +298,11 @@ section.active {
 
 section h2 {
   margin-bottom: 25px;
-  color: var(--accent);
+  color: var(--neon-off-color); /* (تعديل) اللون الافتراضي الآن هو اللون المطفأ */
   font-size: 2.2rem;
   font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: none;
   transition: color 0.5s ease;
 }
 
@@ -279,6 +310,63 @@ section p {
   color: var(--muted);
   transition: color 0.5s ease;
 }
+
+/* (تعديل) أنيميشن الوميض المعطوب لمدة ثانيتين */
+@keyframes faulty-flicker {
+  0% {
+    text-shadow: none;
+  }
+  5% {
+    text-shadow: 0 0 4px #fff, 0 0 11px var(--neon-color), 0 0 19px var(--neon-color);
+  }
+  10%, 20% {
+    text-shadow: none;
+  }
+  15%, 25% {
+     text-shadow: 0 0 4px #fff, 0 0 11px var(--neon-color), 0 0 19px var(--neon-color);
+  }
+  30%, 80% {
+    text-shadow: 0 0 4px #fff, 0 0 11px var(--neon-color), 0 0 19px var(--neon-color), 0 0 40px var(--neon-color);
+  }
+  85%, 95% {
+    text-shadow: none;
+  }
+  90%, 100% {
+     text-shadow: 0 0 4px #fff, 0 0 11px var(--neon-color);
+  }
+}
+
+#portfolioTitle {
+    font-size: 3rem; 
+    direction: ltr;
+    cursor: pointer; /* (إضافة) تغيير شكل المؤشر للإشارة إلى أنه قابل للضغط */
+}
+
+/* (تعديل) الحالة الافتراضية للحروف (مطفأة) */
+#portfolioTitle span {
+  display: inline-block;
+  color: var(--neon-off-color);
+  text-shadow: none;
+  transition: color 0.3s ease;
+}
+
+/* (إضافة) الحالة عند تشغيل الأنيميشن بالضغط */
+#portfolioTitle.glitching span {
+  color: #fff;
+  animation: faulty-flicker 2s;
+}
+
+/* (إضافة) تأثيرات التأخير لكل حرف عند التشغيل */
+#portfolioTitle.glitching span:nth-child(2) { animation-delay: 0.1s; }
+#portfolioTitle.glitching span:nth-child(3) { animation-delay: 0.3s; }
+#portfolioTitle.glitching span:nth-child(4) { animation-delay: 0.5s; }
+#portfolioTitle.glitching span:nth-child(5) { animation-delay: 0.2s; }
+#portfolioTitle.glitching span:nth-child(6) { animation-delay: 0.4s; }
+#portfolioTitle.glitching span:nth-child(7) { animation-delay: 0.6s; }
+#portfolioTitle.glitching span:nth-child(8) { animation-delay: 0.1s; }
+#portfolioTitle.glitching span:nth-child(9) { animation-delay: 0.3s; }
+#portfolioTitle.glitching span:nth-child(10) { animation-delay: 0.5s; }
+
 
 .social-icons {
   display: flex;
@@ -296,6 +384,7 @@ section p {
 .social-icons a:hover {
   color: var(--accent);
   transform: translateY(-3px);
+  text-shadow: 0 0 10px var(--accent-glow);
 }
 
 .gallery {
@@ -310,15 +399,15 @@ section p {
   border-radius: 14px;
   overflow: hidden;
   position: relative;
-  border: 1px solid var(--card);
-  opacity: 0; /* (تعديل) الحالة الأولية للبطاقة قبل ظهورها بالحركة الجديدة */
-  transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.5s ease, opacity 0.6s ease-out;
-  transform: translateY(30px); /* (تعديل) الحالة الأولية للبطاقة قبل ظهورها بالحركة الجديدة */
+  border: 1px solid var(--card-border);
+  opacity: 0; 
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.5s ease, opacity 0.6s ease-out;
+  transform: translateY(30px);
 }
 
 .card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), 0 0 40px var(--accent-trans);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), 0 0 40px var(--accent-glow);
 }
 
 .thumb {
@@ -337,11 +426,12 @@ section p {
   height: 100%;
   object-fit: cover; 
   cursor: pointer;
-  transition: transform 0.4s ease;
+  transition: transform 0.4s ease, filter 0.4s ease;
 }
 
 .card:hover .thumb img {
   transform: scale(1.05);
+  filter: brightness(1.1);
 }
 
 .lightbox {
@@ -409,7 +499,7 @@ footer {
   font-size: 13px;
   color: var(--muted);
   background: var(--footer-bg);
-  border-top: 1px solid var(--card);
+  border-top: 1px solid var(--card-border);
   transition: background 0.5s ease;
 }
 
@@ -453,10 +543,11 @@ footer {
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 .action-btn:hover {
   color: var(--text);
+  transform: scale(1.1);
 }
 .like-btn.liked {
   color: var(--accent);
@@ -479,7 +570,7 @@ footer {
 
 .comments-section {
   padding: 10px 15px;
-  border-top: 1px solid var(--card);
+  border-top: 1px solid var(--card-border);
   background: var(--comment-bg);
   transition: background 0.5s ease;
 }
@@ -498,9 +589,11 @@ footer {
   background: transparent;
 }
 .comments-list::-webkit-scrollbar-thumb {
-  background-color: #333;
+  background-color: var(--card);
   border-radius: 10px;
-  border: 3px solid transparent;
+}
+.comments-list::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted);
 }
 
 .comment {
@@ -520,15 +613,16 @@ footer {
   padding: 9px 12px;
   border: 1px solid transparent;
   border-radius: 20px;
-  background: var(--comment-bg);
+  background: var(--bg);
   color: var(--text);
   font-size: 14px;
-  transition: border-color 0.3s ease, background 0.5s ease;
+  transition: border-color 0.3s ease, background 0.5s ease, box-shadow 0.3s ease;
 }
 
 .comment-input:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .comment-btn {
@@ -542,10 +636,11 @@ footer {
   cursor: pointer;
   font-size: 14px;
   flex-shrink: 0;
-  transition: transform 0.3s ease, background-color 0.5s ease;
+  transition: transform 0.3s ease, background-color 0.5s ease, box-shadow 0.3s ease;
 }
 .comment-btn:hover {
   transform: scale(1.1);
+  box-shadow: var(--accent-shadow);
 }
 
 .add-image-btn {
@@ -565,7 +660,7 @@ footer {
   margin: 0 5px;
   background: var(--card-bg);
   color: var(--text);
-  border: 1px solid var(--card);
+  border: 1px solid var(--card-border);
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
@@ -574,12 +669,14 @@ footer {
 
 .filter-btn:hover {
   background: var(--card);
+  color: #fff;
 }
 
 .filter-btn.active {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+  box-shadow: var(--accent-shadow);
 }
 
 .visually-hidden {
@@ -651,7 +748,6 @@ body.lightbox-is-open .header-avatar-icon {
   display: none;
 }
 
-/* --- تصميم المصباح في قسم البورتفوليو --- */
 .lightbulb-scene {
     position: fixed;
     top: 90px;
@@ -686,6 +782,10 @@ body.lightbox-is-open .header-avatar-icon {
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
+}
+
+body.light-mode #lightbulbSvg.on #glow-circle {
+  opacity: 0;
 }
 
 #lightbulbSvg.on #glow-circle {
@@ -758,7 +858,7 @@ body.lightbox-is-open .header-avatar-icon {
   opacity: 0;
   visibility: hidden;
   transform: translateY(20px);
-  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 #scrollToTopBtn.visible {
@@ -770,9 +870,9 @@ body.lightbox-is-open .header-avatar-icon {
 #scrollToTopBtn:hover {
   transform: scale(1.1);
   filter: brightness(1.1);
+  box-shadow: var(--accent-shadow);
 }
 
-/* --- تصميم قسم "About Me" المطور --- */
 #about .about-content {
   display: flex;
   align-items: center;
@@ -789,11 +889,12 @@ body.lightbox-is-open .header-avatar-icon {
   object-fit: cover;
   border: 3px solid var(--accent);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 #about .about-avatar img:hover {
     transform: scale(1.05);
+    box-shadow: 0 0 25px var(--accent-glow);
 }
 
 #about .about-text {
@@ -809,20 +910,22 @@ body.lightbox-is-open .header-avatar-icon {
   display: inline-block;
   margin-top: 10px;
   padding: 12px 25px;
-  background-color: var(--accent);
+  background-image: linear-gradient(45deg, var(--accent) 0%, #ff8ab7 100%);
+  background-size: 200% auto;
   color: #fff;
   text-decoration: none;
   border-radius: 25px;
   font-weight: 600;
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition: all 0.4s ease;
 }
 
 .contact-btn:hover {
   transform: translateY(-3px);
   filter: brightness(1.1);
+  background-position: right center;
+  box-shadow: var(--accent-shadow);
 }
 
-/* --- تصميم قسم المهارات --- */
 .skills-container {
   display: flex;
   flex-wrap: wrap;
@@ -838,7 +941,7 @@ body.lightbox-is-open .header-avatar-icon {
   border-radius: 15px;
   font-size: 14px;
   font-weight: 500;
-  border: 1px solid transparent;
+  border: 1px solid var(--card-border);
   transition: all 0.3s ease;
   cursor: default;
 }
@@ -847,10 +950,10 @@ body.lightbox-is-open .header-avatar-icon {
   color: #fff;
   background-color: var(--accent);
   transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--accent-shadow);
 }
 
-
-/* تعديلات للشاشات الصغيرة */
 @media (max-width: 768px) {
   #about .about-content {
     flex-direction: column;
@@ -872,7 +975,6 @@ body.lightbox-is-open .header-avatar-icon {
   }
 }
 
-/* --- (إضافة) تنسيقات حركات الظهور عند التمرير --- */
 section h2,
 .about-content {
   opacity: 0;
