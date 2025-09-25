@@ -305,26 +305,15 @@ section p {
   padding: 20px;
 }
 
-@keyframes fadeInSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .card {
   background: var(--card-bg);
   border-radius: 14px;
   overflow: hidden;
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s ease;
   border: 1px solid var(--card);
-  animation: fadeInSlideUp 0.5s ease-out forwards;
-  opacity: 0; 
+  opacity: 0; /* (تعديل) الحالة الأولية للبطاقة قبل ظهورها بالحركة الجديدة */
+  transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.5s ease, opacity 0.6s ease-out;
+  transform: translateY(30px); /* (تعديل) الحالة الأولية للبطاقة قبل ظهورها بالحركة الجديدة */
 }
 
 .card:hover {
@@ -783,7 +772,7 @@ body.lightbox-is-open .header-avatar-icon {
   filter: brightness(1.1);
 }
 
-/* --- (تعديل) إضافة تصميم قسم "About Me" المطور --- */
+/* --- تصميم قسم "About Me" المطور --- */
 #about .about-content {
   display: flex;
   align-items: center;
@@ -812,7 +801,7 @@ body.lightbox-is-open .header-avatar-icon {
 }
 
 #about .about-text p {
-  text-align: right; /* مناسب للغة العربية */
+  text-align: right; 
   margin-bottom: 20px;
 }
 
@@ -833,6 +822,34 @@ body.lightbox-is-open .header-avatar-icon {
   filter: brightness(1.1);
 }
 
+/* --- تصميم قسم المهارات --- */
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end; 
+  margin: 25px 0;
+}
+
+.skill-tag {
+  background-color: var(--card);
+  color: var(--muted);
+  padding: 6px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.skill-tag:hover {
+  color: #fff;
+  background-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+
 /* تعديلات للشاشات الصغيرة */
 @media (max-width: 768px) {
   #about .about-content {
@@ -850,5 +867,22 @@ body.lightbox-is-open .header-avatar-icon {
     height: 120px;
   }
   
-  /* ... باقي التعديلات للشاشات الصغيرة موجودة بالأعلى ... */
+  .skills-container {
+    justify-content: center; 
+  }
+}
+
+/* --- (إضافة) تنسيقات حركات الظهور عند التمرير --- */
+section h2,
+.about-content {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+section h2.is-visible,
+.about-content.is-visible,
+.card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }

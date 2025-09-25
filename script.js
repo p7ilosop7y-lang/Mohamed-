@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prevArrow = document.getElementById('prevArrow');
   const nextArrow = document.getElementById('nextArrow');
   const avatarImg = document.getElementById('avatarImg');
-  const scrollToTopBtn = document.getElementById('scrollToTopBtn'); // (إضافة) جلب زر الصعود
+  const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
   // --- State ---
   let currentImageIndex = -1;
@@ -383,9 +383,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     allImages.forEach((imgObj, index) => {
       const card = createImageCard(imgObj, index);
-      card.style.animationDelay = `${index * 0.05}s`;
+      // (تعديل) سيتم التحكم في ظهور البطاقات من خلال Intersection Observer
       gallery.appendChild(card);
     });
+    // (إضافة) بعد عرض البطاقات، نقوم بمراقبتها لتفعيل الحركة
+    observeElements(document.querySelectorAll('.card'));
   }
   
   async function downloadImage(src, title, buttonEl) {
@@ -508,25 +510,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- (تعديل) إضافة وظائف زر الصعود للأعلى ---
   if (scrollToTopBtn) {
-    // إظهار أو إخفاء الزر بناءً على موضع النزول
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) { // يظهر الزر بعد النزول لمسافة 300 بكسل
+      if (window.scrollY > 300) {
         scrollToTopBtn.classList.add('visible');
       } else {
         scrollToTopBtn.classList.remove('visible');
       }
     });
 
-    // العودة للأعلى عند الضغط على الزر
     scrollToTopBtn.addEventListener('click', () => {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth' // حركة صعود ناعمة
+        behavior: 'smooth'
       });
     });
   }
+
+  // --- (إضافة) كود تفعيل حركات الظهور عند التمرير ---
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target); // إيقاف المراقبة بعد ظهور العنصر
+      }
+    });
+  }, {
+    threshold: 0.1 // تظهر الحركة عندما يكون 10% من العنصر مرئيًا
+  });
+
+  function observeElements(elements) {
+    elements.forEach(el => {
+      observer.observe(el);
+    });
+  }
+
+  // مراقبة العناصر الثابتة في الصفحة
+  observeElements(document.querySelectorAll('section h2, .about-content'));
+
 
   handleNavigation();
   loadImages();
@@ -537,23 +558,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const svg = document.getElementById('lightbulbSvg');
 
   if (svg) {
-    // وظيفة تغيير الثيم الأساسية
     function toggleTheme() {
       const isLightTheme = document.body.classList.toggle('light-mode');
       svg.classList.toggle('on', !isLightTheme);
       localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
     }
 
-    // تطبيق الثيم المحفوظ عند تحميل الصفحة
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
       document.body.classList.add('light-mode');
       svg.classList.remove('on');
     } else {
-      svg.classList.add('on'); // الوضع الليلي هو الافتراضي
+      svg.classList.add('on');
     }
 
-    // تهيئة الحركة فقط إذا تم تحميل المكتبة بنجاح
     if (lightbulbScene && typeof Matter !== 'undefined') {
       const bulbGroup = document.getElementById('bulbGroup');
       const cord = document.getElementById('cord');
@@ -578,7 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(render);
       })();
 
-      // تفعيل تغيير الثيم عند السحب
       let dragStartPos = { x: 0, y: 0 }, isDragging = false;
       mouse.element.addEventListener('mousedown', (e) => { isDragging = true; dragStartPos = { x: e.clientX, y: e.clientY }; });
       mouse.element.addEventListener('touchstart', (e) => { isDragging = true; dragStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY }; });
@@ -601,7 +618,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
     } else {
-      // حل بديل: عند فشل تحميل مكتبة الحركة، يمكن الضغط على المصباح مباشرة
       const bulbGroup = document.getElementById('bulbGroup');
       if (bulbGroup) {
         bulbGroup.addEventListener('click', toggleTheme);
