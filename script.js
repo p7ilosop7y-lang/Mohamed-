@@ -526,7 +526,13 @@ document.addEventListener('DOMContentLoaded', () => {
               friendlyMessage += 'تم إغلاق نافذة تسجيل الدخول قبل إتمام العملية.';
               break;
             case 'auth/unauthorized-domain':
-              friendlyMessage += 'هذا النطاق غير مصرح له بالقيام بعمليات المصادقة.';
+              friendlyMessage += 'هذا النطاق غير مصرح له بالقيام بعمليات المصادقة. تأكد من إضافة النطاق إلى قائمة النطاقات المصرّح بها في إعدادات Firebase Authentication.';
+              break;
+            case 'auth/internal-error':
+              friendlyMessage += 'حدث خطأ داخلي في نظام المصادقة.\n\n';
+              friendlyMessage += 'لحل المشكلة، يرجى التحقق من الآتي في إعدادات مشروع Firebase:\n';
+              friendlyMessage += '1.  تأكد من تفعيل "Google" كمزود خدمة تسجيل دخول (Sign-in provider).\n';
+              friendlyMessage += '2.  تأكد من إضافة النطاق `mohamed-plum-iota.vercel.app` إلى قائمة "Authorized domains".';
               break;
             default:
               friendlyMessage += 'يرجى المحاولة مرة أخرى. إذا استمرت المشكلة، تحقق من إعدادات مشروع Firebase.';
