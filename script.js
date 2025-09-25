@@ -17,6 +17,36 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('visitorId', visitorId);
   }
 
+  // --- Audio Elements ---
+  const clickSound = new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_12b0c7443c.mp3');
+  const switchSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_b80283288f.mp3');
+  const openSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/10/audio_c3894441b0.mp3');
+  const closeSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/25/audio_331c11d130.mp3');
+  
+  clickSound.volume = 0.5;
+  switchSound.volume = 0.6;
+  openSound.volume = 0.4;
+  closeSound.volume = 0.4;
+
+  // (إضافة) كود لحل مشكلة حظر الصوت في المتصفحات
+  let audioUnlocked = false;
+  function unlockAudioContext() {
+    if (audioUnlocked) return;
+    const sounds = [clickSound, switchSound, openSound, closeSound];
+    sounds.forEach(sound => sound.load()); // نقوم بتحميل الأصوات
+    audioUnlocked = true;
+    console.log('Audio context unlocked by user interaction.');
+  }
+  document.addEventListener('click', unlockAudioContext, { once: true });
+  document.addEventListener('touchstart', unlockAudioContext, { once: true });
+
+
+  function playSound(sound) {
+    if (!audioUnlocked) return; // لا تشغل الصوت إلا بعد تفعيل المستخدم له
+    sound.currentTime = 0;
+    sound.play().catch(error => console.log(`Audio playback was prevented: ${error}`));
+  }
+
   // --- DOM Elements ---
   const menuToggle = document.getElementById('menuToggle');
   const sideMenu = document.getElementById('sideMenu');
@@ -44,11 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let isTransitioning = false;
   
   function openMenu() {
+    playSound(openSound);
     sideMenu.classList.add('open');
     menuOverlay.classList.add('open');
   }
 
   function closeMenu() {
+    playSound(closeSound);
     sideMenu.classList.remove('open');
     menuOverlay.classList.remove('open');
   }
@@ -91,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   menuOverlay.onclick = closeMenu;
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
+      playSound(clickSound);
       closeMenu();
       const href = link.getAttribute('href');
       if (href.startsWith('#')) {
@@ -295,12 +328,14 @@ document.addEventListener('DOMContentLoaded', () => {
   lightboxContent.addEventListener('touchend', onLightboxTouchEnd, { passive: false });
   
   prevArrow.addEventListener('click', (e) => { 
+    playSound(clickSound);
     e.stopPropagation(); 
     if (lightbox.classList.contains('avatar-open')) return;
     const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length; 
     slideTo(newIndex, -1); 
   });
   nextArrow.addEventListener('click', (e) => { 
+    playSound(clickSound);
     e.stopPropagation(); 
     if (lightbox.classList.contains('avatar-open')) return;
     const newIndex = (currentImageIndex + 1) % allImages.length; 
@@ -310,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
 
   avatarImg.addEventListener('click', function() {
+    playSound(clickSound);
     lbImage.src = this.src;
     lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
     lbImageNext.style.display = 'none';
@@ -325,6 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   nameEl.innerHTML = nameEl.textContent.split('').map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   nameEl.addEventListener('click', () => {
+    playSound(clickSound);
     nameEl.querySelectorAll('span').forEach((span, i) => {
       setTimeout(() => span.classList.add('bounce'), i * 50);
       setTimeout(() => span.classList.remove('bounce'), 1000 + i * 50);
@@ -441,10 +478,17 @@ document.addEventListener('DOMContentLoaded', () => {
     card.querySelector('.thumb img').addEventListener('click', () => openLightbox(index));
     const likeBtn = card.querySelector('.like-btn');
     const likeCountEl = card.querySelector('.like-count');
-    likeBtn.addEventListener('click', () => toggleLike(imgObj.id, likeBtn, likeCountEl));
+    likeBtn.addEventListener('click', () => {
+      playSound(clickSound);
+      toggleLike(imgObj.id, likeBtn, likeCountEl);
+    });
     const downloadBtn = card.querySelector('.download-btn');
-    downloadBtn.addEventListener('click', () => downloadImage(imgObj.src, imgObj.title || 'Artwork', downloadBtn));
+    downloadBtn.addEventListener('click', () => {
+      playSound(clickSound);
+      downloadImage(imgObj.src, imgObj.title || 'Artwork', downloadBtn);
+    });
     const commentForm = card.querySelector('.comment-form');
+    card.querySelector('.comment-btn').addEventListener('click', () => playSound(clickSound));
     commentForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const commentInput = card.querySelector('.comment-input');
@@ -502,6 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.filter-btn').forEach(button => {
     button.addEventListener('click', () => {
+      playSound(clickSound);
       document.querySelector('.filter-btn.active').classList.remove('active');
       button.classList.add('active');
       loadImages(button.dataset.category);
@@ -518,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     scrollToTopBtn.addEventListener('click', () => {
+      playSound(openSound);
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
@@ -559,10 +605,10 @@ document.addEventListener('DOMContentLoaded', () => {
       portfolioTitle.appendChild(span);
     });
 
-    // (إضافة) كود التفاعل عند الضغط
     let isAnimating = false;
     portfolioTitle.addEventListener('click', () => {
-      if (isAnimating) return; // منع التشغيل المتكرر إذا كانت الحركة تعمل بالفعل
+      playSound(clickSound);
+      if (isAnimating) return; 
 
       isAnimating = true;
       portfolioTitle.classList.add('glitching');
@@ -570,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         portfolioTitle.classList.remove('glitching');
         isAnimating = false;
-      }, 2000); // إيقاف الأنيميشن بعد ثانيتين
+      }, 2000); 
     });
   }
 
@@ -579,6 +625,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (svg) {
     function toggleTheme() {
+      playSound(switchSound);
       const isLightTheme = document.body.classList.toggle('light-mode');
       svg.classList.toggle('on', !isLightTheme);
       localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
