@@ -246,7 +246,7 @@ section {
   padding: 40px;
   text-align: center;
   display: none;
-  position: relative; /* (تعديل) إضافة position relative لكل الأقسام */
+  position: relative;
 }
 
 section.active {
@@ -362,7 +362,7 @@ section p {
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--accent);
-  cursor: pointer; /* إضافة مؤشر للضغط */
+  cursor: pointer;
 }
 
 .nav-arrow {
@@ -650,12 +650,12 @@ body.lightbox-is-open .header-avatar-icon {
 
 /* --- (تعديل) تصميم المصباح في قسم البورتفوليو --- */
 .lightbulb-scene {
-    position: absolute;
-    top: 3px;
+    position: fixed;
+    top: 90px;
     right: 14px;
     width: 80px;
     height: 100px;
-    z-index: 5;
+    z-index: 11;
     overflow: visible !important;
 }
 
