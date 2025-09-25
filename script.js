@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prevArrow = document.getElementById('prevArrow');
   const nextArrow = document.getElementById('nextArrow');
   const avatarImg = document.getElementById('avatarImg');
+  const scrollToTopBtn = document.getElementById('scrollToTopBtn'); // (إضافة) جلب زر الصعود
 
   // --- State ---
   let currentImageIndex = -1;
@@ -507,11 +508,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // --- (تعديل) إضافة وظائف زر الصعود للأعلى ---
+  if (scrollToTopBtn) {
+    // إظهار أو إخفاء الزر بناءً على موضع النزول
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) { // يظهر الزر بعد النزول لمسافة 300 بكسل
+        scrollToTopBtn.classList.add('visible');
+      } else {
+        scrollToTopBtn.classList.remove('visible');
+      }
+    });
+
+    // العودة للأعلى عند الضغط على الزر
+    scrollToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth' // حركة صعود ناعمة
+      });
+    });
+  }
+
   handleNavigation();
   loadImages();
   typeWriter();
 
-  // --- (تعديل) كود حركة المصباح ووظيفة تغيير الثيم ---
+  // --- كود حركة المصباح ووظيفة تغيير الثيم ---
   const lightbulbScene = document.getElementById('lightbulbScene');
   const svg = document.getElementById('lightbulbSvg');
 

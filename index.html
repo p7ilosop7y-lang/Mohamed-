@@ -87,9 +87,17 @@
     
     <section id="about">
       <h2>about me</h2>
-      <p>Hi, I'm Mohamed Tammam.<br/>
-        As a concept artist, I strive to give shape to invisible emotions—turning the abstract into visual, tangible worlds.</p>
-      <p style="margin-top:15px;">I specialize in characters, moods, and narrative-driven visuals.</p>
+      <div class="about-content">
+        <div class="about-avatar">
+          <img src="avatar.jpg" alt="Mohamed Tammam's avatar">
+        </div>
+        <div class="about-text">
+          <p>Hi, I'm Mohamed Tammam.<br/>
+            As a concept artist, I strive to give shape to invisible emotions—turning the abstract into visual, tangible worlds.</p>
+          <p>I specialize in characters, moods, and narrative-driven visuals.</p>
+          <a href="mailto:p7ilosop7y@gmail.com" class="contact-btn">Contact Me</a>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -103,6 +111,10 @@
   </div>
 
   <footer>© 2025 Mohamed Tammam. جميع الحقوق محفوظة.</footer>
+
+  <button id="scrollToTopBtn" title="العودة للأعلى" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
