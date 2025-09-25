@@ -9,6 +9,12 @@
   --body-gradient: linear-gradient(180deg, #102a43, #0a0f1a);
   --footer-bg: #0f1828;
   --comment-bg: #0a0f1a;
+  /* ألوان المصباح للوضع الداكن مع توهج برتقالي */
+  --light-color-off: rgba(224, 228, 233, 0.1); /* لون الزجاج مطفأ */
+  --light-color-on: #ff9800; /* لون الإضاءة البرتقالي */
+  --filament-off: #5f6c7a;
+  --filament-on: #ffe0b2; /* لون الفتيل المضيء ليتناسب مع التوهج */
+  --base-color: #736056;
 }
 
 body.light-mode {
@@ -22,6 +28,12 @@ body.light-mode {
   --body-gradient: linear-gradient(180deg, #d3e0ea, #f0f4f8);
   --footer-bg: #e1e8f0;
   --comment-bg: #e9eef3;
+  /* ألوان المصباح للوضع الفاتح */
+  --light-color-off: rgba(69, 90, 100, 0.1); /* لون الزجاج مطفأ */
+  --light-color-on: #ffc107; /* لون الإضاءة */
+  --filament-off: #90a4ae;
+  --filament-on: #455a64;
+  --base-color: #b0bec5;
 }
 
 body {
@@ -648,7 +660,7 @@ body.lightbox-is-open .header-avatar-icon {
   display: none;
 }
 
-/* --- (تعديل) تصميم المصباح في قسم البورتفوليو --- */
+/* --- تصميم المصباح في قسم البورتفوليو --- */
 .lightbulb-scene {
     position: fixed;
     top: 90px;
@@ -675,31 +687,58 @@ body.lightbox-is-open .header-avatar-icon {
     transition: transform 0.1s ease;
 }
 
-#bulb, #bulbGroup rect {
+/* ---------------------------------------------------- */
+/* (تعديل) الأنماط الجديدة للتوهج باستخدام التدرج اللوني */
+/* ---------------------------------------------------- */
+
+#light-circle {
+    display: none;
+}
+
+#glow-circle {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+#lightbulbSvg.on #glow-circle {
+  opacity: 1;
+}
+
+#glowGradient .glow-stop-1 {
+  stop-color: var(--light-color-on);
+  stop-opacity: 0.8;
+}
+#glowGradient .glow-stop-2 {
+  stop-color: var(--light-color-on);
+  stop-opacity: 0;
+}
+
+#bulb-glass {
+    fill: var(--light-color-off);
     stroke: var(--muted);
-    stroke-width: 2.5;
-    fill: var(--card);
-    transition: stroke 0.5s ease, fill 0.5s ease;
+    stroke-width: 3;
+    transition: fill 0.4s ease, stroke 0.4s ease;
 }
 
 #filament {
     fill: none;
-    stroke: #555;
-    stroke-width: 4;
-    transition: all 0.3s ease;
+    stroke: var(--filament-off);
+    stroke-width: 12;
+    transition: stroke 0.4s ease;
 }
 
-#glow-effect {
-    fill: #ffeb3b;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+#lightbulbSvg path[style*="fill"] {
+    fill: var(--base-color) !important;
+    transition: fill 0.4s ease;
+}
+
+#lightbulbSvg.on #bulb-glass {
+    fill: var(--light-color-on);
+    stroke: transparent;
 }
 
 #lightbulbSvg.on #filament {
-    stroke: #ffc107;
+    stroke: var(--filament-on);
 }
-
-#lightbulbSvg.on #glow-effect {
-    opacity: 0.8;
-    filter: url(#glow);
-}
+/* ----------------------------------------------- */

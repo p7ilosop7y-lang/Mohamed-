@@ -1,6 +1,6 @@
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
-  authDomain: "mo777-2b57e.firebaseapp.com", 
+  authDomain: "mo777-2b5t7e.firebaseapp.com", 
   projectId: "mo777-2b57e",
   storageBucket: "mo777-2b57e.firebasestorage.app",
   messagingSenderId: "318111712614",
@@ -9,8 +9,6 @@ const firebaseConfig = {
 
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
 
 document.addEventListener('DOMContentLoaded', () => {
   let visitorId = localStorage.getItem('visitorId');
@@ -33,8 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const lightboxContent = document.getElementById('lightboxContent');
   const lbImage = document.getElementById('lbImage');
   const lbImageNext = document.getElementById('lbImageNext');
-  const authBtn = document.getElementById('auth-btn');
-  const addImageBtn = document.getElementById('addImageBtn');
   const prevArrow = document.getElementById('prevArrow');
   const nextArrow = document.getElementById('nextArrow');
   const avatarImg = document.getElementById('avatarImg');
@@ -503,46 +499,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  auth.onAuthStateChanged((user) => {
-    const isAdmin = user && user.email === 'p7ilosop7y@gmail.com';
-    authBtn.textContent = user ? 'تسجيل الخروج' : 'تسجيل الدخول';
-    addImageBtn.style.display = isAdmin ? 'inline-block' : 'none';
-  });
-  
-  authBtn.addEventListener('click', () => {
-    if (auth.currentUser) {
-      auth.signOut();
-    } else {
-      auth.signInWithPopup(provider)
-        .catch((error) => {
-          console.error("Authentication Error Code:", error.code);
-          console.error("Authentication Error Message:", error.message);
-          let friendlyMessage = 'فشل تسجيل الدخول.\n';
-          switch (error.code) {
-            case 'auth/popup-blocked':
-              friendlyMessage += 'تم حظر النافذة المنبثقة بواسطة المتصفح. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.';
-              break;
-            case 'auth/popup-closed-by-user':
-              friendlyMessage += 'تم إغلاق نافذة تسجيل الدخول قبل إتمام العملية.';
-              break;
-            case 'auth/unauthorized-domain':
-              friendlyMessage += 'هذا النطاق غير مصرح له بالقيام بعمليات المصادقة. تأكد من إضافة النطاق إلى قائمة النطاقات المصرّح بها في إعدادات Firebase Authentication.';
-              break;
-            case 'auth/internal-error':
-              friendlyMessage += 'حدث خطأ داخلي في نظام المصادقة.\n\n';
-              friendlyMessage += 'لحل المشكلة، يرجى التحقق من الآتي في إعدادات مشروع Firebase:\n';
-              friendlyMessage += '1.  تأكد من تفعيل "Google" كمزود خدمة تسجيل دخول (Sign-in provider).\n';
-              friendlyMessage += '2.  تأكد من إضافة النطاق `mohamed-plum-iota.vercel.app` إلى قائمة "Authorized domains".';
-              break;
-            default:
-              friendlyMessage += 'يرجى المحاولة مرة أخرى. إذا استمرت المشكلة، تحقق من إعدادات مشروع Firebase.';
-              friendlyMessage += `\n\nError: ${error.message}`;
-          }
-          alert(friendlyMessage);
-        });
-    }
-  });
-
   document.querySelectorAll('.filter-btn').forEach(button => {
     button.addEventListener('click', () => {
       document.querySelector('.filter-btn.active').classList.remove('active');
@@ -557,103 +513,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- (تعديل) كود حركة المصباح ووظيفة تغيير الثيم ---
   const lightbulbScene = document.getElementById('lightbulbScene');
-  if (lightbulbScene && typeof Matter !== 'undefined') {
-    const svg = document.getElementById('lightbulbSvg');
-    const bulbGroup = document.getElementById('bulbGroup');
-    const cord = document.getElementById('cord');
+  const svg = document.getElementById('lightbulbSvg');
 
-    const { Engine, World, Bodies, Constraint, Mouse, MouseConstraint } = Matter;
-
-    const engine = Engine.create();
-    const world = engine.world;
-    world.gravity.scale = 0.001; 
-
-    const anchorX = 50;
-    const anchorY = 0;
-    const cordLength = 100;
-
-    const bulbBody = Bodies.circle(anchorX, anchorY + cordLength, 15, {
-      restitution: 0.5,
-      friction: 0.1,
-      frictionAir: 0.05
-    });
-    
-    const constraint = Constraint.create({
-      pointA: { x: anchorX, y: anchorY },
-      bodyB: bulbBody,
-      length: cordLength,
-      stiffness: 0.2,
-      damping: 0.25
-    });
-
-    World.add(world, [bulbBody, constraint]);
-
-    const mouse = Mouse.create(lightbulbScene);
-    const mouseConstraint = MouseConstraint.create(engine, {
-      mouse: mouse,
-      constraint: { stiffness: 0.1, render: { visible: false } }
-    });
-    World.add(world, mouseConstraint);
-
-    (function render() {
-      const bulbPos = bulbBody.position;
-      const svgBulbOriginX = 50;
-      const svgBulbOriginY = 125;
-      
-      bulbGroup.setAttribute('transform', `translate(${bulbPos.x - svgBulbOriginX}, ${bulbPos.y - svgBulbOriginY})`);
-      cord.setAttribute('x2', bulbPos.x);
-      cord.setAttribute('y2', bulbPos.y);
-
-      Engine.update(engine, 1000 / 60);
-      requestAnimationFrame(render);
-    })();
-    
-    // (تعديل) وظيفة تغيير الثيم
+  if (svg) {
+    // وظيفة تغيير الثيم الأساسية
     function toggleTheme() {
       const isLightTheme = document.body.classList.toggle('light-mode');
       svg.classList.toggle('on', !isLightTheme);
       localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
     }
-    
-    // (تعديل) ربط تغيير الثيم بنهاية السحب بعد تجاوز مسافة معينة
-    let dragStartPos = { x: 0, y: 0 };
-    let isDragging = false;
-
-    mouse.element.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        dragStartPos = { x: e.clientX, y: e.clientY };
-    });
-    mouse.element.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        dragStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    });
-
-    document.addEventListener('mouseup', (e) => {
-      if (isDragging && mouseConstraint.body !== null) {
-        const dragEndPos = { x: e.clientX, y: e.clientY };
-        const dragDistance = Math.sqrt(
-          Math.pow(dragEndPos.x - dragStartPos.x, 2) + Math.pow(dragEndPos.y - dragStartPos.y, 2)
-        );
-        if (dragDistance > 5) {
-          toggleTheme();
-        }
-        isDragging = false;
-      }
-    });
-
-    document.addEventListener('touchend', (e) => {
-      if (isDragging && mouseConstraint.body !== null) {
-        const dragEndPos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-        const dragDistance = Math.sqrt(
-          Math.pow(dragEndPos.x - dragStartPos.x, 2) + Math.pow(dragEndPos.y - dragStartPos.y, 2)
-        );
-        if (dragDistance > 5) {
-          toggleTheme();
-        }
-        isDragging = false;
-      }
-    });
-
 
     // تطبيق الثيم المحفوظ عند تحميل الصفحة
     const savedTheme = localStorage.getItem('theme');
@@ -662,6 +530,61 @@ document.addEventListener('DOMContentLoaded', () => {
       svg.classList.remove('on');
     } else {
       svg.classList.add('on'); // الوضع الليلي هو الافتراضي
+    }
+
+    // تهيئة الحركة فقط إذا تم تحميل المكتبة بنجاح
+    if (lightbulbScene && typeof Matter !== 'undefined') {
+      const bulbGroup = document.getElementById('bulbGroup');
+      const cord = document.getElementById('cord');
+      const { Engine, World, Bodies, Constraint, Mouse, MouseConstraint } = Matter;
+      const engine = Engine.create();
+      engine.world.gravity.scale = 0.001;
+      
+      const bulbBody = Bodies.circle(50, 100, 25, { restitution: 0.5, friction: 0.1, frictionAir: 0.05 });
+      const constraint = Constraint.create({ pointA: { x: 50, y: 0 }, bodyB: bulbBody, length: 100, stiffness: 0.2, damping: 0.25 });
+      World.add(engine.world, [bulbBody, constraint]);
+      
+      const mouse = Mouse.create(lightbulbScene);
+      const mouseConstraint = MouseConstraint.create(engine, { mouse: mouse, constraint: { stiffness: 0.8, render: { visible: false } } });
+      World.add(engine.world, mouseConstraint);
+      
+      (function render() {
+        const bulbPos = bulbBody.position;
+        bulbGroup.setAttribute('transform', `translate(${bulbPos.x - 50}, ${bulbPos.y - 125})`);
+        cord.setAttribute('x2', bulbPos.x);
+        cord.setAttribute('y2', bulbPos.y);
+        Engine.update(engine, 1000 / 60);
+        requestAnimationFrame(render);
+      })();
+
+      // تفعيل تغيير الثيم عند السحب
+      let dragStartPos = { x: 0, y: 0 }, isDragging = false;
+      mouse.element.addEventListener('mousedown', (e) => { isDragging = true; dragStartPos = { x: e.clientX, y: e.clientY }; });
+      mouse.element.addEventListener('touchstart', (e) => { isDragging = true; dragStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY }; });
+      
+      document.addEventListener('mouseup', (e) => {
+        if (isDragging && mouseConstraint.body !== null) {
+          const dragEndPos = { x: e.clientX, y: e.clientY };
+          const dragDistance = Math.sqrt(Math.pow(dragEndPos.x - dragStartPos.x, 2) + Math.pow(dragEndPos.y - dragStartPos.y, 2));
+          if (dragDistance > 5) { toggleTheme(); }
+          isDragging = false;
+        }
+      });
+      document.addEventListener('touchend', (e) => {
+        if (isDragging && mouseConstraint.body !== null) {
+          const dragEndPos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+          const dragDistance = Math.sqrt(Math.pow(dragEndPos.x - dragStartPos.x, 2) + Math.pow(dragEndPos.y - dragStartPos.y, 2));
+          if (dragDistance > 5) { toggleTheme(); }
+          isDragging = false;
+        }
+      });
+
+    } else {
+      // حل بديل: عند فشل تحميل مكتبة الحركة، يمكن الضغط على المصباح مباشرة
+      const bulbGroup = document.getElementById('bulbGroup');
+      if (bulbGroup) {
+        bulbGroup.addEventListener('click', toggleTheme);
+      }
     }
   }
 });
