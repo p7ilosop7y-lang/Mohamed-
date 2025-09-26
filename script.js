@@ -28,12 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
   openSound.volume = 0.4;
   closeSound.volume = 0.4;
 
-  // (إضافة) كود لحل مشكلة حظر الصوت في المتصفحات
   let audioUnlocked = false;
   function unlockAudioContext() {
     if (audioUnlocked) return;
     const sounds = [clickSound, switchSound, openSound, closeSound];
-    sounds.forEach(sound => sound.load()); // نقوم بتحميل الأصوات
+    sounds.forEach(sound => sound.load());
     audioUnlocked = true;
     console.log('Audio context unlocked by user interaction.');
   }
@@ -42,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   function playSound(sound) {
-    if (!audioUnlocked) return; // لا تشغل الصوت إلا بعد تفعيل المستخدم له
+    if (!audioUnlocked) return;
     sound.currentTime = 0;
     sound.play().catch(error => console.log(`Audio playback was prevented: ${error}`));
   }
@@ -66,13 +65,135 @@ document.addEventListener('DOMContentLoaded', () => {
   const avatarImg = document.getElementById('avatarImg');
   const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 
+  // --- Admin Elements ---
+  const adminLoginBtn = document.getElementById('adminLoginBtn');
+  const adminLoginModal = document.getElementById('adminLoginModal');
+  const adminLoginForm = document.getElementById('adminLoginForm');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const logoutBtnMobile = document.getElementById('logoutBtnMobile');
+  const addImageBtn = document.querySelector('.add-image-btn');
+
   // --- State ---
   let currentImageIndex = -1;
   let allImages = [];
   const roles = ["concept artist", "digital artist", "illustrator"];
   let roleIndex = 0, charIndex = 0, deleting = false;
   let isTransitioning = false;
+  let isAdmin = false;
+  const ADMIN_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+
+  // --- Admin Functions ---
+
+  // (إضافة) إعداد أداة الرفع الخاصة بـ Cloudinary
+  const myWidget = cloudinary.createUploadWidget({
+    cloudName: 'mo777', // الرجاء التأكد من أن هذا هو اسم السحابة الصحيح
+    uploadPreset: 'portfolio_preset', // الرجاء التأكد من إنشاء إعداد مسبق بهذا الاسم في حسابك
+    folder: 'portfolio',
+    cropping: true,
+    sources: ['local', 'url', 'camera'],
+    multiple: false,
+    maxFiles: 1,
+    styles: {
+      palette: {
+        window: "var(--bg)",
+        windowBorder: "var(--card-border)",
+        tabIcon: "var(--accent)",
+        menuIcons: "var(--text)",
+        textDark: "var(--muted)",
+        textLight: "var(--text)",
+        link: "var(--accent)",
+        action: "var(--accent)",
+        inactiveTabIcon: "var(--muted)",
+        error: "#F44235",
+        inProgress: "var(--accent)",
+        complete: "#20B832",
+        sourceBg: "var(--bg)"
+      }
+    }
+  }, (error, result) => { 
+    if (!error && result && result.event === "success") { 
+      // بعد الرفع الناجح، قم بإضافة الصورة إلى قاعدة البيانات
+      addNewImage(result.info.secure_url);
+    }
+  });
+
+  // (إضافة) دالة لإضافة بيانات الصورة الجديدة إلى Firestore
+  async function addNewImage(imageUrl) {
+    const title = prompt("الرجاء إدخال عنوان الصورة:", "بدون عنوان");
+    const category = prompt("الرجاء إدخال التصنيف (illustration, concept, character):", "illustration");
+    if (title === null || category === null) {
+      return; // ألغى المستخدم الإدخال
+    }
+    try {
+      await db.collection("portfolioimages").add({
+        src: imageUrl,
+        title: title,
+        category: category.toLowerCase().trim(),
+        likes: 0,
+        likedBy: [],
+        comments: [],
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert('تمت إضافة الصورة بنجاح!');
+      loadImages(); // أعد تحميل المعرض لعرض الصورة الجديدة
+    } catch (error) {
+      console.error("خطأ في إضافة الصورة إلى Firestore: ", error);
+      alert('فشلت إضافة الصورة.');
+    }
+  }
+
+
+  async function hashText(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  }
+
+  function updateAdminUI() {
+    if (isAdmin) {
+      if (addImageBtn) addImageBtn.style.display = 'inline-block';
+      if (logoutBtn) logoutBtn.style.display = 'block';
+      if (logoutBtnMobile) logoutBtnMobile.style.display = 'block';
+      if (adminLoginBtn) adminLoginBtn.style.display = 'none';
+    } else {
+      if (addImageBtn) addImageBtn.style.display = 'none';
+      if (logoutBtn) logoutBtn.style.display = 'none';
+      if (logoutBtnMobile) logoutBtnMobile.style.display = 'none';
+      if (adminLoginBtn) adminLoginBtn.style.display = 'block';
+    }
+  }
+
+  function checkAdminStatus() {
+    if (sessionStorage.getItem('isAdmin') === 'true') {
+      isAdmin = true;
+    } else {
+      isAdmin = false;
+    }
+    updateAdminUI();
+  }
+
+  async function login(password) {
+    const enteredHash = await hashText(password);
+    if (enteredHash === ADMIN_HASH) {
+      sessionStorage.setItem('isAdmin', 'true');
+      checkAdminStatus();
+      if(adminLoginModal) adminLoginModal.style.display = 'none';
+      alert('Login successful!');
+    } else {
+      alert('Incorrect password.');
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('isAdmin');
+    checkAdminStatus();
+  }
   
+  // --- Menu ---
   function openMenu() {
     playSound(openSound);
     sideMenu.classList.add('open');
@@ -133,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   
+  // --- Lightbox ---
   let scale = 1, isZoomed = false;
   let panStartX, panStartY, translateX = 0, translateY = 0;
   let lastTap = 0;
@@ -359,6 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // --- UI & Content ---
   nameEl.innerHTML = nameEl.textContent.split('').map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   nameEl.addEventListener('click', () => {
     playSound(clickSound);
@@ -392,6 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 
+  // --- Gallery & Firestore ---
   async function loadImages(category = 'all') {
     gallery.innerHTML = '<p>Loading gallery...</p>';
     let query = db.collection("portfolioimages").orderBy("timestamp", "desc");
@@ -571,6 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  // --- Intersection Observer ---
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -587,14 +712,9 @@ document.addEventListener('DOMContentLoaded', () => {
       observer.observe(el);
     });
   }
-
   observeElements(document.querySelectorAll('section h2, .about-content'));
 
-
-  handleNavigation();
-  loadImages();
-  typeWriter();
-
+  // --- Title & Theme ---
   const portfolioTitle = document.getElementById('portfolioTitle');
   if (portfolioTitle) {
     const text = "Portfolio";
@@ -622,7 +742,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const lightbulbScene = document.getElementById('lightbulbScene');
   const svg = document.getElementById('lightbulbSvg');
-
   if (svg) {
     function toggleTheme() {
       playSound(switchSound);
@@ -691,4 +810,54 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
+
+  // --- Initializations ---
+  
+  // Admin Event Listeners
+  // (تعديل) تم إضافة مستمع الأحداث لزر إضافة الصور
+  if (addImageBtn) {
+    addImageBtn.addEventListener('click', () => {
+      if (isAdmin) {
+        myWidget.open();
+      }
+    });
+  }
+
+  if (adminLoginBtn) {
+    adminLoginBtn.addEventListener('click', () => {
+      playSound(openSound);
+      if(adminLoginModal) adminLoginModal.style.display = 'flex';
+    });
+  }
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', () => {
+      playSound(closeSound);
+      if(adminLoginModal) adminLoginModal.style.display = 'none';
+    });
+  }
+  if (adminLoginModal) {
+    adminLoginModal.addEventListener('click', (e) => {
+      if(e.target === adminLoginModal) {
+        playSound(closeSound);
+        adminLoginModal.style.display = 'none';
+      }
+    });
+  }
+  if (adminLoginForm) {
+    adminLoginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      playSound(clickSound);
+      const passwordInput = document.getElementById('adminPassword');
+      await login(passwordInput.value);
+      passwordInput.value = '';
+    });
+  }
+  if (logoutBtn) logoutBtn.addEventListener('click', logout);
+  if (logoutBtnMobile) logoutBtnMobile.addEventListener('click', () => { closeMenu(); logout(); });
+  
+  // Initial Page Load Calls
+  checkAdminStatus();
+  handleNavigation();
+  loadImages();
+  typeWriter();
 });
