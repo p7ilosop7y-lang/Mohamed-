@@ -197,7 +197,7 @@ nav a:hover {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-right: 16px; /* Added margin for spacing */
+  margin-right: 16px;
 }
 #user-info {
   display: flex;
