@@ -494,13 +494,21 @@ section p {
 
 footer {
   margin-top: auto;
-  padding: 20px;
-  text-align: center;
+  padding: 15px 24px;
   font-size: 13px;
   color: var(--muted);
   background: var(--footer-bg);
   border-top: 1px solid var(--card-border);
   transition: background 0.5s ease;
+  /* (تعديل) استخدام flexbox للتوسيط والمحاذاة */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+footer span {
+  flex-grow: 1;
+  text-align: center;
 }
 
 .cursor {
@@ -653,6 +661,12 @@ footer {
   cursor: pointer;
   margin-bottom: 20px;
   display: none;
+  transition: all 0.3s ease;
+}
+
+.add-image-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--accent-shadow);
 }
 
 .filter-btn {
@@ -987,4 +1001,128 @@ section h2.is-visible,
 .card.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Admin Login Styles */
+footer #adminLoginBtn {
+  /* (تعديل) تم حذف كل خصائص الموضع السابق */
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  padding: 0 10px; /* Add some clickable space */
+}
+
+footer #adminLoginBtn:hover {
+  color: var(--accent);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: var(--card);
+  padding: 30px 40px;
+  border-radius: 12px;
+  position: relative;
+  text-align: center;
+  width: 90%;
+  max-width: 350px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid var(--card-border);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: var(--text);
+}
+
+#adminLoginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#adminLoginForm input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    text-align: center;
+}
+#adminLoginForm input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+#adminLoginForm button {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+#adminLoginForm button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--accent-shadow);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+#logoutBtn, .logout-btn-mobile {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-right: 5px;
+}
+
+#logoutBtn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.logout-btn-mobile {
+   width: calc(100% - 30px);
+   font-size: 18px;
+   padding: 12px 15px;
+}
+
+.logout-btn-mobile:hover {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.05);
 }
