@@ -1,11 +1,11 @@
 :root {
   --bg: #0a0f1a;
-  --card-dark: #131c2b;
+  --card: #131c2b;
   --muted: #b0bac8;
   --accent: #ff6b9d;
   --neon-color: #FF6E48; 
   --text: #f3f5f7;
-  /* (تعديل) لون النيون وهو مطفأ */
+  /* (إضافة) لون النيون وهو مطفأ */
   --neon-off-color: #5a687c;
 
   --header-bg: #111c2d99;
@@ -17,8 +17,7 @@
   --accent-shadow: 0 0 15px var(--accent-glow);
   --card-border: rgba(255, 255, 255, 0.1);
   --light-color-off: rgba(224, 228, 233, 0.1);
-  /* (تعديل) لتوحيد اسم المتغير*/
-  --bulb-on-color: #ff9800; 
+  --light-color-on: #ff9800;
   --filament-off: #5f6c7a;
   --filament-on: #ffe0b2;
   --base-color: #736056;
@@ -26,12 +25,12 @@
 
 body.light-mode {
   --bg: #f0f4f8;
-  --card-dark: #ffffff;
+  --card: #ffffff;
   --muted: #5a6e87;
   --accent: #007bff;
   --neon-color: #FF6E48;
   --text: #313A6A;
-  --neon-off-color: #a0aec0; 
+  --neon-off-color: #a0aec0; /* لون أفتح قليلاً للوضع الفاتح */
 
   --header-bg: #ffffff99;
   --card-bg: rgba(255, 255, 255, 0.8);
@@ -42,8 +41,7 @@ body.light-mode {
   --accent-shadow: 0 0 15px var(--accent-glow);
   --card-border: rgba(0, 0, 0, 0.1);
   --light-color-off: rgba(69, 90, 100, 0.1); 
-  /* (تعديل) لتوحيد اسم المتغير */
-  --bulb-on-color: rgba(69, 90, 100, 0.1);
+  --light-color-on: rgba(69, 90, 100, 0.1);
   --filament-off: #90a4ae;
   --filament-on: #90a4ae;
   --base-color: #b0bec5;
@@ -300,7 +298,7 @@ section.active {
 
 section h2 {
   margin-bottom: 25px;
-  color: var(--neon-off-color);
+  color: var(--neon-off-color); /* (تعديل) اللون الافتراضي الآن هو اللون المطفأ */
   font-size: 2.2rem;
   font-weight: 600;
   letter-spacing: 1px;
@@ -341,7 +339,7 @@ section p {
 #portfolioTitle {
     font-size: 2rem; 
     direction: ltr;
-    cursor: pointer;
+    cursor: pointer; /* (إضافة) تغيير شكل المؤشر للإشارة إلى أنه قابل للضغط */
 }
 
 /* (تعديل) الحالة الافتراضية للحروف (مطفأة) */
@@ -591,7 +589,7 @@ footer {
   background: transparent;
 }
 .comments-list::-webkit-scrollbar-thumb {
-  background-color: var(--card-dark); /* (تعديل) استخدام المتغير الجديد */
+  background-color: var(--card);
   border-radius: 10px;
 }
 .comments-list::-webkit-scrollbar-thumb:hover {
@@ -670,7 +668,7 @@ footer {
 }
 
 .filter-btn:hover {
-  background: var(--card-dark); /* (تعديل) استخدام المتغير الجديد */
+  background: var(--card);
   color: #fff;
 }
 
@@ -795,11 +793,11 @@ body.light-mode #lightbulbSvg.on #glow-circle {
 }
 
 #glowGradient .glow-stop-1 {
-  stop-color: var(--bulb-on-color); /* (تعديل) استخدام المتغير الجديد */
+  stop-color: var(--light-color-on);
   stop-opacity: 0.8;
 }
 #glowGradient .glow-stop-2 {
-  stop-color: var(--bulb-on-color); /* (تعديل) استخدام المتغير الجديد */
+  stop-color: var(--light-color-on);
   stop-opacity: 0;
 }
 
@@ -823,7 +821,7 @@ body.light-mode #lightbulbSvg.on #glow-circle {
 }
 
 #lightbulbSvg.on #bulb-glass {
-    fill: var(--bulb-on-color); /* (تعديل) استخدام المتغير الجديد */
+    fill: var(--light-color-on);
     stroke: transparent;
 }
 
@@ -937,7 +935,7 @@ body.light-mode #lightbulbSvg.on #glow-circle {
 }
 
 .skill-tag {
-  background-color: var(--card-dark); /* (تعديل) استخدام المتغير الجديد */
+  background-color: var(--card);
   color: var(--muted);
   padding: 6px 15px;
   border-radius: 15px;
