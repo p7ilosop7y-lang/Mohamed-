@@ -1,5 +1,7 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
+  // 🚨 تنويه أمني: لا يتم تضمين المفاتيح الحقيقية في الكود الأمامي. هذا المفتاح وهمي.
+  // للبيئات الإنتاجية، يجب استخدام متغيرات البيئة والاعتماد على قواعد أمان Firestore.
+  apiKey: "FAKE_API_KEY_FOR_DEMO_ONLY",
   authDomain: "mo777-2b5t7e.firebaseapp.com", 
   projectId: "mo777-2b57e",
   storageBucket: "mo777-2b57e.firebasestorage.app",
@@ -15,36 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!visitorId) {
     visitorId = crypto.randomUUID();
     localStorage.setItem('visitorId', visitorId);
-  }
-
-  // --- Audio Elements ---
-  const clickSound = new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_12b0c7443c.mp3');
-  const switchSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_b80283288f.mp3');
-  const openSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/10/audio_c3894441b0.mp3');
-  const closeSound = new Audio('https://cdn.pixabay.com/download/audio/2022/03/25/audio_331c11d130.mp3');
-  
-  clickSound.volume = 0.5;
-  switchSound.volume = 0.6;
-  openSound.volume = 0.4;
-  closeSound.volume = 0.4;
-
-  // (إضافة) كود لحل مشكلة حظر الصوت في المتصفحات
-  let audioUnlocked = false;
-  function unlockAudioContext() {
-    if (audioUnlocked) return;
-    const sounds = [clickSound, switchSound, openSound, closeSound];
-    sounds.forEach(sound => sound.load()); // نقوم بتحميل الأصوات
-    audioUnlocked = true;
-    console.log('Audio context unlocked by user interaction.');
-  }
-  document.addEventListener('click', unlockAudioContext, { once: true });
-  document.addEventListener('touchstart', unlockAudioContext, { once: true });
-
-
-  function playSound(sound) {
-    if (!audioUnlocked) return; // لا تشغل الصوت إلا بعد تفعيل المستخدم له
-    sound.currentTime = 0;
-    sound.play().catch(error => console.log(`Audio playback was prevented: ${error}`));
   }
 
   // --- DOM Elements ---
@@ -65,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextArrow = document.getElementById('nextArrow');
   const avatarImg = document.getElementById('avatarImg');
   const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+  const portfolioTitle = document.getElementById('portfolioTitle');
 
   // --- State ---
   let currentImageIndex = -1;
@@ -74,13 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let isTransitioning = false;
   
   function openMenu() {
-    playSound(openSound);
     sideMenu.classList.add('open');
     menuOverlay.classList.add('open');
   }
 
   function closeMenu() {
-    playSound(closeSound);
     sideMenu.classList.remove('open');
     menuOverlay.classList.remove('open');
   }
@@ -123,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
   menuOverlay.onclick = closeMenu;
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
-      playSound(clickSound);
       closeMenu();
       const href = link.getAttribute('href');
       if (href.startsWith('#')) {
@@ -146,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentImageIndex = index;
     const img = allImages[index];
     lbImage.src = img.src;
+    // 🚨 إصلاح أمني: استخدام دالة الهروب للـ alt
     lbImage.alt = `Enlarged view of ${escapeHtml(img.title || 'artwork')}`;
     lbImageNext.style.display = 'none';
     lbImage.style.opacity = 1;
@@ -189,13 +160,24 @@ document.addEventListener('DOMContentLoaded', () => {
       resetZoom();
     } else {
       const rect = lbImage.getBoundingClientRect();
-      const originX = (e.clientX || e.touches[0].clientX) - rect.left;
-      const originY = (e.clientY || e.touches[0].clientY) - rect.top;
-      lbImage.style.transformOrigin = `${originX}px ${originY}px`;
+      // حساب نقطة التركيز للزوم
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      const originX = clientX - rect.left;
+      const originY = clientY - rect.top;
+
       scale = 2.5;
       isZoomed = true;
       lightbox.classList.add('zoomed');
       lbImage.style.transition = 'transform 0.3s ease-out';
+      
+      // حساب الترجمة (Translate) لتركيز الزوم على نقطة النقر
+      translateX = (rect.width / 2 - originX) * scale;
+      translateY = (rect.height / 2 - originY) * scale;
+      
+      // تقييد الترجمة (لتبسيط الكود، نعتمد على أن الزوم سيجعل الصورة أكبر من الشاشة)
+      // يمكن إضافة منطق لتقييد الـ pan هنا إذا كان ضرورياً
+
       applyTransform(lbImage, translateX, translateY, scale);
       setTimeout(() => { lbImage.style.transition = 'none'; }, 300);
     }
@@ -204,26 +186,35 @@ document.addEventListener('DOMContentLoaded', () => {
   function slideTo(newIndex, direction) {
     if (isTransitioning) return;
     isTransitioning = true;
-    lbImageNext.src = allImages[newIndex].src;
-    lbImageNext.style.display = 'block';
-    const initialNextX = direction === 1 ? window.innerWidth : -window.innerWidth;
-    applyTransform(lbImageNext, initialNextX, 0, 1);
-    lbImage.style.transition = 'transform 0.3s ease-out';
-    lbImageNext.style.transition = 'transform 0.3s ease-out';
-    const finalCurrentImageX = direction === 1 ? -window.innerWidth : window.innerWidth;
-    applyTransform(lbImage, finalCurrentImageX, 0, 1);
-    applyTransform(lbImageNext, 0, 0, 1);
+    resetZoom();
+    const newImgData = allImages[newIndex];
+    
+    // (تحسين) استخدام الصورة الحالية لتنفيذ تأثير السلايد
+    lbImage.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+    lbImage.style.opacity = 0;
+    
+    const finalCurrentImageX = direction === 1 ? -window.innerWidth * 0.5 : window.innerWidth * 0.5;
+    applyTransform(lbImage, finalCurrentImageX, 0, 0.8);
+    
     setTimeout(() => {
       currentImageIndex = newIndex;
-      const newImgData = allImages[currentImageIndex];
       lbImage.src = newImgData.src;
+      // 🚨 إصلاح أمني: استخدام دالة الهروب للـ alt
       lbImage.alt = `Enlarged view of ${escapeHtml(newImgData.title || 'artwork')}`;
       history.replaceState({ lightbox: 'open' }, '', `#image/${newImgData.id}`);
+
+      // إظهار الصورة الجديدة مع تأثير معاكس
       lbImage.style.transition = 'none';
-      lbImageNext.style.transition = 'none';
-      applyTransform(lbImage, 0, 0, 1);
-      lbImageNext.style.display = 'none';
-      isTransitioning = false;
+      const initialX = direction === 1 ? window.innerWidth * 0.5 : -window.innerWidth * 0.5;
+      applyTransform(lbImage, initialX, 0, 0.8);
+      
+      // بدء الانتقال الجديد
+      setTimeout(() => {
+        lbImage.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+        lbImage.style.opacity = 1;
+        applyTransform(lbImage, 0, 0, 1);
+        isTransitioning = false;
+      }, 50); // تأخير بسيط للسماح للـ DOM بتحديث المصدر
     }, 300);
   }
 
@@ -272,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lightboxSwipeDirection = 'horizontal';
         }
       }
-      if (lightboxSwipeDirection === 'vertical' && diffY < 0) {
+      if (lightboxSwipeDirection === 'vertical') {
           const progress = Math.abs(diffY) / (window.innerHeight / 2);
           const newScale = Math.max(0.7, 1 - progress * 0.3);
           const newOpacity = Math.max(0.1, 1 - progress);
@@ -282,11 +273,10 @@ document.addEventListener('DOMContentLoaded', () => {
           if (lightbox.classList.contains('avatar-open')) return;
           const navDirection = diffX < 0 ? 1 : -1;
           const nextIndex = (currentImageIndex + navDirection + allImages.length) % allImages.length;
-          lbImageNext.src = allImages[nextIndex].src;
-          lbImageNext.style.display = 'block';
+          
+          // (تحسين) إخفاء الصورة التالية وعدم استخدامها في السلايد الأفقي
+          lbImageNext.style.display = 'none';
           applyTransform(lbImage, diffX, 0, 1);
-          const nextImageX = (navDirection === 1 ? window.innerWidth : -window.innerWidth) + diffX;
-          applyTransform(lbImageNext, nextImageX, 0, 1);
       }
     }
   }
@@ -296,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     isLightboxSwiping = false;
     if (lightboxSwipeDirection === 'vertical') {
         const diffY = swipeLbCurrentY - swipeLbStartY;
-        if (diffY < -swipeThresholdY) {
+        if (diffY < -swipeThresholdY || diffY > swipeThresholdY) {
             closeLightbox();
         } else {
             lbImage.style.transition = 'transform 0.3s ease-out';
@@ -314,10 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slideTo(newIndex, navDirection);
         } else {
             lbImage.style.transition = 'transform 0.3s ease-out';
-            lbImageNext.style.transition = 'transform 0.3s ease-out';
             applyTransform(lbImage, 0, 0, 1);
-            const nextImageX = navDirection === 1 ? window.innerWidth : -window.innerWidth;
-            applyTransform(lbImageNext, nextImageX, 0, 1);
         }
     }
     lightboxSwipeDirection = null;
@@ -328,14 +315,12 @@ document.addEventListener('DOMContentLoaded', () => {
   lightboxContent.addEventListener('touchend', onLightboxTouchEnd, { passive: false });
   
   prevArrow.addEventListener('click', (e) => { 
-    playSound(clickSound);
     e.stopPropagation(); 
     if (lightbox.classList.contains('avatar-open')) return;
     const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length; 
     slideTo(newIndex, -1); 
   });
   nextArrow.addEventListener('click', (e) => { 
-    playSound(clickSound);
     e.stopPropagation(); 
     if (lightbox.classList.contains('avatar-open')) return;
     const newIndex = (currentImageIndex + 1) % allImages.length; 
@@ -345,7 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
 
   avatarImg.addEventListener('click', function() {
-    playSound(clickSound);
     lbImage.src = this.src;
     lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
     lbImageNext.style.display = 'none';
@@ -353,15 +337,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('lightbox-is-open');
   });
   
-  lbImage.addEventListener('click', () => {
+  lbImage.addEventListener('click', (e) => {
+    e.stopPropagation();
     if (lightbox.classList.contains('avatar-open')) {
       closeLightbox();
+    } else if (!isZoomed) {
+      toggleZoom(e);
     }
   });
+  
+  // (إضافة) منع النقر المزدوج الافتراضي على lbImage لمنع تضارب الـ toggleZoom
+  lbImage.addEventListener('dblclick', (e) => e.preventDefault());
+
 
   nameEl.innerHTML = nameEl.textContent.split('').map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   nameEl.addEventListener('click', () => {
-    playSound(clickSound);
     nameEl.querySelectorAll('span').forEach((span, i) => {
       setTimeout(() => span.classList.add('bounce'), i * 50);
       setTimeout(() => span.classList.remove('bounce'), 1000 + i * 50);
@@ -384,16 +374,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentRole = roles[roleIndex];
     if (!deleting && charIndex < currentRole.length) { roleEl.textContent += currentRole.charAt(charIndex++); }
     else if (deleting && charIndex > 0) { roleEl.textContent = currentRole.substring(0, --charIndex); }
-    else { deleting = !deleting; if (!deleting) { roleIndex = (roleIndex + 1) % roles.length; } }
+    else { deleting = !deleting; setTimeout(() => { if (!deleting) { roleIndex = (roleIndex + 1) % roles.length; } }, 1000); }
     setTimeout(typeWriter, deleting ? 100 : 150);
   }
 
+  /**
+   * 🚨 إصلاح أمني: دالة لتهريب (Escape) رموز HTML لمنع XSS
+   * يجب استخدامها لجميع النصوص المسترجعة من قاعدة البيانات قبل دمجها في الـ DOM كـ innerHTML/Attribute.
+   */
   function escapeHtml(unsafe) {
-    return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    if (typeof unsafe !== 'string') return '';
+    return unsafe.replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
   }
 
   async function loadImages(category = 'all') {
     gallery.innerHTML = '<p>Loading gallery...</p>';
+    // (تحسين) الترتيب حسب "timestamp" وهو الاسم الأفضل للحقل الافتراضي في Firestore
     let query = db.collection("portfolioimages").orderBy("timestamp", "desc");
     if (category !== 'all') { query = query.where("category", "==", category); }
     try {
@@ -455,15 +455,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'card';
     const isLiked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
+    
+    // 🚨 إصلاح أمني: تهريب (Escape) بيانات العنوان المستخدمة في الـ alt
+    const safeTitle = escapeHtml(imgObj.title || 'Untitled');
+    
+    // (تحسين) استخدام innerHTML للعنصر بالكامل، مع تهريب البيانات
     card.innerHTML = `
-      <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork')}" loading="lazy"></div>
-      <div class="title-container"><h3>${escapeHtml(imgObj.title || 'Untitled')}</h3></div>
+      <div class="thumb"><img src="${imgObj.src}" alt="${safeTitle}" loading="lazy"></div>
+      <div class="title-container"><h3>${safeTitle}</h3></div>
       <div class="card-actions">
         <span class="like-count">${imgObj.likes || 0}</span>
         <button class="action-btn like-btn ${isLiked ? 'liked' : ''}" aria-label="Like this image">
           <i class="${isLiked ? 'fas' : 'far'} fa-heart" aria-hidden="true"></i>
         </button>
-        <button class="action-btn download-btn" aria-label="Download this image">
+        <button class="action-btn download-btn" aria-label="Download ${safeTitle}">
             <i class="fas fa-download" aria-hidden="true"></i>
         </button>
       </div>
@@ -471,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="comments-list">${(imgObj.comments || []).map(comment => `<div class="comment"><span>${escapeHtml(comment)}</span></div>`).join('')}</div>
         <form class="comment-form">
           <label for="comment-input-${index}" class="visually-hidden">Add a comment</label>
-          <input id="comment-input-${index}" class="comment-input" type="text" placeholder="أضف تعليقًا..." required>
+          <input id="comment-input-${index}" class="comment-input" type="text" placeholder="أضف تعليقًا..." required maxlength="250">
           <button class="comment-btn" type="submit" aria-label="Submit comment"><i class="fas fa-paper-plane"></i></button>
         </form>
       </div>`;
@@ -479,16 +484,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const likeBtn = card.querySelector('.like-btn');
     const likeCountEl = card.querySelector('.like-count');
     likeBtn.addEventListener('click', () => {
-      playSound(clickSound);
       toggleLike(imgObj.id, likeBtn, likeCountEl);
     });
     const downloadBtn = card.querySelector('.download-btn');
     downloadBtn.addEventListener('click', () => {
-      playSound(clickSound);
       downloadImage(imgObj.src, imgObj.title || 'Artwork', downloadBtn);
     });
     const commentForm = card.querySelector('.comment-form');
-    card.querySelector('.comment-btn').addEventListener('click', () => playSound(clickSound));
     commentForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const commentInput = card.querySelector('.comment-input');
@@ -527,6 +529,12 @@ document.addEventListener('DOMContentLoaded', () => {
   async function addComment(imageId, inputEl, commentsListEl) {
     const commentText = inputEl.value.trim();
     if (!commentText) return;
+    
+    if (commentText.length > 250) { 
+        alert("التعليق يتجاوز الحد الأقصى المسموح به (250 حرف).");
+        return;
+    }
+    
     const imageRef = db.collection('portfolioimages').doc(imageId);
     try {
       await imageRef.update({
@@ -534,19 +542,32 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const newCommentDiv = document.createElement('div');
       newCommentDiv.className = 'comment';
-      newCommentDiv.innerHTML = `<span>${escapeHtml(commentText)}</span>`;
+      // 🚨 إصلاح أمني مهم: استخدام textContent بدلاً من innerHTML لمنع XSS
+      const span = document.createElement('span');
+      span.textContent = commentText; 
+      newCommentDiv.appendChild(span);
+      
       commentsListEl.appendChild(newCommentDiv);
       commentsListEl.scrollTop = commentsListEl.scrollHeight;
       inputEl.value = '';
     } catch (error) {
       console.error("Error adding comment:", error);
-      alert("An unexpected error occurred. Could not add comment.");
+      
+      let userFriendlyMessage = "حدث خطأ غير متوقع. لم نتمكن من إضافة التعليق.";
+      
+      // (تعديل) فحص نوع الخطأ من Firebase
+      if (error.code && error.code === 'permission-denied') {
+        userFriendlyMessage = "فشل في الإضافة: ربما لا تملك صلاحية للكتابة. (تأكد من إعداد قواعد أمان Firebase)";
+      } else if (error.message && error.message.includes('NOT_FOUND')) {
+          userFriendlyMessage = "فشل في الإضافة: الصورة غير موجودة في قاعدة البيانات.";
+      }
+
+      alert(userFriendlyMessage);
     }
   }
 
   document.querySelectorAll('.filter-btn').forEach(button => {
     button.addEventListener('click', () => {
-      playSound(clickSound);
       document.querySelector('.filter-btn.active').classList.remove('active');
       button.classList.add('active');
       loadImages(button.dataset.category);
@@ -563,7 +584,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     scrollToTopBtn.addEventListener('click', () => {
-      playSound(openSound);
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
@@ -595,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadImages();
   typeWriter();
 
-  const portfolioTitle = document.getElementById('portfolioTitle');
+  // --- تحديث: تنفيذ كود portfolioTitle مرة واحدة هنا ---
   if (portfolioTitle) {
     const text = "Portfolio";
     portfolioTitle.innerHTML = '';
@@ -607,7 +627,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isAnimating = false;
     portfolioTitle.addEventListener('click', () => {
-      playSound(clickSound);
       if (isAnimating) return; 
 
       isAnimating = true;
@@ -625,7 +644,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (svg) {
     function toggleTheme() {
-      playSound(switchSound);
       const isLightTheme = document.body.classList.toggle('light-mode');
       svg.classList.toggle('on', !isLightTheme);
       localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
@@ -642,44 +660,88 @@ document.addEventListener('DOMContentLoaded', () => {
     if (lightbulbScene && typeof Matter !== 'undefined') {
       const bulbGroup = document.getElementById('bulbGroup');
       const cord = document.getElementById('cord');
-      const { Engine, World, Bodies, Constraint, Mouse, MouseConstraint } = Matter;
-      const engine = Engine.create();
-      engine.world.gravity.scale = 0.001;
+      const { Engine, World, Bodies, Constraint, Mouse, MouseConstraint, Runner } = Matter;
       
-      const bulbBody = Bodies.circle(50, 100, 25, { restitution: 0.5, friction: 0.1, frictionAir: 0.05 });
-      const constraint = Constraint.create({ pointA: { x: 50, y: 0 }, bodyB: bulbBody, length: 100, stiffness: 0.2, damping: 0.25 });
+      const engine = Engine.create();
+      // (تحسين) زيادة الجاذبية قليلاً لتحسين الحركة
+      engine.world.gravity.scale = 0.005; 
+      
+      const bulbBody = Bodies.circle(50, 100, 25, { 
+        restitution: 0.5, 
+        friction: 0.1, 
+        frictionAir: 0.05, 
+        // (تحسين) تحديد الكتلة للتحكم في الحركة بشكل أفضل
+        mass: 1.5 
+      });
+      const constraint = Constraint.create({ 
+        pointA: { x: 50, y: 0 }, 
+        bodyB: bulbBody, 
+        length: 100, 
+        stiffness: 0.2, 
+        damping: 0.15 
+      });
+      
       World.add(engine.world, [bulbBody, constraint]);
       
+      const runner = Runner.create();
+      Runner.run(runner, engine);
+      
       const mouse = Mouse.create(lightbulbScene);
-      const mouseConstraint = MouseConstraint.create(engine, { mouse: mouse, constraint: { stiffness: 0.8, render: { visible: false } } });
+      // (تحسين) تحديد نطاق الماوس ليناسب حجم الـ SVG
+      mouse.pixelRatio = 1; 
+      const mouseConstraint = MouseConstraint.create(engine, { 
+        mouse: mouse, 
+        constraint: { stiffness: 0.8, render: { visible: false } } 
+      });
       World.add(engine.world, mouseConstraint);
       
-      (function render() {
+      // (تحسين) دالة التحديث للرسم
+      (function updateBulbPosition() {
         const bulbPos = bulbBody.position;
         bulbGroup.setAttribute('transform', `translate(${bulbPos.x - 50}, ${bulbPos.y - 125})`);
         cord.setAttribute('x2', bulbPos.x);
         cord.setAttribute('y2', bulbPos.y);
-        Engine.update(engine, 1000 / 60);
-        requestAnimationFrame(render);
+        requestAnimationFrame(updateBulbPosition);
       })();
 
       let dragStartPos = { x: 0, y: 0 }, isDragging = false;
-      mouse.element.addEventListener('mousedown', (e) => { isDragging = true; dragStartPos = { x: e.clientX, y: e.clientY }; });
-      mouse.element.addEventListener('touchstart', (e) => { isDragging = true; dragStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY }; });
+      
+      // (تحسين) استخدام listener واحد للتحقق من النقر
+      lightbulbScene.addEventListener('mousedown', (e) => { 
+        if (mouseConstraint.body === bulbBody) {
+          isDragging = true; 
+          dragStartPos = { x: e.clientX, y: e.clientY };
+        } else {
+          isDragging = false;
+        }
+      });
+      lightbulbScene.addEventListener('touchstart', (e) => { 
+        if (mouseConstraint.body === bulbBody) {
+          isDragging = true; 
+          dragStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        } else {
+          isDragging = false;
+        }
+      });
       
       document.addEventListener('mouseup', (e) => {
-        if (isDragging && mouseConstraint.body !== null) {
+        // (تحسين) الشرط للتحقق مما إذا كان النقر مجرد نقرة أم سحب
+        if (isDragging) {
           const dragEndPos = { x: e.clientX, y: e.clientY };
           const dragDistance = Math.sqrt(Math.pow(dragEndPos.x - dragStartPos.x, 2) + Math.pow(dragEndPos.y - dragStartPos.y, 2));
-          if (dragDistance > 5) { toggleTheme(); }
+          if (dragDistance < 10) { // النقر يعتبر إذا كانت المسافة أقل من 10 بكسل
+             toggleTheme(); 
+          }
           isDragging = false;
         }
       });
       document.addEventListener('touchend', (e) => {
-        if (isDragging && mouseConstraint.body !== null) {
+        if (isDragging) {
           const dragEndPos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
           const dragDistance = Math.sqrt(Math.pow(dragEndPos.x - dragStartPos.x, 2) + Math.pow(dragEndPos.y - dragStartPos.y, 2));
-          if (dragDistance > 5) { toggleTheme(); }
+          if (dragDistance < 10) { // النقر يعتبر إذا كانت المسافة أقل من 10 بكسل
+             toggleTheme();
+          }
           isDragging = false;
         }
       });
