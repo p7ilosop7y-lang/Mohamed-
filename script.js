@@ -1,6 +1,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
-  authDomain: "mo777-2b5t7e.firebaseapp.com", 
+  // (تصحيح) تم حذف حرف 't' الخاطئ من هنا
+  authDomain: "mo777-2b57e.firebaseapp.com", 
   projectId: "mo777-2b57e",
   storageBucket: "mo777-2b57e.firebasestorage.app",
   messagingSenderId: "318111712614",
@@ -9,7 +10,7 @@ const firebaseConfig = {
 
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth(); // (إضافة) تهيئة خدمة المصادقة
+const auth = firebase.auth(); 
 
 document.addEventListener('DOMContentLoaded', () => {
   let visitorId = localStorage.getItem('visitorId');
@@ -154,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // (تعديل) هذا هو المراقب الجديد لحالة تسجيل الدخول
   auth.onAuthStateChanged(user => {
     if (user && user.email === ADMIN_EMAIL) {
       isAdmin = true;
