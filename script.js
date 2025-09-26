@@ -85,10 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Admin Functions ---
 
-  // (إضافة) إعداد أداة الرفع الخاصة بـ Cloudinary
+  // (تعديل) تم تحديث البيانات بناءً على الصور التي أرسلتها
   const myWidget = cloudinary.createUploadWidget({
-    cloudName: 'mo777', // الرجاء التأكد من أن هذا هو اسم السحابة الصحيح
-    uploadPreset: 'portfolio_preset', // الرجاء التأكد من إنشاء إعداد مسبق بهذا الاسم في حسابك
+    cloudName: 'dswtpqdsh', // القيمة الصحيحة من حسابك
+    uploadPreset: 'Mohamed', // القيمة الصحيحة من حسابك
     folder: 'portfolio',
     cropping: true,
     sources: ['local', 'url', 'camera'],
@@ -113,17 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, (error, result) => { 
     if (!error && result && result.event === "success") { 
-      // بعد الرفع الناجح، قم بإضافة الصورة إلى قاعدة البيانات
       addNewImage(result.info.secure_url);
     }
   });
 
-  // (إضافة) دالة لإضافة بيانات الصورة الجديدة إلى Firestore
   async function addNewImage(imageUrl) {
     const title = prompt("الرجاء إدخال عنوان الصورة:", "بدون عنوان");
     const category = prompt("الرجاء إدخال التصنيف (illustration, concept, character):", "illustration");
     if (title === null || category === null) {
-      return; // ألغى المستخدم الإدخال
+      return;
     }
     try {
       await db.collection("portfolioimages").add({
@@ -136,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
       alert('تمت إضافة الصورة بنجاح!');
-      loadImages(); // أعد تحميل المعرض لعرض الصورة الجديدة
+      loadImages();
     } catch (error) {
       console.error("خطأ في إضافة الصورة إلى Firestore: ", error);
       alert('فشلت إضافة الصورة.');
@@ -813,8 +811,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Initializations ---
   
-  // Admin Event Listeners
-  // (تعديل) تم إضافة مستمع الأحداث لزر إضافة الصور
   if (addImageBtn) {
     addImageBtn.addEventListener('click', () => {
       if (isAdmin) {
