@@ -3,23 +3,25 @@
   --card: #131c2b;
   --muted: #b0bac8;
   --accent: #ff6b9d;
-  --neon-color: #FF6E48; 
+  --neon-color: #48D1CC; /* لون النيون السماوي الجديد */
   --text: #f3f5f7;
   /* (إضافة) لون النيون وهو مطفأ */
-  --neon-off-color: #5a687c;
+  --neon-off-color: #37474F; /* درجة أغمق من الأزرق/السماوي */
 
-  --header-bg: #111c2d99;
-  --card-bg: rgba(19, 28, 43, 0.6);
+  --header-bg: #111c2da0; /* (تعديل) زيادة شفافية الهيدر قليلاً لتعزيز تأثير الزجاج */
+  --card-bg: rgba(19, 28, 43, 0.75); /* (تعديل) زيادة شفافية البطاقات قليلاً */
   --body-gradient: linear-gradient(180deg, #102a43, #0a0f1a);
   --footer-bg: #0f1828;
   --comment-bg: #0a0f1a;
   --accent-glow: rgba(255, 107, 157, 0.5);
   --accent-shadow: 0 0 15px var(--accent-glow);
   --card-border: rgba(255, 255, 255, 0.1);
+  /* (تعديل) تعريف ألوان الإضاءة الدافئة */
   --light-color-off: rgba(224, 228, 233, 0.1);
-  --light-color-on: #ff9800;
+  --light-color-on: #FFBB00; /* (تعديل) اللون الأصفر للإضاءة الساطعة */
+  --light-color-glow-end: #FF5000; /* (إضافة) اللون البرتقالي للتدرج الخارجي */
   --filament-off: #5f6c7a;
-  --filament-on: #ffe0b2;
+  --filament-on: #FFE2D3; /* (تعديل) لون الفتيل الأصفر الذهبي */
   --base-color: #736056;
 }
 
@@ -28,12 +30,12 @@ body.light-mode {
   --card: #ffffff;
   --muted: #5a6e87;
   --accent: #007bff;
-  --neon-color: #FF6E48;
+  --neon-color: #1976D2; /* لون أزرق مناسب للوضع الفاتح */
   --text: #313A6A;
   --neon-off-color: #a0aec0; /* لون أفتح قليلاً للوضع الفاتح */
 
-  --header-bg: #ffffff99;
-  --card-bg: rgba(255, 255, 255, 0.8);
+  --header-bg: #ffffffc0; /* (تعديل) خلفية بيضاء شبه شفافة في الوضع الفاتح */
+  --card-bg: rgba(255, 255, 255, 0.9); /* (تعديل) خلفية بطاقة شبه شفافة في الوضع الفاتح */
   --body-gradient: linear-gradient(180deg, #d3e0ea, #f0f4f8);
   --footer-bg: #e1e8f0;
   --comment-bg: #e9eef3;
@@ -42,6 +44,7 @@ body.light-mode {
   --card-border: rgba(0, 0, 0, 0.1);
   --light-color-off: rgba(69, 90, 100, 0.1); 
   --light-color-on: rgba(69, 90, 100, 0.1);
+  --light-color-glow-end: rgba(69, 90, 100, 0.0); /* (إضافة) إزالة التوهج في الوضع الفاتح */
   --filament-off: #90a4ae;
   --filament-on: #90a4ae;
   --base-color: #b0bec5;
@@ -73,6 +76,18 @@ body {
   min-height: 100vh;
   transition: background 0.5s ease, color 0.5s ease;
 }
+
+/* (إضافة) أنيميشن هزّ الشاشة الخفيف */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20%, 60% { transform: translate(-1px, 1px); }
+  40%, 80% { transform: translate(1px, -1px); }
+}
+
+body.screen-shake-active main {
+  animation: screen-shake 0.2s ease-out 2; /* يعمل مرتين ثم يتوقف */
+}
+
 
 header {
   padding: 16px 24px;
@@ -124,11 +139,12 @@ header {
   border: 2px solid var(--accent);
   transition: transform 0.3s ease, box-shadow 0.4s ease;
   display: block;
+  box-shadow: var(--accent-shadow);
 }
 
 .brand img:hover {
   transform: scale(1.05) rotate(5deg);
-  box-shadow: var(--accent-shadow);
+  box-shadow: 0 0 25px var(--accent-glow);
 }
 
 .brand h1 {
@@ -175,9 +191,10 @@ nav a {
   border-radius: 6px;
   position: relative;
   overflow: hidden;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
+  transition: color 0.3s ease, text-shadow 0.3s ease, filter 0.3s ease; /* (تعديل) إضافة filter للانتقال */
 }
 
+/* (إزالة) كود الخط السفلي بالكامل */
 nav a::before {
   content: '';
   position: absolute;
@@ -188,13 +205,16 @@ nav a::before {
   background-color: var(--accent);
   transition: all 0.3s ease;
   transform: translateX(-50%);
+  display: none; /* تعطيل الخط السفلي */
 }
 
 nav a:hover {
-  color: var(--accent);
-  text-shadow: 0 0 8px var(--accent-glow);
+  color: var(--neon-color); /* (تعديل) تغيير اللون إلى لون النيون السماوي */
+  text-shadow: 0 0 8px rgba(72, 209, 204, 0.5);
+  filter: drop-shadow(0 0 5px var(--neon-color)); /* (إضافة) تأثير النيون drop-shadow */
 }
 
+/* (إزالة) كود الخط السفلي عند التمرير */
 nav a:hover::before {
   width: 100%;
 }
@@ -215,7 +235,7 @@ nav a:hover::before {
   left: 0;
   width: 280px;
   height: 100%;
-  background: rgba(17, 28, 45, 0.8);
+  background: var(--header-bg); /* (تعديل) استخدام نفس خلفية الهيدر للشفافية */
   backdrop-filter: blur(10px);
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
   z-index: 1000;
@@ -239,7 +259,7 @@ nav a:hover::before {
   padding: 12px 15px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  background: rgba(19, 28, 43, 0.8);
+  background: var(--card-bg); /* (تعديل) استخدام خلفية البطاقة */
   text-align: center;
   border: none;
   cursor: pointer;
@@ -311,28 +331,39 @@ section p {
   transition: color 0.5s ease;
 }
 
-/* (تعديل) أنيميشن الوميض المعطوب لمدة ثانيتين */
+/* (إعادة إضافة) أنيميشن الوميض المعطوب لمدة ثانيتين - تم تحسين المراحل الزمنية */
 @keyframes faulty-flicker {
   0% {
     text-shadow: none;
+    opacity: 0.9;
+  }
+  2% {
+    text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-color), 0 0 25px var(--neon-color);
+    opacity: 1;
+  }
+  3% {
+    text-shadow: none;
+    opacity: 0.8;
   }
   5% {
-    text-shadow: 0 0 4px #fff, 0 0 11px var(--neon-color), 0 0 19px var(--neon-color);
+     text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-color), 0 0 25px var(--neon-color);
+     opacity: 1;
   }
-  10%, 20% {
+  10%, 75% {
+    text-shadow: 0 0 5px #fff, 0 0 20px var(--neon-color), 0 0 35px var(--neon-color);
+    opacity: 1;
+  }
+  77%, 80% {
     text-shadow: none;
+    opacity: 0.8;
   }
-  15%, 25% {
-     text-shadow: 0 0 4px #fff, 0 0 11px var(--neon-color), 0 0 19px var(--neon-color);
+  82% {
+    text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-color);
+    opacity: 0.9;
   }
-  30%, 80% {
-    text-shadow: 0 0 4px #fff, 0 0 11px var(--neon-color), 0 0 19px var(--neon-color), 0 0 40px var(--neon-color);
-  }
-  85%, 95% {
-    text-shadow: none;
-  }
-  90%, 100% {
-     text-shadow: 0 0 4px #fff, 0 0 11px var(--neon-color);
+  100% {
+     text-shadow: 0 0 5px #fff, 0 0 20px var(--neon-color), 0 0 35px var(--neon-color);
+     opacity: 1;
   }
 }
 
@@ -353,19 +384,19 @@ section p {
 /* (إضافة) الحالة عند تشغيل الأنيميشن بالضغط */
 #portfolioTitle.glitching span {
   color: #fff;
-  animation: faulty-flicker 2s;
+  animation: faulty-flicker 2.5s infinite; /* تطبيق الوميض المعطوب وتكراره */
 }
 
-/* (إضافة) تأثيرات التأخير لكل حرف عند التشغيل */
-#portfolioTitle.glitching span:nth-child(2) { animation-delay: 0.1s; }
-#portfolioTitle.glitching span:nth-child(3) { animation-delay: 0.3s; }
-#portfolioTitle.glitching span:nth-child(4) { animation-delay: 0.5s; }
-#portfolioTitle.glitching span:nth-child(5) { animation-delay: 0.2s; }
-#portfolioTitle.glitching span:nth-child(6) { animation-delay: 0.4s; }
-#portfolioTitle.glitching span:nth-child(7) { animation-delay: 0.6s; }
-#portfolioTitle.glitching span:nth-child(8) { animation-delay: 0.1s; }
-#portfolioTitle.glitching span:nth-child(9) { animation-delay: 0.3s; }
-#portfolioTitle.glitching span:nth-child(10) { animation-delay: 0.5s; }
+/* (إعادة إضافة) تأثيرات التأخير لكل حرف عند التشغيل لزيادة العشوائية */
+#portfolioTitle.glitching span:nth-child(1) { animation-delay: 0.0s; animation-duration: 2.7s; }
+#portfolioTitle.glitching span:nth-child(2) { animation-delay: 0.1s; animation-duration: 2.5s; }
+#portfolioTitle.glitching span:nth-child(3) { animation-delay: 0.3s; animation-duration: 2.3s; }
+#portfolioTitle.glitching span:nth-child(4) { animation-delay: 0.5s; animation-duration: 2.6s; }
+#portfolioTitle.glitching span:nth-child(5) { animation-delay: 0.2s; animation-duration: 2.4s; }
+#portfolioTitle.glitching span:nth-child(6) { animation-delay: 0.4s; animation-duration: 2.7s; }
+#portfolioTitle.glitching span:nth-child(7) { animation-delay: 0.6s; animation-duration: 2.5s; }
+#portfolioTitle.glitching span:nth-child(8) { animation-delay: 0.1s; animation-duration: 2.3s; }
+#portfolioTitle.glitching span:nth-child(9) { animation-delay: 0.3s; animation-duration: 2.6s; }
 
 
 .social-icons {
@@ -503,15 +534,25 @@ footer {
   transition: background 0.5s ease;
 }
 
+/* (إضافة) أنيميشن الـ Glitch/Shift للمؤشر */
+@keyframes glitch-cursor {
+  0% { transform: translate(0); opacity: 1; }
+  20% { transform: translate(-0.5px, 0.5px); opacity: 0.8; }
+  40% { transform: translate(0.5px, -0.5px); opacity: 1; }
+  60% { transform: translate(0, 0.5px); opacity: 0.9; }
+  80% { transform: translate(-0.5px, 0); opacity: 1; }
+  100% { transform: translate(0); opacity: 0.7; }
+}
+
 .cursor {
   display: inline-block;
   margin-left: 2px;
   color: var(--accent);
   font-weight: bold;
-  animation: blink 0.7s steps(1) infinite;
+  animation: glitch-cursor 0.7s steps(1) infinite; /* (تعديل) تطبيق أنيميشن الـ Glitch */
 }
 
-@keyframes blink {
+@keyframes blink { /* (تم الإبقاء عليه ولكنه لن يُستخدم للمؤشر) */
   50% { opacity: 0; }
 }
 
@@ -748,6 +789,13 @@ body.lightbox-is-open .header-avatar-icon {
   display: none;
 }
 
+/* (إضافة) أنيميشن وميض المصباح المعطوب */
+@keyframes flicker-bulb {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+  20%, 24%, 55% { opacity: 0.8; }
+  22% { opacity: 0.5; }
+}
+
 .lightbulb-scene {
     position: fixed;
     top: 90px;
@@ -774,14 +822,19 @@ body.lightbox-is-open .header-avatar-icon {
     transition: transform 0.1s ease;
 }
 
+/* (تعديل) إظهار الدائرة الداخلية Light Circle في الوضع الداكن */
 #light-circle {
     display: none;
+    r: 15px; /* (تعديل) نصف قطر صغير لقلب التوهج */
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
 #glow-circle {
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
+  r: 75px; /* (تعديل) تقليل نصف القطر إلى 90px */
 }
 
 body.light-mode #lightbulbSvg.on #glow-circle {
@@ -790,15 +843,28 @@ body.light-mode #lightbulbSvg.on #glow-circle {
 
 #lightbulbSvg.on #glow-circle {
   opacity: 1;
+  animation: flicker-bulb 5s infinite alternate; /* (إضافة) تطبيق أنيميشن الوميض المعطوب */
 }
 
+#lightbulbSvg.on #light-circle {
+    display: block; /* (إضافة) إظهار الدائرة الداخلية عند التشغيل */
+    opacity: 1;
+    animation: flicker-bulb 5s infinite alternate; /* تطبيق نفس أنيميشن الوميض */
+}
+
+/* (تعديل) تطبيق التدرج من الأصفر الساطع إلى البرتقالي الشفاف */
 #glowGradient .glow-stop-1 {
-  stop-color: var(--light-color-on);
-  stop-opacity: 0.8;
+  stop-color: var(--light-color-on); /* الأصفر الساطع */
+  stop-opacity: 1; 
 }
 #glowGradient .glow-stop-2 {
-  stop-color: var(--light-color-on);
+  stop-color: var(--light-color-glow-end); /* البرتقالي */
   stop-opacity: 0;
+}
+
+/* (إزالة) أنماط الحشرة */
+#firefly { 
+    display: none; 
 }
 
 #bulb-glass {
@@ -820,14 +886,42 @@ body.light-mode #lightbulbSvg.on #glow-circle {
     transition: fill 0.4s ease;
 }
 
+/* حالة الوضع الداكن (ON) */
 #lightbulbSvg.on #bulb-glass {
-    fill: var(--light-color-on);
-    stroke: transparent;
+    fill: rgba(16, 42, 67, 0.3); /* لجعله زجاجي شبه شفاف وأغمق */
+    stroke: var(--muted); 
 }
 
 #lightbulbSvg.on #filament {
-    stroke: var(--filament-on);
+    display: block; 
+    stroke: var(--filament-on); 
 }
+
+#lightbulbSvg.on #firefly {
+    display: none; 
+}
+
+/* حالة الوضع الفاتح (OFF) */
+body.light-mode #lightbulbSvg.on #bulb-glass, 
+body.light-mode #lightbulbSvg #bulb-glass {
+    fill: rgba(255, 255, 255, 0.4); 
+    stroke: var(--muted);
+}
+
+body.light-mode #lightbulbSvg.on #light-circle,
+body.light-mode #lightbulbSvg #light-circle {
+    display: none; /* (تعديل) إخفاء الدائرة الداخلية في الوضع الفاتح */
+}
+
+body.light-mode #lightbulbSvg.on #firefly,
+body.light-mode #lightbulbSvg #firefly {
+    display: none; 
+}
+
+body.light-mode #lightbulbSvg #filament {
+    display: block; 
+}
+
 
 @keyframes sway {
   0%, 100% {
@@ -873,6 +967,13 @@ body.light-mode #lightbulbSvg.on #glow-circle {
   box-shadow: var(--accent-shadow);
 }
 
+/* (إضافة) أنيميشن التوهج الهادئ لصورة الأفاتار */
+@keyframes neon-pulse-subtle {
+    0% { box-shadow: 0 0 5px var(--neon-color), 0 0 10px rgba(72, 209, 204, 0.4); }
+    50% { box-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(72, 209, 204, 0.6); }
+    100% { box-shadow: 0 0 5px var(--neon-color), 0 0 10px rgba(72, 209, 204, 0.4); }
+}
+
 #about .about-content {
   display: flex;
   align-items: center;
@@ -887,14 +988,16 @@ body.light-mode #lightbulbSvg.on #glow-circle {
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--accent);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 3px solid var(--neon-color); /* (تعديل) استخدام لون النيون بدلاً من Accent */
+  box-shadow: none; /* (تعديل) إزالة الـ Box Shadow الثابت */
+  transition: transform 0.3s ease; /* (تعديل) إزالة box-shadow من الانتقالات */
+  animation: neon-pulse-subtle 3s infinite ease-in-out; /* تطبيق أنيميشن النبض الهادئ */
 }
 
 #about .about-avatar img:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 25px var(--accent-glow);
+    box-shadow: 0 0 25px var(--neon-color); /* (تعديل) عند التمرير يزداد التوهج */
+    animation: none; /* إيقاف النبض عند التمرير للتركيز على التوهج القوي */
 }
 
 #about .about-text {

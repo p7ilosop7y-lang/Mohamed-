@@ -35,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextArrow = document.getElementById('nextArrow');
   const avatarImg = document.getElementById('avatarImg');
   const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-
+  const cursorEl = document.querySelector('.cursor'); // (إضافة) للحصول على عنصر المؤشر
+  
   // --- State ---
   let currentImageIndex = -1;
   let allImages = [];
@@ -345,10 +346,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function typeWriter() {
     const currentRole = roles[roleIndex];
-    if (!deleting && charIndex < currentRole.length) { roleEl.textContent += currentRole.charAt(charIndex++); }
-    else if (deleting && charIndex > 0) { roleEl.textContent = currentRole.substring(0, --charIndex); }
-    else { deleting = !deleting; if (!deleting) { roleIndex = (roleIndex + 1) % roles.length; } }
-    setTimeout(typeWriter, deleting ? 100 : 150);
+    const targetText = currentRole;
+    
+    if (deleting) {
+      // (تعديل): إخفاء المؤشر أثناء الكتابة/الحذف
+      if(cursorEl) cursorEl.style.opacity = 0;
+      
+      roleEl.textContent = targetText.substring(0, charIndex);
+      charIndex--;
+      if (charIndex < 0) {
+        deleting = false;
+        roleIndex = (roleIndex + 1) % roles.length;
+        // (تعديل): إظهار المؤشر عند التوقف مؤقتاً
+        if(cursorEl) cursorEl.style.opacity = 1; 
+      }
+    } else {
+      // (تعديل): إخفاء المؤشر أثناء الكتابة/الحذف
+      if(cursorEl) cursorEl.style.opacity = 0; 
+      
+      roleEl.textContent += targetText.charAt(charIndex);
+      charIndex++;
+      if (charIndex > targetText.length) {
+        deleting = true;
+        charIndex = targetText.length;
+        // (تعديل): إظهار المؤشر عند التوقف مؤقتاً
+        if(cursorEl) cursorEl.style.opacity = 1; 
+      }
+    }
+
+    // (تعديل): ضبط سرعة الحذف/الكتابة لتبدو طبيعية
+    const delay = deleting ? 100 : 150;
+    
+    setTimeout(typeWriter, delay);
   }
 
   function escapeHtml(unsafe) {
@@ -385,7 +414,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = createImageCard(imgObj, index);
       gallery.appendChild(card);
     });
-    observeElements(document.querySelectorAll('.card'));
+    // (تعديل): نمرر جميع بطاقات المعرض الآن لتطبيق تأثير الظهور المتتابع
+    observeSections();
   }
   
   async function downloadImage(src, title, buttonEl) {
@@ -417,6 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function createImageCard(imgObj, index) {
     const card = document.createElement('div');
     card.className = 'card';
+    // (إضافة): تطبيق تأخير على كل بطاقة بناءً على موقعها (index)
+    card.style.transitionDelay = `${index * 0.05}s`; 
     const isLiked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
     card.innerHTML = `
       <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork')}" loading="lazy"></div>
@@ -540,13 +572,20 @@ document.addEventListener('DOMContentLoaded', () => {
     threshold: 0.1
   });
 
-  function observeElements(elements) {
-    elements.forEach(el => {
+  // (تم دمج منطق المراقبة في observeSections)
+  function observeSections() {
+    // مراقبة h2 و about-content
+    document.querySelectorAll('section h2, .about-content').forEach(el => {
       observer.observe(el);
     });
-  }
 
-  observeElements(document.querySelectorAll('section h2, .about-content'));
+    // مراقبة بطاقات المعرض المتأخرة
+    document.querySelectorAll('.card').forEach(card => {
+        observer.observe(card);
+    });
+  }
+  
+  // observeElements(document.querySelectorAll('section h2, .about-content')); // (تم حذف هذا السطر)
 
 
   handleNavigation();
@@ -554,6 +593,8 @@ document.addEventListener('DOMContentLoaded', () => {
   typeWriter();
 
   const portfolioTitle = document.getElementById('portfolioTitle');
+  const mainContent = document.querySelector('main'); // الحصول على العنصر الرئيسي
+  
   if (portfolioTitle) {
     const text = "Portfolio";
     portfolioTitle.innerHTML = '';
@@ -563,17 +604,27 @@ document.addEventListener('DOMContentLoaded', () => {
       portfolioTitle.appendChild(span);
     });
 
-    let isAnimating = false;
+    // (تعديل) تبديل فئة 'glitching' عند الضغط لتشغيل/إيقاف أنيميشن الوميض المعطوب
     portfolioTitle.addEventListener('click', () => {
-      if (isAnimating) return; 
+      const isActive = portfolioTitle.classList.toggle('glitching');
+      
+      // 1. هزّ الشاشة: يتم تفعيله عند التشغيل وإيقافه يدوياً بعد انتهاء مدة الأنيميشن
+      if (isActive) {
+        document.body.classList.add('screen-shake-active');
+        setTimeout(() => {
+          document.body.classList.remove('screen-shake-active');
+        }, 400); // 0.2s * 2 تكرارات = 0.4 ثانية
 
-      isAnimating = true;
-      portfolioTitle.classList.add('glitching');
-
-      setTimeout(() => {
-        portfolioTitle.classList.remove('glitching');
-        isAnimating = false;
-      }, 2000); 
+        // تفعيل لون النيون
+        portfolioTitle.querySelectorAll('span').forEach(span => {
+            span.style.color = '#fff';
+        });
+      } else {
+        // إيقاف لون النيون
+        portfolioTitle.querySelectorAll('span').forEach(span => {
+            span.style.color = 'var(--neon-off-color)';
+        });
+      }
     });
   }
 
