@@ -3,25 +3,22 @@
   --card: #131c2b;
   --muted: #b0bac8;
   --accent: #ff6b9d;
-  --neon-color: #48D1CC; /* لون النيون السماوي الجديد */
+  --neon-color: #48D1CC;
   --text: #f3f5f7;
-  /* (إضافة) لون النيون وهو مطفأ */
-  --neon-off-color: #37474F; /* درجة أغمق من الأزرق/السماوي */
-
-  --header-bg: #111c2da0; /* (تعديل) زيادة شفافية الهيدر قليلاً لتعزيز تأثير الزجاج */
-  --card-bg: rgba(19, 28, 43, 0.75); /* (تعديل) زيادة شفافية البطاقات قليلاً */
+  --neon-off-color: #37474F;
+  --header-bg: #111c2da0;
+  --card-bg: rgba(19, 28, 43, 0.75);
   --body-gradient: linear-gradient(180deg, #102a43, #0a0f1a);
   --footer-bg: #0f1828;
   --comment-bg: #0a0f1a;
   --accent-glow: rgba(255, 107, 157, 0.5);
   --accent-shadow: 0 0 15px var(--accent-glow);
   --card-border: rgba(255, 255, 255, 0.1);
-  /* (تعديل) تعريف ألوان الإضاءة الدافئة */
   --light-color-off: rgba(224, 228, 233, 0.1);
-  --light-color-on: #FFBB00; /* (تعديل) اللون الأصفر للإضاءة الساطعة */
-  --light-color-glow-end: #FF5000; /* (إضافة) اللون البرتقالي للتدرج الخارجي */
+  --light-color-on: #FFBB00;
+  --light-color-glow-end: #FF5000;
   --filament-off: #5f6c7a;
-  --filament-on: #FFE2D3; /* (تعديل) لون الفتيل الأصفر الذهبي */
+  --filament-on: #FFE2D3;
   --base-color: #736056;
 }
 
@@ -30,21 +27,20 @@ body.light-mode {
   --card: #ffffff;
   --muted: #5a6e87;
   --accent: #007bff;
-  --neon-color: #1976D2; /* لون أزرق مناسب للوضع الفاتح */
+  --neon-color: #1976D2;
   --text: #313A6A;
-  --neon-off-color: #a0aec0; /* لون أفتح قليلاً للوضع الفاتح */
-
-  --header-bg: #ffffffc0; /* (تعديل) خلفية بيضاء شبه شفافة في الوضع الفاتح */
-  --card-bg: rgba(255, 255, 255, 0.9); /* (تعديل) خلفية بطاقة شبه شفافة في الوضع الفاتح */
+  --neon-off-color: #a0aec0;
+  --header-bg: #ffffffc0;
+  --card-bg: rgba(255, 255, 255, 0.9);
   --body-gradient: linear-gradient(180deg, #d3e0ea, #f0f4f8);
   --footer-bg: #e1e8f0;
   --comment-bg: #e9eef3;
   --accent-glow: rgba(0, 123, 255, 0.3);
   --accent-shadow: 0 0 15px var(--accent-glow);
   --card-border: rgba(0, 0, 0, 0.1);
-  --light-color-off: rgba(69, 90, 100, 0.1); 
+  --light-color-off: rgba(69, 90, 100, 0.1);
   --light-color-on: rgba(69, 90, 100, 0.1);
-  --light-color-glow-end: rgba(69, 90, 100, 0.0); /* (إضافة) إزالة التوهج في الوضع الفاتح */
+  --light-color-glow-end: rgba(69, 90, 100, 0.0);
   --filament-off: #90a4ae;
   --filament-on: #90a4ae;
   --base-color: #b0bec5;
@@ -77,7 +73,6 @@ body {
   transition: background 0.5s ease, color 0.5s ease;
 }
 
-/* (إضافة) أنيميشن هزّ الشاشة الخفيف */
 @keyframes screen-shake {
   0%, 100% { transform: translate(0, 0); }
   20%, 60% { transform: translate(-1px, 1px); }
@@ -85,9 +80,8 @@ body {
 }
 
 body.screen-shake-active main {
-  animation: screen-shake 0.2s ease-out 2; /* يعمل مرتين ثم يتوقف */
+  animation: screen-shake 0.2s ease-out 2;
 }
-
 
 header {
   padding: 16px 24px;
@@ -139,12 +133,11 @@ header {
   border: 2px solid var(--accent);
   transition: transform 0.3s ease, box-shadow 0.4s ease;
   display: block;
-  box-shadow: var(--accent-shadow);
 }
 
 .brand img:hover {
   transform: scale(1.05) rotate(5deg);
-  box-shadow: 0 0 25px var(--accent-glow);
+  box-shadow: var(--accent-shadow);
 }
 
 .brand h1 {
@@ -191,32 +184,46 @@ nav a {
   border-radius: 6px;
   position: relative;
   overflow: hidden;
-  transition: color 0.3s ease, text-shadow 0.3s ease, filter 0.3s ease; /* (تعديل) إضافة filter للانتقال */
-}
-
-/* (إزالة) كود الخط السفلي بالكامل */
-nav a::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background-color: var(--accent);
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-  display: none; /* تعطيل الخط السفلي */
+  transition: color 0.3s ease, text-shadow 0.3s ease, filter 0.3s ease;
 }
 
 nav a:hover {
-  color: var(--neon-color); /* (تعديل) تغيير اللون إلى لون النيون السماوي */
+  color: var(--neon-color);
   text-shadow: 0 0 8px rgba(72, 209, 204, 0.5);
-  filter: drop-shadow(0 0 5px var(--neon-color)); /* (إضافة) تأثير النيون drop-shadow */
+  filter: drop-shadow(0 0 5px var(--neon-color));
 }
 
-/* (إزالة) كود الخط السفلي عند التمرير */
-nav a:hover::before {
-  width: 100%;
+#auth-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 16px; /* Added margin for spacing */
+}
+#user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+#user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.auth-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+.auth-btn:hover {
+  filter: brightness(1.1);
+  box-shadow: var(--accent-shadow);
 }
 
 .menu-toggle {
@@ -235,7 +242,7 @@ nav a:hover::before {
   left: 0;
   width: 280px;
   height: 100%;
-  background: var(--header-bg); /* (تعديل) استخدام نفس خلفية الهيدر للشفافية */
+  background: var(--header-bg);
   backdrop-filter: blur(10px);
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
   z-index: 1000;
@@ -259,7 +266,7 @@ nav a:hover::before {
   padding: 12px 15px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  background: var(--card-bg); /* (تعديل) استخدام خلفية البطاقة */
+  background: var(--card-bg);
   text-align: center;
   border: none;
   cursor: pointer;
@@ -318,7 +325,7 @@ section.active {
 
 section h2 {
   margin-bottom: 25px;
-  color: var(--neon-off-color); /* (تعديل) اللون الافتراضي الآن هو اللون المطفأ */
+  color: var(--neon-off-color);
   font-size: 2.2rem;
   font-weight: 600;
   letter-spacing: 1px;
@@ -331,49 +338,23 @@ section p {
   transition: color 0.5s ease;
 }
 
-/* (إعادة إضافة) أنيميشن الوميض المعطوب لمدة ثانيتين - تم تحسين المراحل الزمنية */
 @keyframes faulty-flicker {
-  0% {
-    text-shadow: none;
-    opacity: 0.9;
-  }
-  2% {
-    text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-color), 0 0 25px var(--neon-color);
-    opacity: 1;
-  }
-  3% {
-    text-shadow: none;
-    opacity: 0.8;
-  }
-  5% {
-     text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-color), 0 0 25px var(--neon-color);
-     opacity: 1;
-  }
-  10%, 75% {
-    text-shadow: 0 0 5px #fff, 0 0 20px var(--neon-color), 0 0 35px var(--neon-color);
-    opacity: 1;
-  }
-  77%, 80% {
-    text-shadow: none;
-    opacity: 0.8;
-  }
-  82% {
-    text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-color);
-    opacity: 0.9;
-  }
-  100% {
-     text-shadow: 0 0 5px #fff, 0 0 20px var(--neon-color), 0 0 35px var(--neon-color);
-     opacity: 1;
-  }
+  0% { text-shadow: none; opacity: 0.9; }
+  2% { text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-color), 0 0 25px var(--neon-color); opacity: 1; }
+  3% { text-shadow: none; opacity: 0.8; }
+  5% { text-shadow: 0 0 5px #fff, 0 0 15px var(--neon-color), 0 0 25px var(--neon-color); opacity: 1; }
+  10%, 75% { text-shadow: 0 0 5px #fff, 0 0 20px var(--neon-color), 0 0 35px var(--neon-color); opacity: 1; }
+  77%, 80% { text-shadow: none; opacity: 0.8; }
+  82% { text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-color); opacity: 0.9; }
+  100% { text-shadow: 0 0 5px #fff, 0 0 20px var(--neon-color), 0 0 35px var(--neon-color); opacity: 1; }
 }
 
 #portfolioTitle {
     font-size: 2rem; 
     direction: ltr;
-    cursor: pointer; /* (إضافة) تغيير شكل المؤشر للإشارة إلى أنه قابل للضغط */
+    cursor: pointer;
 }
 
-/* (تعديل) الحالة الافتراضية للحروف (مطفأة) */
 #portfolioTitle span {
   display: inline-block;
   color: var(--neon-off-color);
@@ -381,13 +362,11 @@ section p {
   transition: color 0.3s ease;
 }
 
-/* (إضافة) الحالة عند تشغيل الأنيميشن بالضغط */
 #portfolioTitle.glitching span {
   color: #fff;
-  animation: faulty-flicker 2.5s infinite; /* تطبيق الوميض المعطوب وتكراره */
+  animation: faulty-flicker 2.5s infinite;
 }
 
-/* (إعادة إضافة) تأثيرات التأخير لكل حرف عند التشغيل لزيادة العشوائية */
 #portfolioTitle.glitching span:nth-child(1) { animation-delay: 0.0s; animation-duration: 2.7s; }
 #portfolioTitle.glitching span:nth-child(2) { animation-delay: 0.1s; animation-duration: 2.5s; }
 #portfolioTitle.glitching span:nth-child(3) { animation-delay: 0.3s; animation-duration: 2.3s; }
@@ -397,7 +376,6 @@ section p {
 #portfolioTitle.glitching span:nth-child(7) { animation-delay: 0.6s; animation-duration: 2.5s; }
 #portfolioTitle.glitching span:nth-child(8) { animation-delay: 0.1s; animation-duration: 2.3s; }
 #portfolioTitle.glitching span:nth-child(9) { animation-delay: 0.3s; animation-duration: 2.6s; }
-
 
 .social-icons {
   display: flex;
@@ -476,10 +454,7 @@ section p {
   transition: background-color 0.3s ease-out;
 }
 
-.lightbox.open {
-  display: flex;
-}
-
+.lightbox.open { display: flex; }
 .lightbox.avatar-open #lbImage {
   width: 220px;
   height: 220px;
@@ -507,21 +482,10 @@ section p {
   transition: background 0.3s ease;
   z-index: 1001;
 }
-
-.nav-arrow:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.nav-arrow.prev {
-  left: 20px;
-}
-.nav-arrow.next {
-  right: 20px;
-}
-
-.lightbox.avatar-open .nav-arrow {
-  display: none;
-}
+.nav-arrow:hover { background: rgba(255, 255, 255, 0.2); }
+.nav-arrow.prev { left: 20px; }
+.nav-arrow.next { right: 20px; }
+.lightbox.avatar-open .nav-arrow { display: none; }
 
 footer {
   margin-top: auto;
@@ -534,7 +498,6 @@ footer {
   transition: background 0.5s ease;
 }
 
-/* (إضافة) أنيميشن الـ Glitch/Shift للمؤشر */
 @keyframes glitch-cursor {
   0% { transform: translate(0); opacity: 1; }
   20% { transform: translate(-0.5px, 0.5px); opacity: 0.8; }
@@ -549,545 +512,79 @@ footer {
   margin-left: 2px;
   color: var(--accent);
   font-weight: bold;
-  animation: glitch-cursor 0.7s steps(1) infinite; /* (تعديل) تطبيق أنيميشن الـ Glitch */
-}
-
-@keyframes blink { /* (تم الإبقاء عليه ولكنه لن يُستخدم للمؤشر) */
-  50% { opacity: 0; }
-}
-
-.card .title-container {
-  padding: 15px 15px 10px 15px;
-  text-align: right;
-}
-
-.card .title-container h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.card-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 15px;
-  padding: 0 15px 15px;
-}
-
-.action-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-.action-btn:hover {
-  color: var(--text);
-  transform: scale(1.1);
-}
-.like-btn.liked {
-  color: var(--accent);
-}
-
-.card .like-count {
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.card .download-btn {
-  color: var(--muted);
-  font-size: 20px;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-.card .download-btn:hover {
-  color: var(--text);
-}
-
-.comments-section {
-  padding: 10px 15px;
-  border-top: 1px solid var(--card-border);
-  background: var(--comment-bg);
-  transition: background 0.5s ease;
-}
-
-.comments-list {
-  margin-bottom: 10px;
-  max-height: 120px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-.comments-list::-webkit-scrollbar {
-  width: 6px;
-}
-.comments-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-.comments-list::-webkit-scrollbar-thumb {
-  background-color: var(--card);
-  border-radius: 10px;
-}
-.comments-list::-webkit-scrollbar-thumb:hover {
-  background-color: var(--muted);
-}
-
-.comment {
-  padding: 8px 0;
-  font-size: 13px;
-  word-break: break-word;
-}
-
-.comment-form {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.comment-input {
-  flex: 1;
-  padding: 9px 12px;
-  border: 1px solid transparent;
-  border-radius: 20px;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  transition: border-color 0.3s ease, background 0.5s ease, box-shadow 0.3s ease;
-}
-
-.comment-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 8px var(--accent-glow);
-}
-
-.comment-btn {
-  padding: 9px;
-  width: 36px;
-  height: 36px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 14px;
-  flex-shrink: 0;
-  transition: transform 0.3s ease, background-color 0.5s ease, box-shadow 0.3s ease;
-}
-.comment-btn:hover {
-  transform: scale(1.1);
-  box-shadow: var(--accent-shadow);
-}
-
-.add-image-btn {
-  padding: 10px 20px;
-  background-color: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-bottom: 20px;
-  display: none;
-}
-
-.filter-btn {
-  padding: 8px 16px;
-  margin: 0 5px;
-  background: var(--card-bg);
-  color: var(--text);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.filter-btn:hover {
-  background: var(--card);
-  color: #fff;
-}
-
-.filter-btn.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-  box-shadow: var(--accent-shadow);
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-@media (max-width: 768px) {
-  nav {
-    display: none;
-  }
-  .menu-toggle {
-    display: block;
-  }
-  .nav-arrow {
-    display: none;
-  }
-  .gallery {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-  }
-  section {
-    padding: 30px 15px;
-  }
-  section h2 {
-    font-size: 1.8rem;
-  }
-}
-
-.lightbox-content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  padding: 5vh 5vw;
-  box-sizing: border-box;
-  position: relative;
-}
-
-#lbImage, #lbImageNext {
-  position: absolute;
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out; 
-  transform-origin: center center;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-.lightbox.zoomed .lightbox-content {
-  cursor: grab;
-}
-
-.lightbox.zoomed .lightbox-content:active {
-  cursor: grabbing;
-}
-
-body.lightbox-is-open .header-avatar-icon {
-  display: none;
-}
-
-/* (إضافة) أنيميشن وميض المصباح المعطوب */
-@keyframes flicker-bulb {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-  20%, 24%, 55% { opacity: 0.8; }
-  22% { opacity: 0.5; }
-}
-
-.lightbulb-scene {
-    position: fixed;
-    top: 90px;
-    right: 14px;
-    width: 80px;
-    height: 100px;
-    z-index: 11;
-    overflow: visible !important;
-}
-
-#lightbulbSvg {
-    width: 100%;
-    height: 100%;
-}
-
-#cord {
-    stroke: var(--muted);
-    stroke-width: 3;
-    stroke-linecap: round;
-    transition: stroke 0.5s ease;
-}
-
-#bulbGroup {
-    transition: transform 0.1s ease;
-}
-
-/* (تعديل) إظهار الدائرة الداخلية Light Circle في الوضع الداكن */
-#light-circle {
-    display: none;
-    r: 15px; /* (تعديل) نصف قطر صغير لقلب التوهج */
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-#glow-circle {
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-  r: 75px; /* (تعديل) تقليل نصف القطر إلى 90px */
-}
-
-body.light-mode #lightbulbSvg.on #glow-circle {
-  opacity: 0;
-}
-
-#lightbulbSvg.on #glow-circle {
-  opacity: 1;
-  animation: flicker-bulb 5s infinite alternate; /* (إضافة) تطبيق أنيميشن الوميض المعطوب */
-}
-
-#lightbulbSvg.on #light-circle {
-    display: block; /* (إضافة) إظهار الدائرة الداخلية عند التشغيل */
-    opacity: 1;
-    animation: flicker-bulb 5s infinite alternate; /* تطبيق نفس أنيميشن الوميض */
-}
-
-/* (تعديل) تطبيق التدرج من الأصفر الساطع إلى البرتقالي الشفاف */
-#glowGradient .glow-stop-1 {
-  stop-color: var(--light-color-on); /* الأصفر الساطع */
-  stop-opacity: 1; 
-}
-#glowGradient .glow-stop-2 {
-  stop-color: var(--light-color-glow-end); /* البرتقالي */
-  stop-opacity: 0;
-}
-
-/* (إزالة) أنماط الحشرة */
-#firefly { 
-    display: none; 
-}
-
-#bulb-glass {
-    fill: var(--light-color-off);
-    stroke: var(--muted);
-    stroke-width: 3;
-    transition: fill 0.4s ease, stroke 0.4s ease;
-}
-
-#filament {
-    fill: none;
-    stroke: var(--filament-off);
-    stroke-width: 12;
-    transition: stroke 0.4s ease;
-}
-
-#lightbulbSvg path[style*="fill"] {
-    fill: var(--base-color) !important;
-    transition: fill 0.4s ease;
-}
-
-/* حالة الوضع الداكن (ON) */
-#lightbulbSvg.on #bulb-glass {
-    fill: rgba(16, 42, 67, 0.3); /* لجعله زجاجي شبه شفاف وأغمق */
-    stroke: var(--muted); 
-}
-
-#lightbulbSvg.on #filament {
-    display: block; 
-    stroke: var(--filament-on); 
-}
-
-#lightbulbSvg.on #firefly {
-    display: none; 
-}
-
-/* حالة الوضع الفاتح (OFF) */
-body.light-mode #lightbulbSvg.on #bulb-glass, 
-body.light-mode #lightbulbSvg #bulb-glass {
-    fill: rgba(255, 255, 255, 0.4); 
-    stroke: var(--muted);
-}
-
-body.light-mode #lightbulbSvg.on #light-circle,
-body.light-mode #lightbulbSvg #light-circle {
-    display: none; /* (تعديل) إخفاء الدائرة الداخلية في الوضع الفاتح */
-}
-
-body.light-mode #lightbulbSvg.on #firefly,
-body.light-mode #lightbulbSvg #firefly {
-    display: none; 
-}
-
-body.light-mode #lightbulbSvg #filament {
-    display: block; 
-}
-
-
-@keyframes sway {
-  0%, 100% {
-    transform: translateX(-50%) rotate(-8deg);
-  }
-  50% {
-    transform: translateX(-50%) rotate(8deg);
-  }
-}
-
-#scrollToTopBtn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 45px;
-  height: 45px;
-  background-color: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 998;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-#scrollToTopBtn.visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-#scrollToTopBtn:hover {
-  transform: scale(1.1);
-  filter: brightness(1.1);
-  box-shadow: var(--accent-shadow);
-}
-
-/* (إضافة) أنيميشن التوهج الهادئ لصورة الأفاتار */
-@keyframes neon-pulse-subtle {
-    0% { box-shadow: 0 0 5px var(--neon-color), 0 0 10px rgba(72, 209, 204, 0.4); }
-    50% { box-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(72, 209, 204, 0.6); }
-    100% { box-shadow: 0 0 5px var(--neon-color), 0 0 10px rgba(72, 209, 204, 0.4); }
-}
-
-#about .about-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 40px;
-  max-width: 800px;
-  margin: 20px auto 0;
-}
-
-#about .about-avatar img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--neon-color); /* (تعديل) استخدام لون النيون بدلاً من Accent */
-  box-shadow: none; /* (تعديل) إزالة الـ Box Shadow الثابت */
-  transition: transform 0.3s ease; /* (تعديل) إزالة box-shadow من الانتقالات */
-  animation: neon-pulse-subtle 3s infinite ease-in-out; /* تطبيق أنيميشن النبض الهادئ */
-}
-
-#about .about-avatar img:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px var(--neon-color); /* (تعديل) عند التمرير يزداد التوهج */
-    animation: none; /* إيقاف النبض عند التمرير للتركيز على التوهج القوي */
-}
-
-#about .about-text {
-  flex: 1;
-}
-
-#about .about-text p {
-  text-align: right; 
-  margin-bottom: 20px;
-}
-
-.contact-btn {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 12px 25px;
-  background-image: linear-gradient(45deg, var(--accent) 0%, #ff8ab7 100%);
-  background-size: 200% auto;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 25px;
-  font-weight: 600;
-  transition: all 0.4s ease;
-}
-
-.contact-btn:hover {
-  transform: translateY(-3px);
-  filter: brightness(1.1);
-  background-position: right center;
-  box-shadow: var(--accent-shadow);
-}
-
-.skills-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end; 
-  margin: 25px 0;
-}
-
-.skill-tag {
-  background-color: var(--card);
-  color: var(--muted);
-  padding: 6px 15px;
-  border-radius: 15px;
-  font-size: 14px;
-  font-weight: 500;
-  border: 1px solid var(--card-border);
-  transition: all 0.3s ease;
-  cursor: default;
-}
-
-.skill-tag:hover {
-  color: #fff;
-  background-color: var(--accent);
-  transform: translateY(-2px);
-  border-color: var(--accent);
-  box-shadow: var(--accent-shadow);
-}
-
-@media (max-width: 768px) {
-  #about .about-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 25px;
-  }
-  
-  #about .about-text p {
-    text-align: center;
-  }
-
-  #about .about-avatar img {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .skills-container {
-    justify-content: center; 
-  }
-}
-
-section h2,
-.about-content {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-section h2.is-visible,
-.about-content.is-visible,
-.card.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+  animation: glitch-cursor 0.7s steps(1) infinite;
+}
+
+.card .title-container { padding: 15px 15px 10px 15px; text-align: right; }
+.card .title-container h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.card-actions { display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding: 0 15px 15px; }
+.action-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; display: flex; align-items: center; gap: 6px; transition: color 0.3s ease, transform 0.3s ease; }
+.action-btn:hover { color: var(--text); transform: scale(1.1); }
+.like-btn.liked { color: var(--accent); }
+.card .like-count { color: var(--muted); font-size: 14px; }
+.card .download-btn { color: var(--muted); font-size: 20px; text-decoration: none; transition: color 0.3s ease; }
+.card .download-btn:hover { color: var(--text); }
+.comments-section { padding: 10px 15px; border-top: 1px solid var(--card-border); background: var(--comment-bg); transition: background 0.5s ease; }
+.comments-list { margin-bottom: 10px; max-height: 120px; overflow-y: auto; padding-right: 5px; }
+.comments-list::-webkit-scrollbar { width: 6px; }
+.comments-list::-webkit-scrollbar-track { background: transparent; }
+.comments-list::-webkit-scrollbar-thumb { background-color: var(--card); border-radius: 10px; }
+.comments-list::-webkit-scrollbar-thumb:hover { background-color: var(--muted); }
+.comment { padding: 8px 0; font-size: 13px; word-break: break-word; }
+.comment-form { display: flex; gap: 8px; align-items: center; }
+.comment-input { flex: 1; padding: 9px 12px; border: 1px solid transparent; border-radius: 20px; background: var(--bg); color: var(--text); font-size: 14px; transition: border-color 0.3s ease, background 0.5s ease, box-shadow 0.3s ease; }
+.comment-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.comment-btn { padding: 9px; width: 36px; height: 36px; background: var(--accent); color: #fff; border: none; border-radius: 50%; cursor: pointer; font-size: 14px; flex-shrink: 0; transition: transform 0.3s ease, background-color 0.5s ease, box-shadow 0.3s ease; }
+.comment-btn:hover { transform: scale(1.1); box-shadow: var(--accent-shadow); }
+#uploadBtn { background-image: linear-gradient(45deg, var(--accent) 0%, #ff8ab7 100%); background-size: 200% auto; color: #fff; border: none; padding: 12px 25px; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; margin: -10px auto 25px; display: none; transition: all 0.4s ease; }
+#uploadBtn:hover { transform: translateY(-3px); filter: brightness(1.1); background-position: right center; box-shadow: var(--accent-shadow); }
+.filter-btn { padding: 8px 16px; margin: 0 5px; background: var(--card-bg); color: var(--text); border: 1px solid var(--card-border); border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
+.filter-btn:hover { background: var(--card); color: #fff; }
+.filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: var(--accent-shadow); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (max-width: 768px) { nav { display: none; } .menu-toggle { display: block; } .nav-arrow { display: none; } .gallery { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; } section { padding: 30px 15px; } section h2 { font-size: 1.8rem; } }
+.lightbox-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 5vh 5vw; box-sizing: border-box; position: relative; }
+#lbImage, #lbImageNext { position: absolute; transition: transform 0.3s ease-out, opacity 0.3s ease-out; transform-origin: center center; max-width: 100%; max-height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+.lightbox.zoomed .lightbox-content { cursor: grab; }
+.lightbox.zoomed .lightbox-content:active { cursor: grabbing; }
+body.lightbox-is-open .header-avatar-icon { display: none; }
+
+/* New Lightbulb Styles */
+@keyframes flicker-bulb { 0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; } 20%, 24%, 55% { opacity: 0.8; } 22% { opacity: 0.5; } }
+.lightbulb-scene { position: fixed; top: 90px; right: 14px; width: 80px; height: 100px; z-index: 11; overflow: visible !important; }
+#lightbulbSvg { width: 100%; height: 100%; }
+#cord { stroke: var(--muted); stroke-width: 3; stroke-linecap: round; transition: stroke 0.5s ease; }
+#bulbGroup { transition: transform 0.1s ease; }
+#light-circle { display: none; r: 15px; opacity: 0; transition: opacity 0.4s ease; }
+#glow-circle { opacity: 0; transition: opacity 0.4s ease; pointer-events: none; r: 75px; }
+body.light-mode #lightbulbSvg.on #glow-circle { opacity: 0; }
+#lightbulbSvg.on #glow-circle { opacity: 1; animation: flicker-bulb 5s infinite alternate; }
+#lightbulbSvg.on #light-circle { display: block; opacity: 1; animation: flicker-bulb 5s infinite alternate; }
+#glowGradient .glow-stop-1 { stop-color: var(--light-color-on); stop-opacity: 1; }
+#glowGradient .glow-stop-2 { stop-color: var(--light-color-glow-end); stop-opacity: 0; }
+#bulb-glass { fill: var(--light-color-off); stroke: var(--muted); stroke-width: 3; transition: fill 0.4s ease, stroke 0.4s ease; }
+#filament { fill: none; stroke: var(--filament-off); stroke-width: 12; transition: stroke 0.4s ease; }
+#lightbulbSvg path[style*="fill"] { fill: var(--base-color) !important; transition: fill 0.4s ease; }
+#lightbulbSvg.on #bulb-glass { fill: rgba(16, 42, 67, 0.3); stroke: var(--muted); }
+#lightbulbSvg.on #filament { display: block; stroke: var(--filament-on); }
+body.light-mode #lightbulbSvg.on #bulb-glass, body.light-mode #lightbulbSvg #bulb-glass { fill: rgba(255, 255, 255, 0.4); stroke: var(--muted); }
+body.light-mode #lightbulbSvg.on #light-circle, body.light-mode #lightbulbSvg #light-circle { display: none; }
+body.light-mode #lightbulbSvg #filament { display: block; }
+@keyframes sway { 0%, 100% { transform: translateX(-50%) rotate(-8deg); } 50% { transform: translateX(-50%) rotate(8deg); } }
+#scrollToTopBtn { position: fixed; bottom: 20px; right: 20px; width: 45px; height: 45px; background-color: var(--accent); color: #fff; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 998; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); opacity: 0; visibility: hidden; transform: translateY(20px); transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; }
+#scrollToTopBtn.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+#scrollToTopBtn:hover { transform: scale(1.1); filter: brightness(1.1); box-shadow: var(--accent-shadow); }
+@keyframes neon-pulse-subtle { 0% { box-shadow: 0 0 5px var(--neon-color), 0 0 10px rgba(72, 209, 204, 0.4); } 50% { box-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(72, 209, 204, 0.6); } 100% { box-shadow: 0 0 5px var(--neon-color), 0 0 10px rgba(72, 209, 204, 0.4); } }
+#about .about-content { display: flex; align-items: center; justify-content: center; gap: 40px; max-width: 800px; margin: 20px auto 0; }
+#about .about-avatar img { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid var(--neon-color); box-shadow: none; transition: transform 0.3s ease; animation: neon-pulse-subtle 3s infinite ease-in-out; }
+#about .about-avatar img:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--neon-color); animation: none; }
+#about .about-text { flex: 1; }
+#about .about-text p { text-align: right; margin-bottom: 20px; }
+.contact-btn { display: inline-block; margin-top: 10px; padding: 12px 25px; background-image: linear-gradient(45deg, var(--accent) 0%, #ff8ab7 100%); background-size: 200% auto; color: #fff; text-decoration: none; border-radius: 25px; font-weight: 600; transition: all 0.4s ease; }
+.contact-btn:hover { transform: translateY(-3px); filter: brightness(1.1); background-position: right center; box-shadow: var(--accent-shadow); }
+.skills-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; margin: 25px 0; }
+.skill-tag { background-color: var(--card); color: var(--muted); padding: 6px 15px; border-radius: 15px; font-size: 14px; font-weight: 500; border: 1px solid var(--card-border); transition: all 0.3s ease; cursor: default; }
+.skill-tag:hover { color: #fff; background-color: var(--accent); transform: translateY(-2px); border-color: var(--accent); box-shadow: var(--accent-shadow); }
+@media (max-width: 768px) { #about .about-content { flex-direction: column; text-align: center; gap: 25px; } #about .about-text p { text-align: center; } #about .about-avatar img { width: 120px; height: 120px; } .skills-container { justify-content: center; } }
+section h2, .about-content { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+section h2.is-visible, .about-content.is-visible, .card.is-visible { opacity: 1; transform: translateY(0); }
