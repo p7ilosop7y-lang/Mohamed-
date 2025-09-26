@@ -154,9 +154,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  // (تعديل) تم تحديث منطق التحقق ليتجاهل حالة الأحرف والمسافات
   auth.onAuthStateChanged(user => {
-    if (user && user.email === ADMIN_EMAIL) {
-      isAdmin = true;
+    if (user) {
+      // نقوم بتنظيف كلا الإيميلين قبل المقارنة
+      const userEmail = user.email.toLowerCase().trim();
+      const adminEmail = ADMIN_EMAIL.toLowerCase().trim();
+
+      if (userEmail === adminEmail) {
+        isAdmin = true;
+      } else {
+        isAdmin = false;
+        // طباعة معلومات للمساعدة في اكتشاف الخطأ إذا استمر
+        console.log("Login attempt by non-admin:", user.email);
+        console.log("Expected admin email:", ADMIN_EMAIL);
+      }
     } else {
       isAdmin = false;
     }
