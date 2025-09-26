@@ -85,10 +85,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Admin Functions ---
 
-  // (تعديل) تم تحديث البيانات بناءً على الصور التي أرسلتها
+  // (تعديل) تم وضع مفتاح API الخاص بك
   const myWidget = cloudinary.createUploadWidget({
-    cloudName: 'dswtpqdsh', // القيمة الصحيحة من حسابك
-    uploadPreset: 'Mohamed', // القيمة الصحيحة من حسابك
+    cloudName: 'dswtpqdsh',
+    uploadPreset: 'Mohamed',
+    apiKey: '835478547497821', 
     folder: 'portfolio',
     cropping: true,
     sources: ['local', 'url', 'camera'],
