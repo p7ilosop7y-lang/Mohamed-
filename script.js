@@ -1,11 +1,13 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyB5WZP74RfeYoPv_kHXRhNtDYzRp2dOPeU",
-  // (تصحيح) تم حذف حرف 't' الخاطئ من هنا
-  authDomain: "mo777-2b57e.firebaseapp.com", 
-  projectId: "mo777-2b57e",
-  storageBucket: "mo777-2b57e.firebasestorage.app",
-  messagingSenderId: "318111712614",
-  appId: "1:318111712614:web:460e225f4f429c7f13f4a7"
+  // ▼▼▼ انسخ هاتين القيمتين من شاشة إعدادات مشروعك الجديد ▼▼▼
+  apiKey: "YOUR_NEW_API_KEY", 
+  messagingSenderId: "YOUR_NEW_SENDER_ID",
+  // ▲▲▲ انسخ هاتين القيمتين من شاشة إعدادات مشروعك الجديد ▲▲▲
+
+  projectId: "mo666-a7694",
+  authDomain: "mo666-a7694.firebaseapp.com",
+  storageBucket: "mo666-a7694.appspot.com",
+  appId: "1:698308460915:web:cd78096121966102f60506"
 };
 
 const app = firebase.initializeApp(firebaseConfig);
