@@ -468,7 +468,9 @@ section p {
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.9);
+  /* (تعديل أمني) استخدام متغير CSS للتحكم في الشفافية من JS بشكل آمن */
+  --bg-opacity: 0.9;
+  background: rgba(0, 0, 0, var(--bg-opacity));
   display: none;
   align-items: center;
   justify-content: center;
@@ -775,6 +777,11 @@ footer {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
+  /* (تعديل أمني) استخدام متغيرات CSS للتحكم في التحويل من JS بشكل آمن */
+  --tx: 0;
+  --ty: 0;
+  --scale: 1;
+  transform: translate(calc(var(--tx) * 1px), calc(var(--ty) * 1px)) scale(var(--scale));
 }
 
 .lightbox.zoomed .lightbox-content {
@@ -1164,33 +1171,4 @@ section h2.is-visible,
   max-height: 200px;
   border-radius: 8px;
   border: 1px solid var(--card-border);
-}
-
-/* Delete Button Style */
-.delete-btn {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: rgba(220, 53, 69, 0.8);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 14px;
-  cursor: pointer;
-  display: none; /* Hidden by default */
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-  transition: background-color 0.3s, transform 0.3s;
-}
-
-.delete-btn:hover {
-  background-color: #dc3545;
-  transform: scale(1.1);
-}
-
-body.admin-logged-in .delete-btn {
-  display: flex; /* Shown when admin is logged in */
 }
