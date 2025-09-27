@@ -435,30 +435,29 @@ document.addEventListener('DOMContentLoaded', () => {
     observeSections();
   }
   
-  async function downloadImage(src, title, buttonEl) {
-    const originalIcon = buttonEl.innerHTML;
-    buttonEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    buttonEl.disabled = true;
-    try {
-        const response = await fetch(src);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        const extension = src.split('.').pop().split('?')[0] || 'jpg';
-        a.download = `${title.replace(/ /g, '_')}.${extension}`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
-    } catch (e) {
-        console.error('Download failed:', e);
-        alert('فشل تحميل الصورة.');
-    } finally {
-        buttonEl.innerHTML = originalIcon;
-        buttonEl.disabled = false;
+  // (تعديل كلي) تغيير طريقة التحميل بالكامل لتكون أكثر توافقية
+  function downloadImage(src, title) {
+    // نقوم بإضافة معامل 'fl_attachment' إلى رابط الصورة
+    // هذا المعامل يخبر Cloudinary أن يجبر المتصفح على تحميل الصورة
+    const urlParts = src.split('/upload/');
+    if (urlParts.length !== 2) {
+      // إذا كان الرابط غير متوقع، افتحه في نافذة جديدة كحل بديل
+      window.open(src, '_blank');
+      return;
     }
+    const downloadUrl = `${urlParts[0]}/upload/fl_attachment/${urlParts[1]}`;
+
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = downloadUrl;
+
+    // مع أن Cloudinary ستجبر التحميل، من الجيد اقتراح اسم للملف
+    const extension = src.split('.').pop().split('?')[0] || 'jpg';
+    a.download = `${title.replace(/ /g, '_')}.${extension}`;
+    
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   function createImageCard(imgObj, index) {
@@ -500,10 +499,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const downloadBtn = card.querySelector('.download-btn');
     downloadBtn.addEventListener('click', () => {
-      downloadImage(imgObj.src, imgObj.title || 'Artwork', downloadBtn);
+      downloadImage(imgObj.src, imgObj.title || 'Artwork');
     });
     
-    // (إضافة) ربط زر الحذف بالدالة الخاصة به
     const deleteBtn = card.querySelector('.delete-btn');
     deleteBtn.addEventListener('click', () => {
         deleteImage(imgObj.id, card);
@@ -520,7 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return card;
   }
 
-  // (إضافة) دالة جديدة لحذف الصور
   async function deleteImage(imageId, cardElement) {
     if (!confirm('هل أنت متأكد من رغبتك في حذف هذه الصورة نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.')) {
         return;
@@ -727,12 +724,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupAdmin() {
     auth.onAuthStateChanged(user => {
       if (user) {
-        // (إضافة) إضافة class للجسم عند تسجيل دخول المدير
         document.body.classList.add('admin-logged-in');
         adminPanel.style.display = 'block';
         loginContainer.style.display = 'none';
       } else {
-        // (إضافة) إزالة class الجسم عند تسجيل الخروج
         document.body.classList.remove('admin-logged-in');
         adminPanel.style.display = 'none';
         loginContainer.style.display = 'block';
