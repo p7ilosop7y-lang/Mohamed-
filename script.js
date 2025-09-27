@@ -452,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.transitionDelay = `${index * 0.05}s`; 
     const isLiked = imgObj.likedBy && imgObj.likedBy.includes(visitorId);
     card.innerHTML = `
+      <button class="delete-btn" aria-label="Delete image"><i class="fas fa-trash-alt"></i></button>
       <div class="thumb"><img src="${imgObj.src}" alt="${escapeHtml(imgObj.title || 'Artwork')}" loading="lazy"></div>
       <div class="title-container"><h3>${escapeHtml(imgObj.title || 'Untitled')}</h3></div>
       <div class="card-actions">
@@ -471,16 +472,16 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="comment-btn" type="submit" aria-label="Submit comment"><i class="fas fa-paper-plane"></i></button>
         </form>
       </div>`;
+      
     card.querySelector('.thumb img').addEventListener('click', () => openLightbox(index));
+    
     const likeBtn = card.querySelector('.like-btn');
     const likeCountEl = card.querySelector('.like-count');
-    likeBtn.addEventListener('click', () => {
-      toggleLike(imgObj.id, likeBtn, likeCountEl);
-    });
+    likeBtn.addEventListener('click', () => toggleLike(imgObj.id, likeBtn, likeCountEl));
+    
     const downloadBtn = card.querySelector('.download-btn');
-    downloadBtn.addEventListener('click', () => {
-      downloadImage(imgObj.src, imgObj.title || 'Artwork', downloadBtn);
-    });
+    downloadBtn.addEventListener('click', () => downloadImage(imgObj.src, imgObj.title || 'Artwork', downloadBtn));
+    
     const commentForm = card.querySelector('.comment-form');
     commentForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -488,7 +489,33 @@ document.addEventListener('DOMContentLoaded', () => {
       const commentsList = card.querySelector('.comments-list');
       addComment(imgObj.id, commentInput, commentsList);
     });
+
+    const deleteBtn = card.querySelector('.delete-btn');
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent opening lightbox
+        deleteImage(imgObj.id, card);
+    });
+
     return card;
+  }
+
+  async function deleteImage(imageId, cardElement) {
+    if (!confirm('Are you sure you want to delete this image? This action cannot be undone.')) {
+        return;
+    }
+    try {
+        await db.collection('portfolioimages').doc(imageId).delete();
+        cardElement.style.transition = 'opacity 0.5s, transform 0.5s';
+        cardElement.style.opacity = '0';
+        cardElement.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+            cardElement.remove();
+        }, 500);
+        alert('Image deleted successfully from the portfolio.');
+    } catch (error) {
+        console.error("Error deleting image:", error);
+        alert('Failed to delete image. Please try again.');
+    }
   }
 
   async function toggleLike(imageId, likeBtn, likeCountEl) {
@@ -675,11 +702,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupAdmin() {
     auth.onAuthStateChanged(user => {
       if (user) {
-        // User is logged in
+        document.body.classList.add('admin-logged-in');
         adminPanel.style.display = 'block';
         loginContainer.style.display = 'none';
       } else {
-        // User is logged out
+        document.body.classList.remove('admin-logged-in');
         adminPanel.style.display = 'none';
         loginContainer.style.display = 'block';
       }
@@ -725,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', 'Mohamed'); // Your unsigned preset name
+      formData.append('upload_preset', 'Mohamed');
 
       try {
         const response = await fetch('https://api.cloudinary.com/v1_1/dswtpqdsh/image/upload', {
@@ -734,13 +761,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!response.ok) {
-          throw new Error('Cloudinary upload failed');
+          let errorText = `Upload failed with status: ${response.status} (${response.statusText}).`;
+          try {
+            const errorData = await response.json();
+            errorText += `\nCloudinary error: ${errorData.error.message}`;
+          } catch (jsonError) {
+             errorText += "\nCould not get error details from Cloudinary.";
+          }
+          throw new Error(errorText);
         }
 
         const data = await response.json();
         const imageUrl = data.secure_url;
 
-        // Save to Firestore
         await db.collection('portfolioimages').add({
           title: title,
           category: category,
@@ -754,11 +787,11 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Image uploaded successfully!');
         uploadForm.reset();
         imagePreview.style.display = 'none';
-        loadImages(); // Refresh the gallery
+        loadImages();
 
       } catch (error) {
         console.error('Upload Error:', error);
-        alert('An error occurred during upload. Please check console for details.');
+        alert('An error occurred during upload.\n\nDetails:\n' + error.message);
       } finally {
         uploadButton.textContent = 'Upload Image';
         uploadButton.disabled = false;
