@@ -3,25 +3,22 @@
   --card: #131c2b;
   --muted: #b0bac8;
   --accent: #ff6b9d;
-  --neon-color: #48D1CC; /* لون النيون السماوي الجديد */
+  --neon-color: #48D1CC;
   --text: #f3f5f7;
-  /* (إضافة) لون النيون وهو مطفأ */
-  --neon-off-color: #37474F; /* درجة أغمق من الأزرق/السماوي */
-
-  --header-bg: #111c2da0; /* (تعديل) زيادة شفافية الهيدر قليلاً لتعزيز تأثير الزجاج */
-  --card-bg: rgba(19, 28, 43, 0.75); /* (تعديل) زيادة شفافية البطاقات قليلاً */
+  --neon-off-color: #37474F;
+  --header-bg: #111c2da0;
+  --card-bg: rgba(19, 28, 43, 0.75);
   --body-gradient: linear-gradient(180deg, #102a43, #0a0f1a);
   --footer-bg: #0f1828;
   --comment-bg: #0a0f1a;
   --accent-glow: rgba(255, 107, 157, 0.5);
   --accent-shadow: 0 0 15px var(--accent-glow);
   --card-border: rgba(255, 255, 255, 0.1);
-  /* (تعديل) تعريف ألوان الإضاءة الدافئة */
   --light-color-off: rgba(224, 228, 233, 0.1);
-  --light-color-on: #FFBB00; /* (تعديل) اللون الأصفر للإضاءة الساطعة */
-  --light-color-glow-end: #FF5000; /* (إضافة) اللون البرتقالي للتدرج الخارجي */
+  --light-color-on: #FFBB00;
+  --light-color-glow-end: #FF5000;
   --filament-off: #5f6c7a;
-  --filament-on: #FFE2D3; /* (تعديل) لون الفتيل الأصفر الذهبي */
+  --filament-on: #FFE2D3;
   --base-color: #736056;
 }
 
@@ -30,12 +27,11 @@ body.light-mode {
   --card: #ffffff;
   --muted: #5a6e87;
   --accent: #007bff;
-  --neon-color: #1976D2; /* لون أزرق مناسب للوضع الفاتح */
+  --neon-color: #1976D2;
   --text: #313A6A;
-  --neon-off-color: #a0aec0; /* لون أفتح قليلاً للوضع الفاتح */
-
-  --header-bg: #ffffffc0; /* (تعديل) خلفية بيضاء شبه شفافة في الوضع الفاتح */
-  --card-bg: rgba(255, 255, 255, 0.9); /* (تعديل) خلفية بطاقة شبه شفافة في الوضع الفاتح */
+  --neon-off-color: #a0aec0;
+  --header-bg: #ffffffc0;
+  --card-bg: rgba(255, 255, 255, 0.9);
   --body-gradient: linear-gradient(180deg, #d3e0ea, #f0f4f8);
   --footer-bg: #e1e8f0;
   --comment-bg: #e9eef3;
@@ -44,7 +40,7 @@ body.light-mode {
   --card-border: rgba(0, 0, 0, 0.1);
   --light-color-off: rgba(69, 90, 100, 0.1); 
   --light-color-on: rgba(69, 90, 100, 0.1);
-  --light-color-glow-end: rgba(69, 90, 100, 0.0); /* (إضافة) إزالة التوهج في الوضع الفاتح */
+  --light-color-glow-end: rgba(69, 90, 100, 0.0);
   --filament-off: #90a4ae;
   --filament-on: #90a4ae;
   --base-color: #b0bec5;
@@ -77,7 +73,6 @@ body {
   transition: background 0.5s ease, color 0.5s ease;
 }
 
-/* (إضافة) أنيميشن هزّ الشاشة الخفيف */
 @keyframes screen-shake {
   0%, 100% { transform: translate(0, 0); }
   20%, 60% { transform: translate(-1px, 1px); }
@@ -85,9 +80,8 @@ body {
 }
 
 body.screen-shake-active main {
-  animation: screen-shake 0.2s ease-out 2; /* يعمل مرتين ثم يتوقف */
+  animation: screen-shake 0.2s ease-out 2;
 }
-
 
 header {
   padding: 16px 24px;
@@ -101,6 +95,31 @@ header {
   z-index: 10;
   border-bottom: 1px solid var(--card-border);
   transition: background 0.5s ease;
+}
+
+/* (إضافة) تصميم زر التحكم في الصوت */
+.mute-btn {
+  position: fixed;
+  top: 100px; /* أسفل الهيدر */
+  left: 24px;
+  z-index: 999;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+.mute-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.1);
 }
 
 .brand {
@@ -191,10 +210,9 @@ nav a {
   border-radius: 6px;
   position: relative;
   overflow: hidden;
-  transition: color 0.3s ease, text-shadow 0.3s ease, filter 0.3s ease; /* (تعديل) إضافة filter للانتقال */
+  transition: color 0.3s ease, text-shadow 0.3s ease, filter 0.3s ease;
 }
 
-/* (إزالة) كود الخط السفلي بالكامل */
 nav a::before {
   content: '';
   position: absolute;
@@ -205,16 +223,15 @@ nav a::before {
   background-color: var(--accent);
   transition: all 0.3s ease;
   transform: translateX(-50%);
-  display: none; /* تعطيل الخط السفلي */
+  display: none;
 }
 
 nav a:hover {
-  color: var(--neon-color); /* (تعديل) تغيير اللون إلى لون النيون السماوي */
+  color: var(--neon-color);
   text-shadow: 0 0 8px rgba(72, 209, 204, 0.5);
-  filter: drop-shadow(0 0 5px var(--neon-color)); /* (إضافة) تأثير النيون drop-shadow */
+  filter: drop-shadow(0 0 5px var(--neon-color));
 }
 
-/* (إزالة) كود الخط السفلي عند التمرير */
 nav a:hover::before {
   width: 100%;
 }
@@ -235,7 +252,7 @@ nav a:hover::before {
   left: 0;
   width: 280px;
   height: 100%;
-  background: var(--header-bg); /* (تعديل) استخدام نفس خلفية الهيدر للشفافية */
+  background: var(--header-bg);
   backdrop-filter: blur(10px);
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
   z-index: 1000;
@@ -259,7 +276,7 @@ nav a:hover::before {
   padding: 12px 15px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  background: var(--card-bg); /* (تعديل) استخدام خلفية البطاقة */
+  background: var(--card-bg);
   text-align: center;
   border: none;
   cursor: pointer;
@@ -318,7 +335,7 @@ section.active {
 
 section h2 {
   margin-bottom: 25px;
-  color: var(--neon-off-color); /* (تعديل) اللون الافتراضي الآن هو اللون المطفأ */
+  color: var(--neon-off-color);
   font-size: 2.2rem;
   font-weight: 600;
   letter-spacing: 1px;
@@ -331,7 +348,6 @@ section p {
   transition: color 0.5s ease;
 }
 
-/* (إعادة إضافة) أنيميشن الوميض المعطوب لمدة ثانيتين - تم تحسين المراحل الزمنية */
 @keyframes faulty-flicker {
   0% {
     text-shadow: none;
@@ -370,10 +386,9 @@ section p {
 #portfolioTitle {
     font-size: 2rem; 
     direction: ltr;
-    cursor: pointer; /* (إضافة) تغيير شكل المؤشر للإشارة إلى أنه قابل للضغط */
+    cursor: pointer;
 }
 
-/* (تعديل) الحالة الافتراضية للحروف (مطفأة) */
 #portfolioTitle span {
   display: inline-block;
   color: var(--neon-off-color);
@@ -381,13 +396,11 @@ section p {
   transition: color 0.3s ease;
 }
 
-/* (إضافة) الحالة عند تشغيل الأنيميشن بالضغط */
 #portfolioTitle.glitching span {
   color: #fff;
-  animation: faulty-flicker 2.5s infinite; /* تطبيق الوميض المعطوب وتكراره */
+  animation: faulty-flicker 2.5s infinite;
 }
 
-/* (إعادة إضافة) تأثيرات التأخير لكل حرف عند التشغيل لزيادة العشوائية */
 #portfolioTitle.glitching span:nth-child(1) { animation-delay: 0.0s; animation-duration: 2.7s; }
 #portfolioTitle.glitching span:nth-child(2) { animation-delay: 0.1s; animation-duration: 2.5s; }
 #portfolioTitle.glitching span:nth-child(3) { animation-delay: 0.3s; animation-duration: 2.3s; }
@@ -468,7 +481,6 @@ section p {
 .lightbox {
   position: fixed;
   inset: 0;
-  /* (تعديل أمني) استخدام متغير CSS للتحكم في الشفافية من JS بشكل آمن */
   --bg-opacity: 0.9;
   background: rgba(0, 0, 0, var(--bg-opacity));
   display: none;
@@ -536,7 +548,6 @@ footer {
   transition: background 0.5s ease;
 }
 
-/* (إضافة) أنيميشن الـ Glitch/Shift للمؤشر */
 @keyframes glitch-cursor {
   0% { transform: translate(0); opacity: 1; }
   20% { transform: translate(-0.5px, 0.5px); opacity: 0.8; }
@@ -551,10 +562,10 @@ footer {
   margin-left: 2px;
   color: var(--accent);
   font-weight: bold;
-  animation: glitch-cursor 0.7s steps(1) infinite; /* (تعديل) تطبيق أنيميشن الـ Glitch */
+  animation: glitch-cursor 0.7s steps(1) infinite;
 }
 
-@keyframes blink { /* (تم الإبقاء عليه ولكنه لن يُستخدم للمؤشر) */
+@keyframes blink {
   50% { opacity: 0; }
 }
 
@@ -611,17 +622,16 @@ footer {
   color: var(--text);
 }
 
-/* (إضافة) أنماط زر الحذف */
 .delete-btn {
-  display: none; /* إخفاء الزر بشكل افتراضي */
+  display: none;
 }
 
 body.admin-logged-in .delete-btn {
-  display: flex; /* إظهار الزر فقط للمدير */
+  display: flex;
 }
 
 .delete-btn:hover {
-  color: #ff4d4d; /* لون أحمر عند التمرير للتنبيه */
+  color: #ff4d4d;
 }
 
 .comments-section {
@@ -790,7 +800,6 @@ body.admin-logged-in .delete-btn {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-  /* (تعديل أمني) استخدام متغيرات CSS للتحكم في التحويل من JS بشكل آمن */
   --tx: 0;
   --ty: 0;
   --scale: 1;
@@ -809,7 +818,6 @@ body.lightbox-is-open .header-avatar-icon {
   display: none;
 }
 
-/* (إضافة) أنيميشن وميض المصباح المعطوب */
 @keyframes flicker-bulb {
   0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
   20%, 24%, 55% { opacity: 0.8; }
@@ -842,10 +850,9 @@ body.lightbox-is-open .header-avatar-icon {
     transition: transform 0.1s ease;
 }
 
-/* (تعديل) إظهار الدائرة الداخلية Light Circle في الوضع الداكن */
 #light-circle {
     display: none;
-    r: 15px; /* (تعديل) نصف قطر صغير لقلب التوهج */
+    r: 15px;
     opacity: 0;
     transition: opacity 0.4s ease;
 }
@@ -854,7 +861,7 @@ body.lightbox-is-open .header-avatar-icon {
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
-  r: 75px; /* (تعديل) تقليل نصف القطر إلى 90px */
+  r: 75px;
 }
 
 body.light-mode #lightbulbSvg.on #glow-circle {
@@ -863,26 +870,24 @@ body.light-mode #lightbulbSvg.on #glow-circle {
 
 #lightbulbSvg.on #glow-circle {
   opacity: 1;
-  animation: flicker-bulb 5s infinite alternate; /* (إضافة) تطبيق أنيميشن الوميض المعطوب */
+  animation: flicker-bulb 5s infinite alternate;
 }
 
 #lightbulbSvg.on #light-circle {
-    display: block; /* (إضافة) إظهار الدائرة الداخلية عند التشغيل */
+    display: block;
     opacity: 1;
-    animation: flicker-bulb 5s infinite alternate; /* تطبيق نفس أنيميشن الوميض */
+    animation: flicker-bulb 5s infinite alternate;
 }
 
-/* (تعديل) تطبيق التدرج من الأصفر الساطع إلى البرتقالي الشفاف */
 #glowGradient .glow-stop-1 {
-  stop-color: var(--light-color-on); /* الأصفر الساطع */
+  stop-color: var(--light-color-on);
   stop-opacity: 1; 
 }
 #glowGradient .glow-stop-2 {
-  stop-color: var(--light-color-glow-end); /* البرتقالي */
+  stop-color: var(--light-color-glow-end);
   stop-opacity: 0;
 }
 
-/* (إزالة) أنماط الحشرة */
 #firefly { 
     display: none; 
 }
@@ -906,9 +911,8 @@ body.light-mode #lightbulbSvg.on #glow-circle {
     transition: fill 0.4s ease;
 }
 
-/* حالة الوضع الداكن (ON) */
 #lightbulbSvg.on #bulb-glass {
-    fill: rgba(16, 42, 67, 0.3); /* لجعله زجاجي شبه شفاف وأغمق */
+    fill: rgba(16, 42, 67, 0.3);
     stroke: var(--muted); 
 }
 
@@ -921,7 +925,6 @@ body.light-mode #lightbulbSvg.on #glow-circle {
     display: none; 
 }
 
-/* حالة الوضع الفاتح (OFF) */
 body.light-mode #lightbulbSvg.on #bulb-glass, 
 body.light-mode #lightbulbSvg #bulb-glass {
     fill: rgba(255, 255, 255, 0.4); 
@@ -930,7 +933,7 @@ body.light-mode #lightbulbSvg #bulb-glass {
 
 body.light-mode #lightbulbSvg.on #light-circle,
 body.light-mode #lightbulbSvg #light-circle {
-    display: none; /* (تعديل) إخفاء الدائرة الداخلية في الوضع الفاتح */
+    display: none;
 }
 
 body.light-mode #lightbulbSvg.on #firefly,
@@ -987,7 +990,6 @@ body.light-mode #lightbulbSvg #filament {
   box-shadow: var(--accent-shadow);
 }
 
-/* (إضافة) أنيميشن التوهج الهادئ لصورة الأفاتار */
 @keyframes neon-pulse-subtle {
     0% { box-shadow: 0 0 5px var(--neon-color), 0 0 10px rgba(72, 209, 204, 0.4); }
     50% { box-shadow: 0 0 8px var(--neon-color), 0 0 15px rgba(72, 209, 204, 0.6); }
@@ -1008,16 +1010,16 @@ body.light-mode #lightbulbSvg #filament {
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--neon-color); /* (تعديل) استخدام لون النيون بدلاً من Accent */
-  box-shadow: none; /* (تعديل) إزالة الـ Box Shadow الثابت */
-  transition: transform 0.3s ease; /* (تعديل) إزالة box-shadow من الانتقالات */
-  animation: neon-pulse-subtle 3s infinite ease-in-out; /* تطبيق أنيميشن النبض الهادئ */
+  border: 3px solid var(--neon-color);
+  box-shadow: none;
+  transition: transform 0.3s ease;
+  animation: neon-pulse-subtle 3s infinite ease-in-out;
 }
 
 #about .about-avatar img:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 25px var(--neon-color); /* (تعديل) عند التمرير يزداد التوهج */
-    animation: none; /* إيقاف النبض عند التمرير للتركيز على التوهج القوي */
+    box-shadow: 0 0 25px var(--neon-color);
+    animation: none;
 }
 
 #about .about-text {
@@ -1112,8 +1114,6 @@ section h2.is-visible,
   transform: translateY(0);
 }
 
-
-/* Admin Panel Styles */
 #admin .login-container,
 #admin .admin-panel {
   max-width: 500px;
@@ -1184,3 +1184,4 @@ section h2.is-visible,
   max-height: 200px;
   border-radius: 8px;
   border: 1px solid var(--card-border);
+}

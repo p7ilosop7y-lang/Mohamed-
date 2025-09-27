@@ -9,13 +9,6 @@ const firebaseConfig = {
   measurementId: "G-MRP3390FKD"
 };
 
-/******************************************************************************
- * ملاحظة أمنية:
- * إن وجود مفاتيح الإعداد الخاصة بـ Firebase هنا أمر طبيعي، 
- * ولكن الحماية الحقيقية تأتي من "قواعد الأمان" الصارمة 
- * التي قمت بضبطها في لوحة تحكم Firestore.
- ******************************************************************************/
-
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
@@ -27,7 +20,44 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('visitorId', visitorId);
   }
 
+  // (تعديل) تحديث مسار ملفات الأصوات
+  const sounds = {
+    click: new Audio('sounds/click.mp3'),
+    lightOn: new Audio('sounds/light-on.mp3'),
+    lightOff: new Audio('sounds/light-off.mp3'),
+    glitch: new Audio('sounds/glitch.mp3'),
+    swoosh: new Audio('sounds/menu-swoosh.mp3'),
+    like: new Audio('sounds/like-pop.mp3'),
+    background: new Audio('sounds/background-music.mp3')
+  };
+  
+  sounds.glitch.loop = true;
+  sounds.background.loop = true;
+
+  sounds.click.volume = 0.5;
+  sounds.glitch.volume = 0.4;
+  sounds.lightOn.volume = 0.6;
+  sounds.lightOff.volume = 0.6;
+  sounds.swoosh.volume = 0.5;
+  sounds.like.volume = 0.7;
+  sounds.background.volume = 0.3;
+
+  function playSound(sound) {
+    if (sound) {
+      sound.currentTime = 0;
+      sound.play().catch(error => console.error(`خطأ في تشغيل الصوت: ${error}`));
+    }
+  }
+
+  function stopSound(sound) {
+    if (sound) {
+      sound.pause();
+      sound.currentTime = 0;
+    }
+  }
+
   // --- DOM Elements ---
+  const muteBtn = document.getElementById('mute-btn');
   const menuToggle = document.getElementById('menuToggle');
   const sideMenu = document.getElementById('sideMenu');
   const menuOverlay = document.getElementById('menuOverlay');
@@ -56,6 +86,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const imageFileInput = document.getElementById('imageFile');
   const imagePreview = document.getElementById('imagePreview');
   
+  function startBackgroundMusic() {
+    const playPromise = sounds.background.play();
+    if (playPromise !== undefined) {
+      playPromise.then(_ => {
+        document.body.removeEventListener('click', startBackgroundMusic);
+        document.body.removeEventListener('touchstart', startBackgroundMusic);
+        console.log("تم تشغيل موسيقى الخلفية بنجاح.");
+      }).catch(error => {
+        console.log("المتصفح منع التشغيل التلقائي، في انتظار تفاعل المستخدم.");
+      });
+    }
+  }
+  document.body.addEventListener('click', startBackgroundMusic);
+  document.body.addEventListener('touchstart', startBackgroundMusic);
+
+
+  muteBtn.addEventListener('click', () => {
+    sounds.background.muted = !sounds.background.muted;
+    const icon = muteBtn.querySelector('i');
+    if (sounds.background.muted) {
+      icon.classList.remove('fa-volume-high');
+      icon.classList.add('fa-volume-xmark');
+    } else {
+      icon.classList.remove('fa-volume-xmark');
+      icon.classList.add('fa-volume-high');
+    }
+  });
+
+
   // --- State ---
   let currentImageIndex = -1;
   let allImages = [];
@@ -64,11 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let isTransitioning = false;
   
   function openMenu() {
+    playSound(sounds.swoosh);
     sideMenu.classList.add('open');
     menuOverlay.classList.add('open');
   }
 
   function closeMenu() {
+    playSound(sounds.swoosh);
     sideMenu.classList.remove('open');
     menuOverlay.classList.remove('open');
   }
@@ -111,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
   menuOverlay.onclick = closeMenu;
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
+      playSound(sounds.click);
       closeMenu();
       const href = link.getAttribute('href');
       if (href.startsWith('#')) {
@@ -316,12 +378,14 @@ document.addEventListener('DOMContentLoaded', () => {
   
   prevArrow.addEventListener('click', (e) => { 
     e.stopPropagation(); 
+    playSound(sounds.click);
     if (lightbox.classList.contains('avatar-open')) return;
     const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length; 
     slideTo(newIndex, -1); 
   });
   nextArrow.addEventListener('click', (e) => { 
     e.stopPropagation(); 
+    playSound(sounds.click);
     if (lightbox.classList.contains('avatar-open')) return;
     const newIndex = (currentImageIndex + 1) % allImages.length; 
     slideTo(newIndex, 1); 
@@ -330,6 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target === lightboxContent) closeLightbox(); });
 
   avatarImg.addEventListener('click', function() {
+    playSound(sounds.click);
     lbImage.src = this.src;
     lbImage.alt = "Enlarged view of Mohamed Tammam's avatar";
     lbImageNext.style.display = 'none';
@@ -345,6 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   nameEl.innerHTML = nameEl.textContent.split('').map(ch => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   nameEl.addEventListener('click', () => {
+    playSound(sounds.click);
     nameEl.querySelectorAll('span').forEach((span, i) => {
       setTimeout(() => span.classList.add('bounce'), i * 50);
       setTimeout(() => span.classList.remove('bounce'), 1000 + i * 50);
@@ -435,26 +501,18 @@ document.addEventListener('DOMContentLoaded', () => {
     observeSections();
   }
   
-  // (تعديل كلي) تغيير طريقة التحميل بالكامل لتكون أكثر توافقية
   function downloadImage(src, title) {
-    // نقوم بإضافة معامل 'fl_attachment' إلى رابط الصورة
-    // هذا المعامل يخبر Cloudinary أن يجبر المتصفح على تحميل الصورة
     const urlParts = src.split('/upload/');
     if (urlParts.length !== 2) {
-      // إذا كان الرابط غير متوقع، افتحه في نافذة جديدة كحل بديل
       window.open(src, '_blank');
       return;
     }
     const downloadUrl = `${urlParts[0]}/upload/fl_attachment/${urlParts[1]}`;
-
     const a = document.createElement('a');
     a.style.display = 'none';
     a.href = downloadUrl;
-
-    // مع أن Cloudinary ستجبر التحميل، من الجيد اقتراح اسم للملف
     const extension = src.split('.').pop().split('?')[0] || 'jpg';
     a.download = `${title.replace(/ /g, '_')}.${extension}`;
-    
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -493,23 +551,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const likeBtn = card.querySelector('.like-btn');
     likeBtn.addEventListener('click', () => {
+      playSound(sounds.like);
       const likeCountEl = card.querySelector('.like-count');
       toggleLike(imgObj.id, likeBtn, likeCountEl);
     });
 
     const downloadBtn = card.querySelector('.download-btn');
     downloadBtn.addEventListener('click', () => {
+      playSound(sounds.click);
       downloadImage(imgObj.src, imgObj.title || 'Artwork');
     });
     
     const deleteBtn = card.querySelector('.delete-btn');
     deleteBtn.addEventListener('click', () => {
+        playSound(sounds.click);
         deleteImage(imgObj.id, card);
     });
 
     const commentForm = card.querySelector('.comment-form');
     commentForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      playSound(sounds.click);
       const commentInput = card.querySelector('.comment-input');
       const commentsList = card.querySelector('.comments-list');
       addComment(imgObj.id, commentInput, commentsList);
@@ -584,6 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.filter-btn').forEach(button => {
     button.addEventListener('click', () => {
+      playSound(sounds.click);
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
         btn.setAttribute('aria-pressed', 'false');
@@ -604,6 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     scrollToTopBtn.addEventListener('click', () => {
+      playSound(sounds.click);
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
@@ -640,9 +704,11 @@ document.addEventListener('DOMContentLoaded', () => {
       span.innerHTML = char === ' ' ? '&nbsp;' : char;
       portfolioTitle.appendChild(span);
     });
+
     portfolioTitle.addEventListener('click', () => {
       const isActive = portfolioTitle.classList.toggle('glitching');
       if (isActive) {
+        playSound(sounds.glitch);
         document.body.classList.add('screen-shake-active');
         setTimeout(() => {
           document.body.classList.remove('screen-shake-active');
@@ -651,6 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
             span.style.color = '#fff';
         });
       } else {
+        stopSound(sounds.glitch);
         portfolioTitle.querySelectorAll('span').forEach(span => {
             span.style.color = 'var(--neon-off-color)';
         });
@@ -665,6 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isLightTheme = document.body.classList.toggle('light-mode');
       svg.classList.toggle('on', !isLightTheme);
       localStorage.setItem('theme', isLightTheme ? 'light' : 'dark');
+      playSound(isLightTheme ? sounds.lightOff : sounds.lightOn);
     }
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
@@ -736,6 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      playSound(sounds.click);
       const email = loginForm.email.value;
       const password = loginForm.password.value;
       auth.signInWithEmailAndPassword(email, password)
@@ -746,6 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     logoutBtn.addEventListener('click', () => {
+      playSound(sounds.click);
       auth.signOut();
     });
 
@@ -759,6 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     uploadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      playSound(sounds.click);
       const title = uploadForm.imageTitle.value;
       const category = uploadForm.imageCategory.value;
       const file = uploadForm.imageFile.files[0];
